@@ -1,17 +1,18 @@
 #description-form {
   display: flex;
-  justify-content: center;
+  width: auto;
+  justify-content: space-between;
   margin: 8vw 4vh;
 }
 
-#description-bar {
+.description-bar {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   margin: 0 2rem;
 }
 
-#description-bar > a > button {
+.description-bar > a > button {
   background-color: transparent;
   font-size: 1.25rem;
   color: var(--cor-verde);
@@ -19,10 +20,25 @@
   padding: 0.1rem 0.7rem;
 }
 
-#description-bar > div > button {
+.description-bar > button {
   margin: 0 0 0 1rem;
   background-color: transparent;
   border: none;
   font-size: 2rem;
   color: var(--cor-verde);
+}
+
+.box-button {
+  padding-top: 0.5rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-painel {
+  border: none;
+  outline: none;
+  background-color: var(--cor-laranja);
+  padding: 0.25rem 2rem;
+  color: white;
+  border-radius: 1.5rem;
 }

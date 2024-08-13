@@ -15,8 +15,8 @@ const PainelFlutuanteMensagens = () => {
               <div id="box-text">
                 <span>texto</span>
               </div>
-              <div id="box-button">
-                <button id="btn-painel">Texto</button>
+              <div className="box-button">
+                <button className="btn-painel">Texto</button>
               </div>
             </div> */}
       </div>
