@@ -1,0 +1,34 @@
+#step-seven {
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  align-items: center;
+}
+
+#step-seven h2 {
+  font-size: 2.25rem;
+  font-weight: 400;
+}
+
+#step-seven-title,
+#step-seven-description {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: justify;
+}
+
+#step-seven-title input,
+#step-seven-description textarea {
+  background-color: transparent;
+  border-radius: 1rem;
+  margin: 0.5rem 0;
+  padding: 0.5rem 10rem 1rem 0.5rem;
+  width: 500px;
+}
+
+#step-seven-description textarea {
+  padding-bottom: 10rem;
+  height: 200px;
+}

@@ -1,0 +1,72 @@
+#step-six {
+  text-align: center;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+}
+
+#step-six h2 {
+  font-size: 2.5rem;
+  font-weight: 400;
+}
+
+#step-six p {
+  font-size: 1.25rem;
+  padding: 1rem 2rem;
+}
+
+#step-six > div {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  border: 1px solid var(--cor-verde);
+  border-radius: 1rem;
+  width: 600px;
+  height: 400px;
+}
+
+#step-six-icon {
+  font-size: 6rem;
+  color: var(--cor-verde);
+}
+
+.photo-upload-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: transparent;
+}
+
+.camera-icon {
+  font-size: 48px;
+  color: #5b3e2b;
+  margin-bottom: 20px;
+}
+
+.file-input {
+  display: none;
+}
+
+#step-six-button {
+  background-color: #f15a24;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-radius: 10px;
+  background-color: var(--cor-laranja);
+  cursor: pointer;
+  position: relative;
+}
+
+#step-six-button:hover {
+    background-color: var(--cor-laranja);
+}

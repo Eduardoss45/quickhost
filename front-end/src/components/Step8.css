@@ -1,0 +1,70 @@
+#step-eight {
+  margin: 0 auto;
+  width: 600px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+#step-eight h2 {
+  font-size: 2.5rem;
+  font-weight: 400;
+}
+
+#step-eight > p {
+  font-size: 1.6rem;
+  text-align: start;
+  width: 70%;
+}
+
+#step-eight p:nth-child(4),
+#step-eight p:nth-child(6) {
+  margin: 1rem;
+  text-align: center;
+  display: flex;
+}
+
+#step-eight-preco strong {
+  font-size: 6rem;
+  font-weight: 500;
+  color: var(--cor-verde);
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+}
+
+#step-eight-preco > strong > span {
+    font-size: 2rem;
+}
+
+
+.cupom-desconto {
+    border: 1px solid var(--cor-verde);
+    border-radius: 1rem;
+    padding: 2rem;
+    min-width: 600px;
+    text-align: start;
+    display: flex;
+    justify-content: space-between;
+    color: var(--cor-verde);
+    align-self: center;
+}
+
+.cupom-desconto > strong {
+    font-size: 2.5rem;
+}
+
+.cupom-desconto span,
+p {
+    font-size: 1.25rem;
+}
+
+.cupom-desconto span {
+    font-weight: 500;
+}
+
+.cupom-desconto input {
+    transform: scale(1.5);
+    background-color: transparent;
+}
