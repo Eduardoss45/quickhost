@@ -1,8 +1,12 @@
-import "./CustomButton.css"
+import React from "react";
+import "./CustomButton.css";
 
-const CustomButton = ({ icon, label }) => {
+const CustomButton = ({ icon, label, isActive, onClick }) => {
   return (
-    <div className="btn-form-custom">
+    <div
+      className={`btn-form-custom ${isActive ? "active" : ""}`}
+      onClick={onClick}
+    >
       <span>{icon}</span>
       <span>{label}</span>
     </div>

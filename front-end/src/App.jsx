@@ -10,7 +10,6 @@ import Hospedar from "./pages/Hospedar";
 import CadastroAcomodacoes from "./pages/CadastroAcomodacoes";
 
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import useUserData from "./hooks/useUserData";
 import { useState } from "react";
 import RegistroReservas from "./components/RegistroReservas";
 

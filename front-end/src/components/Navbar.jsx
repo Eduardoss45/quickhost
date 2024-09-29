@@ -21,9 +21,9 @@ const Navbar = ({ onSearch }) => {
   const [profilePicture, setProfilePicture] = useState("");
   const location = useLocation();
   const token = localStorage.getItem("token");
-  const userId = localStorage.getItem("userId");
+  const id_user = localStorage.getItem("id_user");
 
-  const { data: userData, error: userError } = useUserData(userId, token);
+  const { data: userData, error: userError } = useUserData(id_user, token);
 
   useEffect(() => {
     checkAuth();
@@ -53,10 +53,6 @@ const Navbar = ({ onSearch }) => {
           localStorage.setItem("token", response.data.access);
           localStorage.setItem("refreshToken", response.data.refresh);
           setIsAuthenticated(true);
-
-          console.log(localStorage.getItem("token"));
-          console.log(localStorage.getItem("refreshToken"));
-
         } catch (error) {
           console.error("Erro ao renovar token:", error);
           setIsAuthenticated(false);
@@ -106,7 +102,7 @@ const Navbar = ({ onSearch }) => {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("refreshToken");
-    localStorage.removeItem("userId");
+    localStorage.removeItem("id_user");
     setIsAuthenticated(false);
     setProfilePicture(""); // Limpar a foto de perfil ao sair
   };
@@ -116,7 +112,7 @@ const Navbar = ({ onSearch }) => {
       <header>
         <div id="top-row">
           <Link to="/">
-            <img id="logo" src={logo} alt="logo da apphost" />
+            <img id="logo" src={logo} alt="logo da quickhost" />
           </Link>
           <nav id="nav-btn">
             <Link to="reservas/">

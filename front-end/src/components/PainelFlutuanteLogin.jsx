@@ -24,11 +24,12 @@ const PainelFlutuanteLogin = ({
 
       localStorage.setItem("token", response.data.access);
       localStorage.setItem("refreshToken", response.data.refresh);
-      localStorage.setItem("userId", response.data.user.id);
+      localStorage.setItem("id_user", response.data.user.id_user);
 
+      // Necessarios para depuração
       console.log("Access Token:", localStorage.getItem("token"));
       console.log("Refresh Token:", localStorage.getItem("refreshToken"));
-      console.log("User ID:", localStorage.getItem("userId"));
+      console.log("User ID:", localStorage.getItem("id_user"));
 
       onLoginSuccess();
       closeLoginPanel(); // Alterado aqui
@@ -49,7 +50,7 @@ const PainelFlutuanteLogin = ({
           Entrar ou Cadastrar-se
         </div>
         <div id="form-login">
-          <h1>Bem-vindo ao App Host</h1>
+          <h1>Bem-vindo ao Quick Host</h1>
           {error && <p className="error message">{error}</p>}
           <div>
             <input
@@ -79,6 +80,11 @@ const PainelFlutuanteLogin = ({
             Não possui conta?{" "}
             <Link to="/cadastro" onClick={openCadastro}>
               Criar
+            </Link>
+          </p>
+          <p>
+            <Link to="/senha" onClick={openCadastro}>
+              Esqueci a senha
             </Link>
           </p>
         </div>

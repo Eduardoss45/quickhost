@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-function useUserData(userId, token) {
+function useUserData(id_user, token) {
   const [data, setData] = useState(null); // Inicialmente null, pois estamos buscando dados de um usuário específico
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
-      if (!userId) {
+      if (!id_user) {
         setError(new Error("User ID is required"));
         setLoading(false);
         return;
@@ -16,10 +16,9 @@ function useUserData(userId, token) {
 
       try {
         const response = await axios.get(
-          `http://localhost:8000/user/${userId}/`,
+          `http://localhost:8000/user/${id_user}/`,
           {
             headers: {
-              "Content-Type": "application/json",
               Authorization: `Bearer ${token}`,
             },
           }
@@ -34,7 +33,7 @@ function useUserData(userId, token) {
     };
 
     fetchData();
-  }, [userId, token]); // Dependências do hook para refetch ao mudar userId ou token
+  }, [id_user, token]); // Dependências do hook para refetch ao mudar id_user ou token
 
   return { data, loading, error };
 }
