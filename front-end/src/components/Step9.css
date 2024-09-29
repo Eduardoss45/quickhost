@@ -7,16 +7,16 @@
 #step-nine h1 {
   font-size: 2.5rem;
   font-weight: 400;
-  color: var(--cor-verde);
+  color: var(--paleta-dois);
 }
 
 #step-nine p {
   font-size: 1.25rem;
-  color: var(--cor-verde);
+  color: var(--paleta-dois);
 }
 
 #step-nine > div > input {
-  border: 1px solid var(--cor-verde);
+  border: 1px solid var(--paleta-dois);
   background-color: transparent;
   font-size: 1.25rem;
   padding: 0.6rem 5rem 0.6rem 0.6rem;

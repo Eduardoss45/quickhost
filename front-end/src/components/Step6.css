@@ -22,7 +22,7 @@
   align-items: center;
   flex-direction: column;
   justify-content: center;
-  border: 1px solid var(--cor-verde);
+  border: 1px solid var(--paleta-dois);
   border-radius: 1rem;
   width: 600px;
   height: 400px;
@@ -30,7 +30,7 @@
 
 #step-six-icon {
   font-size: 6rem;
-  color: var(--cor-verde);
+  color: var(--paleta-dois);
 }
 
 .photo-upload-container {
@@ -62,11 +62,11 @@
   justify-content: center;
   align-items: center;
   border-radius: 10px;
-  background-color: var(--cor-laranja);
+  background-color: var(--paleta-um);
   cursor: pointer;
   position: relative;
 }
 
 #step-six-button:hover {
-    background-color: var(--cor-laranja);
+  background-color: var(--paleta-um);
 }

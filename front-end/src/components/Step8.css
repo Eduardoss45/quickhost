@@ -28,43 +28,48 @@
 #step-eight-preco strong {
   font-size: 6rem;
   font-weight: 500;
-  color: var(--cor-verde);
+  color: var(--paleta-dois);
   display: flex;
   align-items: baseline;
   justify-content: center;
 }
 
 #step-eight-preco > strong > span {
-    font-size: 2rem;
+  font-size: 2rem;
 }
 
+#step-eight-preco > strong > input {
+  border: none;
+  font-size: 100px;
+  width: 50%;
+}
 
 .cupom-desconto {
-    border: 1px solid var(--cor-verde);
-    border-radius: 1rem;
-    padding: 2rem;
-    min-width: 600px;
-    text-align: start;
-    display: flex;
-    justify-content: space-between;
-    color: var(--cor-verde);
-    align-self: center;
+  border: 1px solid var(--paleta-dois);
+  border-radius: 1rem;
+  padding: 2rem;
+  min-width: 600px;
+  text-align: start;
+  display: flex;
+  justify-content: space-between;
+  color: var(--paleta-dois);
+  align-self: center;
 }
 
 .cupom-desconto > strong {
-    font-size: 2.5rem;
+  font-size: 2.5rem;
 }
 
 .cupom-desconto span,
 p {
-    font-size: 1.25rem;
+  font-size: 1.25rem;
 }
 
 .cupom-desconto span {
-    font-weight: 500;
+  font-weight: 500;
 }
 
 .cupom-desconto input {
-    transform: scale(1.5);
-    background-color: transparent;
+  transform: scale(1.5);
+  background-color: transparent;
 }

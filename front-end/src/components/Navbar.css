@@ -1,7 +1,7 @@
 header {
   display: flex;
   flex-direction: column;
-  background-color: var(--cor-laranja);
+  background-color: var(--paleta-um);
   padding: 1rem;
 }
 
@@ -15,8 +15,8 @@ header {
   padding-top: 2rem;
   display: flex;
   justify-content: center;
-  color: #ffffff;
-  border-top: 1px solid #ffffff;
+  color: var(--paleta-tres);
+  border-top: 1px solid var(--paleta-tres);
 }
 
 #logo {
@@ -36,8 +36,8 @@ header {
 }
 .btn {
   background-color: transparent;
-  border: 1px solid #ffffff;
-  color: #ffffff;
+  border: 1px solid var(--paleta-tres);
+  color: var(--paleta-tres);
 }
 
 .navegacao {
@@ -91,7 +91,7 @@ header {
   width: 2.5rem;
   height: 2.5rem;
   display: flex;
-  clip-path: circle(50%); 
+  clip-path: circle(50%);
 }
 
 #profile-picture {
@@ -99,5 +99,5 @@ header {
   height: 100%;
   scale: 1;
   object-fit: scale-down;
-  background-color: #ffffff;
+  background-color: var(--paleta-tres);
 }

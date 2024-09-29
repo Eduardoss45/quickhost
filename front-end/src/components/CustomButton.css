@@ -1,20 +1,32 @@
 .btn-form-custom {
   cursor: pointer;
-  border: 1px solid var(--cor-verde);
-  padding: 1rem 4rem .5rem 1rem;
+  border: 1px solid var(--paleta-dois);
+  padding: 1rem 4rem 0.5rem 1rem;
   border-radius: 10px;
   display: flex;
   justify-content: start;
   flex-direction: column;
   font-size: 1.25rem;
+  transition: background-color 0.3s, color 0.3s;
 }
 
 .btn-form-custom > span {
-  color: var(--cor-verde);
+  color: var(--paleta-dois);
   width: 100px;
 }
 
 .btn-form-custom > span > svg {
   font-size: 2.5rem;
-  color: var(--cor-verde);
+  color: var(--paleta-dois);
+}
+
+/* Estilo quando o botão está ativo */
+.btn-form-custom.active {
+  background-color: var(--paleta-dois);
+  color: var(--paleta-tres); !important;
+}
+
+.btn-form-custom.active > span,
+.btn-form-custom.active > span > svg {
+  color: var(--paleta-tres); !important;
 }

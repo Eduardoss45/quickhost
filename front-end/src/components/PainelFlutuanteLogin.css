@@ -1,5 +1,5 @@
 #painel-flutuante {
-  background-color: var(--cor-branco);
+  background-color: var(--paleta-tres);
   display: flex;
   flex-direction: column;
   border-radius: 1.5rem;
@@ -22,7 +22,7 @@
 #btn-painel {
   border: none;
   outline: none;
-  background-color: var(--cor-laranja);
+  background-color: var(--paleta-um);
   padding: 0.25rem 2rem;
   color: white;
   border-radius: 1.5rem;
@@ -32,15 +32,16 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  border-bottom: 1px solid var(--cor-verde);
+  border-bottom: 1px solid var(--paleta-dois);
   gap: 1rem;
   padding: 0.5rem;
   font-size: 1.3rem;
-  color: var(--cor-verde);
+  color: var(--paleta-dois);
 }
 
-#form-login {
-  color: var(--cor-verde);
+#form-login a {
+  color: var(--paleta-dois);
+  text-decoration: underline;
 }
 
 #form-login h1 {
@@ -56,7 +57,7 @@
   border: none;
   outline: none;
   border-radius: 0.5rem;
-  border: 1px solid var(--cor-verde);
+  border: 1px solid var(--paleta-dois);
   font-size: 1.2rem;
 }
 #form-login input[type="email"],
@@ -65,10 +66,10 @@
 }
 
 #form-login::placeholder {
-  color: var(--cor-verde);
+  color: var(--paleta-dois);
 }
 
 #btn-submit-login {
-  background-color: var(--cor-verde);
+  background-color: var(--paleta-dois);
   color: white;
 }

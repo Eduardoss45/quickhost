@@ -7,7 +7,7 @@
 #step-third h1 {
   text-align: center;
   font-size: 3rem;
-  color: var(--cor-verde);
+  color: var(--paleta-dois);
   font-weight: 400;
   width: 75%;
 }
@@ -20,14 +20,26 @@
 
 #step-third p {
   font-size: 1.2rem;
-  color: var(--cor-verde);
+  color: var(--paleta-dois);
 }
 
-#step-third > div > div {
-  border: 1px solid var(--cor-verde);
+/* Estilo aplicado quando a opção está ativa */
+.step-option.active p {
+  color: var(--paleta-tres) !important; /* Cor do texto quando selecionado */
+}
+
+.step-option {
+  border: 1px solid var(--paleta-dois);
   border-radius: 1rem;
   padding: 1rem 1.5rem;
   margin: 3rem 2rem;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}
+
+.step-option.active {
+  background-color: var(--paleta-dois); /* Cor da borda quando selecionado */
+  color: var(--paleta-tres); /* Cor de fundo quando selecionado */
 }
 
 .step-third-opt {
@@ -39,5 +51,14 @@
 
 .step-third-opt > span {
   font-size: 3rem;
-  color: var(--cor-verde);
+  color: var(--paleta-dois);
+}
+
+.step-option.active h2,
+.step-option.active p {
+  color: var(--paleta-tres); /* Cor do texto dentro da opção ativa */
+}
+
+.step-option.active .step-third-opt > span {
+  color: var(--paleta-tres); /* Cor do ícone dentro da opção ativa */
 }
