@@ -8,7 +8,7 @@ const Cadastro = ({ resetPage }) => {
   const initialState = {
     username: "",
     birth_date: "",
-    telefone: "",
+    phone_number: "",
     email: "",
     password: "",
   };
@@ -19,7 +19,7 @@ const Cadastro = ({ resetPage }) => {
   const resetForm = () => {
     handleChange({ target: { name: "username", value: "" } });
     handleChange({ target: { name: "birth_date", value: "" } });
-    handleChange({ target: { name: "telefone", value: "" } });
+    handleChange({ target: { name: "phone_number", value: "" } });
     handleChange({ target: { name: "email", value: "" } });
     handleChange({ target: { name: "password", value: "" } });
   };
@@ -68,11 +68,11 @@ const Cadastro = ({ resetPage }) => {
           </div>
           <div>
             <label>
-              Telefone
+              Numero de Contato
               <input
                 type="text"
-                name="telefone"
-                value={formData.telefone}
+                name="phone_number"
+                value={formData.phone_number}
                 onChange={handleChange}
               />
             </label>
