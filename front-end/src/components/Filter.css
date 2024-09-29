@@ -1,7 +1,7 @@
 .opt-filtros {
   background-color: transparent;
-  border: 1px solid var(--cor-verde);
-  color: var(--cor-verde);
+  border: 1px solid var(--paleta-dois);
+  color: var(--paleta-dois);
   border-radius: 0.9rem;
   padding: 0.3rem;
   width: 7rem;
@@ -11,6 +11,6 @@
 }
 
 .opt-filtros:hover {
-  background-color: var(--cor-verde);
-  color: var(--cor-branco);
+  background-color: var(--paleta-dois);
+  color: var(--paleta-tres);
 }

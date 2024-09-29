@@ -41,7 +41,7 @@
 #rotas-aninhadas > a > button > span,
 #hospedar-info > h1,
 #hospedar-info > span > a > svg {
-  color: var(--cor-verde);
+  color: var(--paleta-dois);
 }
 
 #hospedar-info h1 {
@@ -58,5 +58,5 @@
 }
 
 .active {
-  border-bottom: 1px solid black;
+  border-bottom: 1px solid var(--paleta-quatro);
 }

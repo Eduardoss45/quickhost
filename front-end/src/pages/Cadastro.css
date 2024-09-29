@@ -4,17 +4,17 @@
   margin: 0 auto;
   justify-content: center;
   gap: 1rem;
-  color: var(--cor-verde);
+  color: var(--paleta-dois);
 }
 
 #page-row button {
   border: none;
   background-color: transparent;
-  color: var(--cor-verde);
+  color: var(--paleta-dois);
 }
 
 #page-row input[type="submit"] {
-  background-color: var(--cor-verde);
+  background-color: var(--paleta-dois);
   color: white;
   border-radius: 5px;
   font-size: 1.3rem;
@@ -41,7 +41,7 @@
   border: none;
   outline: none;
   background-color: transparent;
-  border-bottom: 1px solid var(--cor-verde);
+  border-bottom: 1px solid var(--paleta-dois);
 }
 
 #page-col label {
@@ -69,7 +69,7 @@
 .message {
   text-align: center;
   font-weight: 500;
-  padding: .5rem;
+  padding: 0.5rem;
 }
 
 .error {

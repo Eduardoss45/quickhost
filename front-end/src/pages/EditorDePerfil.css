@@ -4,11 +4,11 @@
   margin: 0 auto;
   justify-content: center;
   gap: 1rem;
-  color: var(--cor-verde);
+  color: var(--paleta-dois);
 }
 
 #page-row-perfil input[type="submit"] {
-  background-color: var(--cor-verde);
+  background-color: var(--paleta-dois);
   color: white;
   border-radius: 5px;
   font-size: 1.3rem;
@@ -35,7 +35,7 @@
   border: none;
   outline: none;
   background-color: transparent;
-  border-bottom: 1px solid var(--cor-verde);
+  border-bottom: 1px solid var(--paleta-dois);
 }
 
 #page-col-perfil label {
@@ -74,15 +74,15 @@
 .row-line-edit button {
   border: none;
   font-size: 1.3rem;
-  border-bottom: 1px solid var(--cor-verde);
+  border-bottom: 1px solid var(--paleta-dois);
   background-color: transparent;
 }
 
 .custom-file-upload {
   display: inline-block;
   position: relative;
-  color: #000000;
-  border-bottom: 1px solid var(--cor-verde);
+  color: var(--paleta-quatro);
+  border-bottom: 1px solid var(--paleta-dois);
   cursor: pointer;
 }
 

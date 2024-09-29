@@ -1,6 +1,6 @@
 #barra {
   backdrop-filter: blur(15px);
-  background-color: #ffffff40;
+  background-color: var(--paleta-cinco);
   display: flex;
   border-radius: 1rem;
   box-shadow: 0px 10px 10px -6px #00000060;
@@ -19,7 +19,7 @@
 }
 
 #search-bar {
-    color: #ffffff;
+    color: var(--paleta-tres);;
     display: flex;
     flex-direction: column;
     border: none;
@@ -28,13 +28,13 @@
 }
 
 #search-bar-input {
-  color: #ffffff;
+  color: var(--paleta-tres);;
   background-color: transparent;
   outline: none;
   border: none;
 }
 
 #search-bar-input::placeholder {
-  color: #ffffff;
+  color: var(--paleta-tres);;
   font-size: 1rem;
 }

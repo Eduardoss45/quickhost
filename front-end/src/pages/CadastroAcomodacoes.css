@@ -15,7 +15,7 @@
 .description-bar > a > button {
   background-color: transparent;
   font-size: 1.25rem;
-  color: var(--cor-verde);
+  color: var(--paleta-dois);
   border-radius: 10px;
   padding: 0.1rem 0.7rem;
 }
@@ -25,7 +25,7 @@
   background-color: transparent;
   border: none;
   font-size: 2rem;
-  color: var(--cor-verde);
+  color: var(--paleta-dois);
 }
 
 .box-button {
@@ -37,7 +37,7 @@
 .btn-painel {
   border: none;
   outline: none;
-  background-color: var(--cor-laranja);
+  background-color: var(--paleta-um);
   padding: 0.25rem 2rem;
   color: white;
   border-radius: 1.5rem;

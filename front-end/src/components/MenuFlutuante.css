@@ -3,29 +3,29 @@
   flex-direction: column;
   position: absolute;
   bottom: -150%;
-  background-color: var(--cor-branco);
+  background-color: var(--paleta-tres);
   padding: 0.4rem;
   border-radius: 10px;
 }
 
 #menu-flutuante a {
   text-decoration: none;
-  color: black;
+  color: var(--paleta-quatro);
 }
 
 #menu-flutuante a:visited {
-  color: black;
+  color: var(--paleta-quatro);
 }
 
 #menu-flutuante button {
   border: none;
   background-color: transparent;
   font-size: 1rem;
-  color: black;
+  color: var(--paleta-quatro);
 }
 
 #menu-line {
-  border-bottom: 1px solid black;
+  border-bottom: 1px solid var(--paleta-quatro);
   width: 119%;
   left: -6px;
   position: relative;
