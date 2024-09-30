@@ -1,15 +1,31 @@
+import React, { useState } from "react";
 import { CiEdit } from "react-icons/ci";
-
 import "./Step8.css";
 
-const Step8 = () => {
+const Step8 = ({ updateFieldHandler }) => {
+  const [price, setPrice] = useState("");
+
+  const handlePriceChange = (e) => {
+    const newPrice = parseFloat(e.target.value); // Converte o valor para número
+    setPrice(newPrice);
+    updateFieldHandler({
+      target: { name: "price", value: newPrice },
+    });
+  };
+
   return (
     <div id="step-eight">
       <h2>Determine o preço de sua diária</h2>
       <p>Você poderá fazer alterações depois.</p>
       <div id="step-eight-preco">
         <strong>
-          R$ 111
+          <input
+            type="number"
+            value={price}
+            onChange={handlePriceChange}
+            placeholder="Preço"
+          />
+          R$
           <span>
             <CiEdit />
           </span>

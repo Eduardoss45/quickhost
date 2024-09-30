@@ -18,3 +18,5 @@ export function useForm(steps) {
     isFirstStep: currentStep === 0 ? true : false,
   };
 }
+
+export default useForm;

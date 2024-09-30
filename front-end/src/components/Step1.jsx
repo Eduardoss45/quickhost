@@ -3,7 +3,7 @@ import "./Step1.css";
 const Step1 = () => {
   return (
     <div id="description-box">
-      <h1>Anuncie com facilidade com a App Host</h1>
+      <h1>Anuncie com facilidade com a Quick Host</h1>
       <div>
         <div className="regras">
           <h2>1-Descreva sua acomodação</h2>

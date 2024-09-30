@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import { FaCamera } from "react-icons/fa";
 import "./Step6.css";
 
-const Step6 = () => {
+const Step6 = ({ updateFieldHandler }) => {
   const [isDragging, setIsDragging] = useState(false);
+  const [photos, setPhotos] = useState([]);
 
   const handleDragEnter = (e) => {
     e.preventDefault();
@@ -26,15 +27,37 @@ const Step6 = () => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
-    const files = e.dataTransfer.files;
-    console.log(files);
-    // Aqui você pode processar os arquivos arrastados
+    const files = Array.from(e.dataTransfer.files);
+    processFiles(files);
   };
 
   const handleFileChange = (e) => {
-    const files = e.target.files;
-    console.log(files);
-    // Aqui você pode processar os arquivos selecionados
+    const files = Array.from(e.target.files);
+    processFiles(files);
+  };
+
+  const processFiles = (files) => {
+    const imageFiles = files.filter((file) => file.type.startsWith("image/"));
+    if (imageFiles.length > 0) {
+      setPhotos((prevPhotos) => {
+        const newPhotos = [
+          ...prevPhotos,
+          ...imageFiles.map((file) => ({
+            name: file.name,
+            url: URL.createObjectURL(file),
+          })),
+        ];
+
+        // Chamada com verificação para evitar erros
+        if (typeof updateFieldHandler === "function") {
+          updateFieldHandler({
+            target: { name: "internal_images", value: newPhotos },
+          });
+        }
+
+        return newPhotos;
+      });
+    }
   };
 
   return (
@@ -65,6 +88,21 @@ const Step6 = () => {
         </div>
       </div>
       <p>Você poderá adicionar mais imagens posteriormente.</p>
+      {photos.length > 0 && (
+        <div className="uploaded-photos">
+          <h3>Fotos adicionadas:</h3>
+          <ul>
+            {photos.map((photo, index) => (
+              <li key={index}>{photo.name}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {photos.length < 5 && (
+        <p style={{ color: "red" }}>
+          Você precisa adicionar pelo menos 5 fotos para prosseguir.
+        </p>
+      )}
     </div>
   );
 };

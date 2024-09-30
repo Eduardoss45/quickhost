@@ -1,24 +1,75 @@
+import React from "react";
 import "./Step4.css";
 
-const Step4 = () => {
+const Step4 = ({ data, updateFieldHandler }) => {
   return (
     <div id="step-four">
       <h1>Informe o endereço de sua acomodação</h1>
       <div>
         <div>
-          <input type="text" placeholder="Enderço" />
+          <input
+            type="text"
+            name="address"
+            placeholder="Endereço"
+            value={data.address || ""}
+            onChange={(e) =>
+              updateFieldHandler({
+                target: { name: "address", value: e.target.value },
+              })
+            }
+          />
         </div>
         <div>
-          <input type="text" placeholder="Cidade" />
+          <input
+            type="text"
+            name="city"
+            placeholder="Cidade"
+            value={data.city || ""}
+            onChange={(e) =>
+              updateFieldHandler({
+                target: { name: "city", value: e.target.value },
+              })
+            }
+          />
         </div>
         <div>
-          <input type="text" placeholder="Bairro" />
+          <input
+            type="text"
+            name="neighborhood"
+            placeholder="Bairro"
+            value={data.neighborhood || ""}
+            onChange={(e) =>
+              updateFieldHandler({
+                target: { name: "neighborhood", value: e.target.value },
+              })
+            }
+          />
         </div>
         <div>
-          <input type="text" placeholder="CEP" />
+          <input
+            type="text"
+            name="cep"
+            placeholder="CEP"
+            value={data.cep || ""}
+            onChange={(e) =>
+              updateFieldHandler({
+                target: { name: "cep", value: e.target.value },
+              })
+            }
+          />
         </div>
         <div>
-          <input type="text" placeholder="Complemento" />
+          <input
+            type="text"
+            name="complement"
+            placeholder="Complemento"
+            value={data.complement || ""}
+            onChange={(e) =>
+              updateFieldHandler({
+                target: { name: "complement", value: e.target.value },
+              })
+            }
+          />
         </div>
       </div>
     </div>
