@@ -6,7 +6,7 @@ from django.conf.urls.static import static
 from rest_framework import routers
 from rest_framework_simplejwt.views import TokenRefreshView
 
-from quickhost.api import viewsets as accommodationsviewsets
+from quickhost.api import viewsets as accommodationviewsets
 from quickhost.api.viewsets import (
     UserCreate,
     MyTokenObtainPairView,
@@ -19,9 +19,9 @@ route = routers.DefaultRouter()
 
 # Registro do ViewSet de acomodações
 route.register(
-    r"accommodations",
-    accommodationsviewsets.AccommodationsViewSet,
-    basename="Accommodations",
+    r"accommodation",
+    accommodationviewsets.AccommodationViewSet,
+    basename="Accommodation",
 )
 
 urlpatterns = [
@@ -33,7 +33,7 @@ urlpatterns = [
     path("user/update/<uuid:id_user>/", UserUpdate.as_view(), name="user-update"),
     path(
         "user/accommodation/create/<uuid:id_user>/",
-        accommodationsviewsets.AccommodationsViewSet.as_view({"post": "create"}),
+        accommodationviewsets.AccommodationViewSet.as_view({"post": "create"}),
         name="user-accommodation",
     ),
     path("", include(route.urls)),

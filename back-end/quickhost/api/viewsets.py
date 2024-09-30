@@ -10,7 +10,7 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
 from .serializers import (
-    AccommodationsSerializer,
+    AccommodationSerializer,
     UserUpdateSerializer,
     UserSerializer,
     MyTokenObtainPairSerializer,
@@ -42,23 +42,22 @@ class UserUpdate(generics.UpdateAPIView):
     def update(self, request, *args, **kwargs):
         """Atualiza os dados do usuário."""
         user = self.get_object()
-        content_type = request.content_type
+        data = request.data.copy()  # Cria uma cópia mutável dos dados
 
-        if content_type in ["application/json", "multipart/form-data"]:
-            data = request.data
+        # Verifica se profile_picture é uma URL e remove do payload
+        if "profile_picture" in data:
+            if isinstance(data["profile_picture"], str) and data[
+                "profile_picture"
+            ].startswith("http"):
+                del data["profile_picture"]  # Remove a URL do payload
 
-            # Cria uma instância do serializador com os dados e o usuário
-            serializer = self.get_serializer(user, data=data, partial=True)
+        # Cria uma instância do serializador com os dados e o usuário
+        serializer = self.get_serializer(user, data=data, partial=True)
 
-            if serializer.is_valid():
-                serializer.save()  # Salva os dados validados
-                return Response(serializer.data, status=status.HTTP_200_OK)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-        return Response(
-            {"error": "Unsupported Content-Type"},
-            status=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
-        )
+        if serializer.is_valid():
+            serializer.save()  # Salva os dados validados
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserDetailView(generics.RetrieveAPIView):
@@ -82,29 +81,42 @@ class MyTokenObtainPairView(TokenObtainPairView):
             serializer.is_valid(raise_exception=True)
             return Response(serializer.validated_data, status=status.HTTP_200_OK)
         except Exception as e:
+            # Logar o erro para rastreamento
+            logger.error(f"Erro durante a obtenção do token: {str(e)}")
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class AccommodationsViewSet(viewsets.ModelViewSet):
+class AccommodationViewSet(viewsets.ModelViewSet):
     """ViewSet para gerenciar acomodações."""
 
-    serializer_class = AccommodationsSerializer
-    queryset = models.Accommodations.objects.all()
+    serializer_class = AccommodationSerializer
+    queryset = models.Accommodation.objects.all()
 
     def get_permissions(self):
-        """Define permissões diferentes para métodos distintos."""
-        if self.request.method in ["POST", "PUT", "PATCH", "DELETE"]:
-            return [permissions.IsAuthenticated()]
-        return [permissions.AllowAny()]
+        if self.action in ["create", "update", "partial_update", "destroy"]:
+            permission_classes = [permissions.IsAuthenticated]
+        else:
+            permission_classes = [permissions.AllowAny]
+        return [permission() for permission in permission_classes]
 
     def create(self, request, *args, **kwargs):
-        request.data["property"] = request.user.id_user
+        if "property" not in request.data:
+            request.data["property"] = request.user.id_user
         return super().create(request, *args, **kwargs)
 
     def list(self, request, *args, **kwargs):
-        """Sobrescreve o método list para adicionar lógica customizada, se necessário."""
+        user_id = request.query_params.get("user_id")
+        if user_id:
+            self.queryset = self.queryset.filter(property=user_id)
         return super().list(request, *args, **kwargs)
 
     def retrieve(self, request, *args, **kwargs):
-        """Sobrescreve o método retrieve para adicionar lógica customizada, se necessário."""
+        # Garante que apenas o dono da acomodação ou admin possa ver os detalhes
+        accommodation = self.get_object()
+        if accommodation.property != request.user and not request.user.is_staff:
+            return Response(
+                {"error": "Você não tem permissão para ver essa acomodação."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
         return super().retrieve(request, *args, **kwargs)

@@ -1,6 +1,7 @@
 import { FaArrowLeftLong, FaArrowRightLong } from "react-icons/fa6";
 import { useForm } from "../hooks/useForm";
-import { useState } from "react";
+import useCadastroAcomodacoes from "../hooks/useCadastroAcomodacoes";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
 import Step1 from "../components/Step1";
@@ -16,40 +17,147 @@ import Step9 from "../components/Step9";
 import "./CadastroAcomodacoes.css";
 
 const formTemplate = {
-  name: "",
-  emai: "",
-  review: "",
-  comment: "",
+  property: "",
+  internal_images: [],
+  category: "",
+  rooms: 1,
+  beds: 1,
+  bathroom: 1,
+  accommodated_guests: 1,
+  type_of_space: "",
+  address: "",
+  city: "",
+  neighborhood: "",
+  cep: "",
+  complement: "",
+  wifi: false,
+  tv: false,
+  kitchen: false,
+  washing_machine: false,
+  parking_included: false,
+  air_conditioning: false,
+  pool: false,
+  jacuzzi: false,
+  grill: false,
+  private_gym: false,
+  beach_access: false,
+  smoke_detector: false,
+  fire_extinguisher: false,
+  first_aid_kit: false,
+  outdoor_camera: false,
+  title: "",
+  description: "",
+  price: 0,
+  bank_name: "",
+  account_holder: "",
+  account_number: "",
+  agency_code: "",
+  account_type: "",
+  cpf: "",
 };
 
 function CadastroAcomodacoes() {
-  const [data, setData] = useState(formTemplate);
+  const [formData, setFormData] = useState(formTemplate);
+  const { loading, error, success, handleSubmit } = useCadastroAcomodacoes();
 
-  const updateFiedlHandler = (key, value) => {
-    setData((prev) => {
-      return { ...prev, [key]: value };
-    });
+  useEffect(() => {
+    console.log(JSON.stringify(formData, null, 2));
+  }, [formData]);
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      console.log("Evento 'Enter' prevenido para não submeter o formulário.");
+    }
+  };
+
+  // Função para atualizar os dados do formulário
+  const updateFieldHandler = (e) => {
+    const { name, value, type, checked } = e.target;
+
+    if (type === "checkbox") {
+      setFormData((prevData) => ({
+        ...prevData,
+        [name]: checked,
+      }));
+    } else {
+      setFormData((prevData) => ({
+        ...prevData,
+        [name]: value,
+      }));
+    }
   };
 
   const formComponents = [
-    <Step1 updateFiedlHandler={updateFiedlHandler} />,
-    <Step2 data={data} updateFiedlHandler={updateFiedlHandler} />,
-    <Step3 data={data} updateFiedlHandler={updateFiedlHandler} />,
-    <Step4 data={data} updateFiedlHandler={updateFiedlHandler} />,
-    <Step5 data={data} updateFiedlHandler={updateFiedlHandler} />,
-    <Step6 data={data} updateFiedlHandler={updateFiedlHandler} />,
-    <Step7 data={data} updateFiedlHandler={updateFiedlHandler} />,
-    <Step8 data={data} updateFiedlHandler={updateFiedlHandler} />,
-    <Step9 data={data} updateFiedlHandler={updateFiedlHandler} />,
+    <Step1 data={formData} updateFieldHandler={updateFieldHandler} />,
+    <Step2 data={formData} updateFieldHandler={updateFieldHandler} />,
+    <Step3 data={formData} updateFieldHandler={updateFieldHandler} />,
+    <Step4 data={formData} updateFieldHandler={updateFieldHandler} />,
+    <Step5 data={formData} updateFieldHandler={updateFieldHandler} />,
+    <Step6 data={formData} updateFieldHandler={updateFieldHandler} />,
+    <Step7 data={formData} updateFieldHandler={updateFieldHandler} />,
+    <Step8 data={formData} updateFieldHandler={updateFieldHandler} />,
+    <Step9 data={formData} updateFieldHandler={updateFieldHandler} />,
   ];
 
   const { currentStep, currentComponent, changeStep, isLastStep, isFirstStep } =
     useForm(formComponents);
 
+  const validateForm = () => {
+    const requiredFields = [
+      "category",
+      "rooms",
+      "beds",
+      "bathroom",
+      "accommodated_guests",
+      "type_of_space",
+      "address",
+      "city",
+      "neighborhood",
+      "cep",
+      "title",
+      "description",
+      "bank_name",
+      "account_holder",
+      "account_number",
+      "agency_code",
+      "account_type",
+      "cpf",
+      "price",
+    ];
+
+    for (const field of requiredFields) {
+      const value = formData[field];
+      if (!value) {
+        console.warn(`Campo obrigatório não preenchido: ${field}`);
+        return false;
+      }
+    }
+    return true;
+  };
+
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+    console.log(formData);
+
+    if (isLastStep) {
+      if (validateForm()) {
+        console.log("Validação bem-sucedida, enviando dados do formulário...");
+        handleSubmit(formData);
+      } else {
+        alert("Por favor, preencha todos os campos obrigatórios.");
+      }
+    } else {
+      console.log("Mudando para o próximo passo...");
+      changeStep(currentStep + 1);
+    }
+  };
+
   return (
     <form
       id="description-form"
-      onSubmit={(e) => changeStep(currentStep + 1, e)}
+      onSubmit={handleFormSubmit}
+      onKeyDown={handleKeyDown}
     >
       <div className="description-bar">
         <Link to="/hospedar/anuncio">
@@ -75,10 +183,17 @@ function CadastroAcomodacoes() {
           </button>
         ) : (
           <div className="box-button">
-            <button className="btn-painel">finalizar</button>
+            <button className="btn-painel" type="submit">
+              finalizar
+            </button>
           </div>
         )}
       </div>
+      {loading && <p>Aguarde...</p>}
+      {error && <p className="error message">Erro: {error}</p>}
+      {success && (
+        <p className="success message">Acomodação cadastrada com sucesso!</p>
+      )}
     </form>
   );
 }

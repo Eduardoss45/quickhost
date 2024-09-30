@@ -9,7 +9,7 @@ const Step9 = ({ data, updateFieldHandler }) => {
       <div>
         <input
           type="text"
-          name="bank_account.bank_name"
+          name="bank_name"
           placeholder="Nome do Banco"
           value={data.bank_name || ""}
           onChange={updateFieldHandler}
@@ -17,7 +17,7 @@ const Step9 = ({ data, updateFieldHandler }) => {
 
         <input
           type="text"
-          name="bank_account.account_holder"
+          name="account_holder"
           placeholder="Titular da conta"
           value={data.account_holder || ""}
           onChange={updateFieldHandler}
@@ -25,7 +25,7 @@ const Step9 = ({ data, updateFieldHandler }) => {
 
         <input
           type="text"
-          name="bank_account.account_number"
+          name="account_number"
           placeholder="Número da conta"
           value={data.account_number || ""}
           onChange={updateFieldHandler}
@@ -33,7 +33,7 @@ const Step9 = ({ data, updateFieldHandler }) => {
 
         <input
           type="text"
-          name="bank_account.agency_code"
+          name="agency_code"
           placeholder="Código da agência"
           value={data.agency_code || ""}
           onChange={updateFieldHandler}
@@ -42,7 +42,7 @@ const Step9 = ({ data, updateFieldHandler }) => {
         <div id="step-nine-inputs">
           <input
             type="text"
-            name="bank_account.account_type"
+            name="account_type"
             placeholder="Tipo de conta"
             value={data.account_type || ""}
             onChange={updateFieldHandler}
@@ -50,7 +50,7 @@ const Step9 = ({ data, updateFieldHandler }) => {
 
           <input
             type="text"
-            name="bank_account.cpf"
+            name="cpf"
             placeholder="CPF"
             value={data.cpf || ""}
             onChange={updateFieldHandler}

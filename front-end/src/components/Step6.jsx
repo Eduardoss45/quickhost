@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaCamera } from "react-icons/fa";
 import "./Step6.css";
 
@@ -36,29 +36,46 @@ const Step6 = ({ updateFieldHandler }) => {
     processFiles(files);
   };
 
-  const processFiles = (files) => {
+  const processFiles = async (files) => {
     const imageFiles = files.filter((file) => file.type.startsWith("image/"));
     if (imageFiles.length > 0) {
-      setPhotos((prevPhotos) => {
-        const newPhotos = [
-          ...prevPhotos,
-          ...imageFiles.map((file) => ({
-            name: file.name,
-            url: URL.createObjectURL(file),
-          })),
-        ];
+      const newPhotos = await Promise.all(imageFiles.map(convertToBase64));
 
-        // Chamada com verificação para evitar erros
+      setPhotos((prevPhotos) => {
+        const photosWithUrls = newPhotos.map((base64, index) => [
+          imageFiles[index].name,
+          base64,
+        ]);
+
         if (typeof updateFieldHandler === "function") {
           updateFieldHandler({
-            target: { name: "internal_images", value: newPhotos },
+            target: {
+              name: "internal_images",
+              value: [...prevPhotos, ...photosWithUrls],
+            },
           });
         }
 
-        return newPhotos;
+        return [...prevPhotos, ...photosWithUrls];
       });
     }
   };
+
+  const convertToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = (error) => reject(error);
+    });
+  };
+
+  // Limpeza de objetos URL ao desmontar o componente
+  useEffect(() => {
+    return () => {
+      photos.forEach((photo) => URL.revokeObjectURL(photo[1]));
+    };
+  }, [photos]);
 
   return (
     <div id="step-six">
@@ -81,6 +98,8 @@ const Step6 = ({ updateFieldHandler }) => {
             className="file-input"
             onChange={handleFileChange}
             multiple
+            accept="image/*" // Permite apenas arquivos de imagem
+            disabled={photos.length >= 5} // Desabilita se já tiver 5 fotos
           />
           <label htmlFor="file-input">
             <span id="step-six-button">Adicionar fotos</span>
@@ -93,7 +112,14 @@ const Step6 = ({ updateFieldHandler }) => {
           <h3>Fotos adicionadas:</h3>
           <ul>
             {photos.map((photo, index) => (
-              <li key={index}>{photo.name}</li>
+              <li key={index}>
+                <img
+                  src={photo[1]}
+                  alt={photo[0]}
+                  style={{ width: "100px", height: "auto" }}
+                />
+                {photo[0]}
+              </li>
             ))}
           </ul>
         </div>
