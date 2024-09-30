@@ -8,7 +8,7 @@ import base64
 
 User = get_user_model()
 
-# Configuração do logger
+
 logger = logging.getLogger(__name__)
 
 
@@ -82,7 +82,7 @@ class BankAccountSerializer(serializers.ModelSerializer):
         }
 
     def validate(self, data):
-        print("Dados recebidos para validação:", data)  # Log dos dados recebidos
+        print("Dados recebidos para validação:", data)
 
         required_fields = {
             "bank_name",
@@ -107,32 +107,27 @@ class AccommodationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Accommodation
-        fields = "__all__"  # ou liste os campos que você deseja
+        fields = "__all__"
 
     def create(self, validated_data):
         try:
-            # Extraindo os dados da conta bancária
+
             bank_account_data = validated_data.pop("bank_account", None)
 
-            # Tratando a imagem se estiver no formato Base64
             if isinstance(validated_data.get("internal_images"), str):
                 format, imgstr = validated_data["internal_images"].split(";base64,")
-                ext = format.split("/")[-1]  # Obtendo a extensão
-                file_name = (
-                    f"image.{ext}"  # Você pode criar um nome de arquivo único aqui
-                )
+                ext = format.split("/")[-1]
+                file_name = f"image.{ext}"
                 validated_data["internal_images"] = ContentFile(
                     base64.b64decode(imgstr), name=file_name
                 )
 
-            # Criando a acomodação
             accommodation = models.Accommodation.objects.create(**validated_data)
 
-            # Verifica se os dados da conta bancária foram fornecidos
             if bank_account_data:
-                # Criando a conta bancária
+
                 bank_account = models.BankAccount.objects.create(**bank_account_data)
-                # Associando a conta bancária à acomodação
+
                 accommodation.bank_account = bank_account
                 accommodation.save()
 
@@ -140,37 +135,3 @@ class AccommodationSerializer(serializers.ModelSerializer):
         except Exception as e:
             logger.error(f"Ocorreu um erro ao criar acomodação: {str(e)}")
             raise serializers.ValidationError("Erro ao criar acomodação.")
-import base64
-import io
-from PIL import Image
-from rest_framework import status
-from rest_framework.response import Response
-from rest_framework.views import APIView
-from django.core.files.base import ContentFile
-
-class ImageUploadView(APIView):
-    def post(self, request):
-        data = request.data
-        
-        # Supondo que a imagem esteja em base64 sob a chave 'image'
-        image_data = data.get('image')
-        
-        if image_data:
-            # Decodificando a imagem
-            format, imgstr = image_data.split(';base64,') 
-            ext = format.split('/')[-1]  # Obtendo a extensão da imagem
-            
-            # Converte a string em um objeto de imagem
-            image = Image.open(io.BytesIO(base64.b64decode(imgstr)))
-
-            # Salva a imagem convertida
-            img_io = io.BytesIO()
-            image.save(img_io, format='JPEG')  # Ou qualquer formato desejado
-            img_file = ContentFile(img_io.getvalue(), name='image.jpg')
-            
-            # Aqui você pode salvar a imagem no modelo, por exemplo
-            # your_model_instance.image_field.save('image.jpg', img_file)
-
-            return Response({"message": "Imagem salva com sucesso!"}, status=status.HTTP_201_CREATED)
-        
-        return Response({"error": "Nenhuma imagem fornecida."}, status=status.HTTP_400_BAD_REQUEST)
