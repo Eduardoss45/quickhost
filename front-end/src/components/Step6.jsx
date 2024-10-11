@@ -9,71 +9,69 @@ const Step6 = ({ updateFieldHandler }) => {
   const handleDragEnter = (e) => {
     e.preventDefault();
     e.stopPropagation();
+    console.log("Drag Enter");
     setIsDragging(true);
   };
 
   const handleDragLeave = (e) => {
     e.preventDefault();
     e.stopPropagation();
+    console.log("Drag Leave");
     setIsDragging(false);
   };
 
   const handleDragOver = (e) => {
     e.preventDefault();
     e.stopPropagation();
+    console.log("Drag Over");
   };
 
   const handleDrop = (e) => {
     e.preventDefault();
     e.stopPropagation();
+    console.log("Files dropped");
     setIsDragging(false);
-    const files = Array.from(e.dataTransfer.files);
+    const files = e.dataTransfer.files; // Mantém como FileList
     processFiles(files);
   };
 
   const handleFileChange = (e) => {
-    const files = Array.from(e.target.files);
+    const files = e.target.files; // Mantém como FileList
     processFiles(files);
   };
 
-  const processFiles = async (files) => {
-    const imageFiles = files.filter((file) => file.type.startsWith("image/"));
-    if (imageFiles.length > 0) {
-      const newPhotos = await Promise.all(imageFiles.map(convertToBase64));
-
-      setPhotos((prevPhotos) => {
-        const photosWithUrls = newPhotos.map((base64, index) => [
-          imageFiles[index].name,
-          base64,
-        ]);
-
-        if (typeof updateFieldHandler === "function") {
-          updateFieldHandler({
-            target: {
-              name: "internal_images",
-              value: [...prevPhotos, ...photosWithUrls],
-            },
-          });
-        }
-
-        return [...prevPhotos, ...photosWithUrls];
+  const processFiles = (files) => {
+    // Passa os arquivos diretamente para o updateFieldHandler
+    if (typeof updateFieldHandler === "function") {
+      console.log(files);
+      updateFieldHandler({
+        target: {
+          name: "internal_images",
+          value: files, // Passa o FileList diretamente
+        },
       });
     }
+
+    // Cria um array para exibir as prévias das imagens
+    createImagePreviewArray(files);
   };
 
-  const convertToBase64 = (file) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = (error) => reject(error);
+  const createImagePreviewArray = (files) => {
+    const newPhotos = []; // Array para armazenar as imagens para exibição
+    for (let i = 0; i < files.length; i++) {
+      newPhotos.push(files[i]);
+    }
+    setPhotos((prevPhotos) => {
+      // Revogando URLs antigas para liberar memória
+      prevPhotos.forEach((photo) => URL.revokeObjectURL(photo));
+      return [...prevPhotos, ...newPhotos]; // Atualiza o estado com os novos arquivos
     });
   };
 
   // Limpeza de objetos URL ao desmontar o componente
   useEffect(() => {
     return () => {
-      photos.forEach((photo) => URL.revokeObjectURL(photo[1]));
+      photos.forEach((photo) => URL.revokeObjectURL(photo));
     };
   }, [photos]);
 
@@ -114,11 +112,11 @@ const Step6 = ({ updateFieldHandler }) => {
             {photos.map((photo, index) => (
               <li key={index}>
                 <img
-                  src={photo[1]}
-                  alt={photo[0]}
+                  src={URL.createObjectURL(photo)} // Usando `photo` diretamente para prévia
+                  alt={photo.name} // O nome está diretamente acessível a partir do objeto File
                   style={{ width: "100px", height: "auto" }}
                 />
-                {photo[0]}
+                {photo.name} {/* Exibe o nome do arquivo */}
               </li>
             ))}
           </ul>

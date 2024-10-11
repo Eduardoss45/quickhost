@@ -71,7 +71,6 @@ const EditorDePerfil = ({ handleReset }) => {
     }
   };
 
-
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Ocorreu um erro: {error.message}</p>;
 

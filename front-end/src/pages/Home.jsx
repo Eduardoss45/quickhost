@@ -11,9 +11,10 @@ const Home = ({ accommodations }) => {
     setSelectedCategory(category);
   };
 
+  // Filtra as acomodações pela categoria selecionada
   const filteredAccommodations = selectedCategory
-  ?  accommodations.filter((item) => item.category === selectedCategory)
-  : accommodations;
+    ? accommodations.filter((item) => item.category === selectedCategory)
+    : accommodations;
 
   return (
     <>
@@ -24,12 +25,12 @@ const Home = ({ accommodations }) => {
         {filteredAccommodations.map((item, index) => (
           <Detalhes
             key={index}
-            image={item.image}
-            status={item.status}
-            name={item.name}
-            description={item.description}
-            price={item.price}
-            category={item.category}
+            image={item.internal_images} // Imagem interna da acomodação
+            title={item.title} // Título da acomodação
+            description={item.description} // Descrição da acomodação
+            price={item.price} // Preço da acomodação
+            category={item.category} // Categoria da acomodação
+            // Adicione outras propriedades que você precisar
           />
         ))}
       </div>

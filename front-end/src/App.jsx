@@ -11,11 +11,14 @@ import CadastroAcomodacoes from "./pages/CadastroAcomodacoes";
 
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useState } from "react";
+import useData from "./hooks/useData"; // Correção aqui
 import RegistroReservas from "./components/RegistroReservas";
 
 function App() {
-  const { data, loading, error } = "#";
-  const accommodations = data && data.accommodations ? data.accommodations : [];
+  const { data, loading, error } = useData(
+    "http://localhost:8000/accommodation/"
+  );
+  const accommodations = data && Array.isArray(data) ? data : []; // Ajustado para ser um array
   const [searchTerm, setSearchTerm] = useState("");
 
   const handleSearch = (term) => {

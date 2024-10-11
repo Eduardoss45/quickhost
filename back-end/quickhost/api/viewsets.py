@@ -7,6 +7,7 @@ from rest_framework import (
 )
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.response import Response
+from rest_framework.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
 from .serializers import (
@@ -16,6 +17,7 @@ from .serializers import (
     MyTokenObtainPairSerializer,
 )
 from data import models
+import uuid
 
 User = get_user_model()
 
@@ -100,23 +102,48 @@ class AccommodationViewSet(viewsets.ModelViewSet):
         return [permission() for permission in permission_classes]
 
     def create(self, request, *args, **kwargs):
+        """Cria uma nova acomodação."""
+        id_received = self.kwargs.get("id_user")
+
+        # Verifica se o ID recebido é um UUID válido
+        try:
+            user_id = uuid.UUID(str(id_received))  # Tenta converter o ID para UUID
+        except ValueError:
+            raise ValidationError(
+                {"detail": "O ID do usuário deve estar no formato UUID."}
+            )
+
+        # Verifica se o usuário existe
+        if not User.objects.filter(id_user=user_id).exists():
+            raise ValidationError({"detail": "O ID do usuário não está registrado."})
+
+        # Verifica se o usuário está autenticado
+        if not request.user.is_authenticated:
+            return Response(
+                {"detail": "Usuário não autenticado. Faça login para continuar."},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+
+        # Adiciona o ID do usuário ao campo property se não estiver presente
         if "property" not in request.data:
             request.data["property"] = request.user.id_user
+
+        # Continua o fluxo normal de criação
         return super().create(request, *args, **kwargs)
 
     def list(self, request, *args, **kwargs):
+        """Lista as acomodações, filtrando por ID do usuário, se fornecido."""
         user_id = request.query_params.get("user_id")
         if user_id:
             self.queryset = self.queryset.filter(property=user_id)
         return super().list(request, *args, **kwargs)
 
     def retrieve(self, request, *args, **kwargs):
-        # Garante que apenas o dono da acomodação ou admin possa ver os detalhes
+        """Obtém detalhes da acomodação, verificando permissões."""
         accommodation = self.get_object()
         if accommodation.property != request.user and not request.user.is_staff:
             return Response(
                 {"error": "Você não tem permissão para ver essa acomodação."},
                 status=status.HTTP_403_FORBIDDEN,
             )
-
         return super().retrieve(request, *args, **kwargs)

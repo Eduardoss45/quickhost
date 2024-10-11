@@ -4,10 +4,7 @@ const Detalhes = ({ image, status, name, description, price, category }) => {
   return (
     <div className="anuncio">
       <div className="img-anuncio">
-        <img
-          src={`http://127.0.0.1:8000/${image}`}
-          alt="Imagem da acomodação"
-        />
+        <img src={image[1]} alt="Imagem da acomodação" />
         <span>Status: {status ? "Disponível" : "Indisponível"}</span>
       </div>
       <p>

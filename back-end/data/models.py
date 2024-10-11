@@ -1,5 +1,6 @@
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.auth.models import AbstractUser, BaseUserManager
+from django.contrib.postgres.fields import JSONField
 from django.db import models
 from uuid import uuid4
 import json
@@ -31,9 +32,7 @@ class Accommodation(models.Model):
     property_name = models.CharField(max_length=255, blank=True)
     main_cover = models.CharField(max_length=255, blank=True, null=True)
     state = models.BooleanField(default=True)
-    internal_images = models.FileField(
-        upload_to="internal_images/", blank=True, null=True
-    )
+    internal_images = models.JSONField(blank=True, null=True, default=list)
 
     CATEGORY_CHOICES = [
         ("inn", "Inn"),

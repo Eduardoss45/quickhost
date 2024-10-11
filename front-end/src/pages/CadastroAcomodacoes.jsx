@@ -61,7 +61,7 @@ function CadastroAcomodacoes() {
   const { loading, error, success, handleSubmit } = useCadastroAcomodacoes();
 
   useEffect(() => {
-    console.log(JSON.stringify(formData, null, 2));
+    console.log("FormData atualizado:", formData);
   }, [formData]);
 
   const handleKeyDown = (e) => {
@@ -74,7 +74,8 @@ function CadastroAcomodacoes() {
   // Função para atualizar os dados do formulário
   const updateFieldHandler = (e) => {
     const { name, value, type, checked } = e.target;
-
+    console.log(name, value, type, checked);
+    console.log(e.target);
     if (type === "checkbox") {
       setFormData((prevData) => ({
         ...prevData,
@@ -138,17 +139,14 @@ function CadastroAcomodacoes() {
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
-    console.log(formData);
 
     if (isLastStep) {
       if (validateForm()) {
-        console.log("Validação bem-sucedida, enviando dados do formulário...");
         handleSubmit(formData);
       } else {
         alert("Por favor, preencha todos os campos obrigatórios.");
       }
     } else {
-      console.log("Mudando para o próximo passo...");
       changeStep(currentStep + 1);
     }
   };
@@ -157,6 +155,7 @@ function CadastroAcomodacoes() {
     <form
       id="description-form"
       onSubmit={handleFormSubmit}
+      encType="multipart/form-data"
       onKeyDown={handleKeyDown}
     >
       <div className="description-bar">
