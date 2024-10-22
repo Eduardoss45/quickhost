@@ -1,29 +1,28 @@
-// useData.jsx
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-const useData = (url) => {
+const useData = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       try {
-        setLoading(true);
-        const response = await axios.get(url);
+        const response = await axios.get(
+          `${import.meta.env.VITE_QUICKHOST_BASE_URL}${import.meta.env.VITE_ACCOMMODATION_DATA_URL}`
+        );
         setData(response.data);
-      } catch (err) {
-        setError(err);
+      } catch (error) {
+        console.error("Erro ao buscar os dados:", error);
+        setError(error.response ? error.response.data : error.message);
       } finally {
         setLoading(false);
       }
     };
 
-    if (url) {
-      fetchData();
-    }
-  }, [url]);
+    fetchData();
+  }, []);
 
   return { data, loading, error };
 };

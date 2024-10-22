@@ -1,7 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import axios from "axios";
-import { jwtDecode } from "jwt-decode";
 import { CiMenuBurger } from "react-icons/ci";
 import { FaUserCircle, FaHotel } from "react-icons/fa";
 import { MdHotel } from "react-icons/md";
@@ -12,99 +10,44 @@ import MenuFlutuante from "./MenuFlutuante";
 import SearchBar from "./SearchBar";
 import PainelFlutuanteLogin from "./PainelFlutuanteLogin";
 import useUserData from "../hooks/useUserData";
+import useAuth from "../hooks/useAuth";
+import useNavbar from "../hooks/useNavbar";
 
 const Navbar = ({ onSearch }) => {
-  const [isMenuVisible, setIsMenuVisible] = useState(false);
-  const [isLoginPanelVisible, setIsLoginPainelVisible] = useState(false);
-  const [isSearchbarVisible, setIsSearchbarVisible] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [profilePicture, setProfilePicture] = useState("");
-  const location = useLocation();
-  const token = localStorage.getItem("token");
-  const id_user = localStorage.getItem("id_user");
+  const { data: userData } = useUserData();
+  const { isAuthenticated, profilePicture, setProfilePicture } = useAuth();
 
-  const { data: userData, error: userError } = useUserData(id_user, token);
+  const {
+    isMenuOpen,
+    isLoginPainelVisible,
+    isSearchBarVisible,
+    showUserRegistration,
+    onLoginSuccessful,
+    toggleMenuVisibility,
+    showLoginPainel,
+    showUserRegistrationPainel,
+    hideLoginPainel,
+    initializePageState,
+  } = useNavbar();
+
+  const location = useLocation();
 
   useEffect(() => {
-    checkAuth();
-    resetPage();
+    initializePageState();
   }, [location.pathname]);
 
   useEffect(() => {
     if (userData) {
       setProfilePicture(userData.profile_picture || "");
     }
-  }, [userData]);
-
-  const checkAuth = async () => {
-    const token = localStorage.getItem("token");
-    const refreshToken = localStorage.getItem("refreshToken");
-
-    if (token) {
-      const decodedToken = jwtDecode(token);
-      const currentTime = Date.now() / 1000;
-
-      if (decodedToken.exp < currentTime) {
-        try {
-          const response = await axios.post(
-            "http://localhost:8000/token/refresh/",
-            { refresh: refreshToken }
-          );
-          localStorage.setItem("token", response.data.access);
-          localStorage.setItem("refreshToken", response.data.refresh);
-          setIsAuthenticated(true);
-        } catch (error) {
-          console.error("Erro ao renovar token:", error);
-          setIsAuthenticated(false);
-        }
-      } else {
-        setIsAuthenticated(true);
-      }
-    } else {
-      setIsAuthenticated(false);
-    }
-  };
-
-  const toggleMenu = () => setIsMenuVisible((prev) => !prev);
-
-  const handleLoginClick = () => {
-    setIsLoginPainelVisible(true);
-    setIsMenuVisible(false);
-    setIsSearchbarVisible(true);
-  };
-
-  const handleCadastroClick = () => {
-    setIsLoginPainelVisible(false);
-    setIsMenuVisible(false);
-    setIsSearchbarVisible(false);
-  };
-
-  const closeLoginPanel = () => {
-    setIsLoginPainelVisible(false);
-    setIsSearchbarVisible(true);
-  };
-
-  const openCadastro = () => {
-    setIsSearchbarVisible(false);
-    setIsLoginPainelVisible(false);
-  };
-
-  const resetPage = () => {
-    setIsSearchbarVisible(location.pathname === "/");
-    setIsLoginPainelVisible(false);
-  };
-
-  const handleLoginSuccess = () => {
-    setIsAuthenticated(true);
-    resetPage();
-  };
+  }, [userData, setProfilePicture]);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("id_user");
-    setIsAuthenticated(false);
-    setProfilePicture(""); // Limpar a foto de perfil ao sair
+    isAuthenticated(false);
+    setProfilePicture("");
   };
 
   return (
@@ -132,7 +75,7 @@ const Navbar = ({ onSearch }) => {
               </button>
             </Link>
             <div id="box-relativo">
-              <button className="btn menu" onClick={toggleMenu}>
+              <button className="btn menu" onClick={toggleMenuVisibility}>
                 <span id="hanb">
                   <CiMenuBurger />
                 </span>
@@ -154,10 +97,10 @@ const Navbar = ({ onSearch }) => {
                   )}
                 </span>
               </button>
-              {isMenuVisible && (
+              {isMenuOpen && (
                 <MenuFlutuante
-                  onLoginClick={handleLoginClick}
-                  onCadastroClick={handleCadastroClick}
+                  onLoginClick={showLoginPainel}
+                  onCadastroClick={showUserRegistration}
                   isAuthenticated={isAuthenticated}
                   onLogout={handleLogout}
                 />
@@ -165,19 +108,20 @@ const Navbar = ({ onSearch }) => {
             </div>
           </nav>
         </div>
-        {isSearchbarVisible && (
+        {isSearchBarVisible && (
           <div id="bottom-row">
             <SearchBar onSearch={onSearch} />
           </div>
         )}
       </header>
-      {isLoginPanelVisible && (
+      {isLoginPainelVisible && (
         <>
-          <div className="backdrop" onClick={closeLoginPanel}></div>
+          <div className="backdrop" onClick={hideLoginPainel}></div>
           <PainelFlutuanteLogin
-            closeLoginPanel={closeLoginPanel}
-            openCadastro={openCadastro}
-            onLoginSuccess={handleLoginSuccess}
+            hideLoginPainel={hideLoginPainel}
+            showUserRegistrationPainel={showUserRegistrationPainel}
+            onLoginSuccessful={onLoginSuccessful}
+            isAuthenticated={isAuthenticated} // Passando a função de autenticação
           />
         </>
       )}

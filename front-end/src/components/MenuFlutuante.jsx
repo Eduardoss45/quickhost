@@ -1,39 +1,38 @@
 import { Link } from "react-router-dom";
-
 import "./MenuFlutuante.css";
 
 const MenuFlutuante = ({
   onLoginClick,
-  onCadastroClick,
+  onSignUpClick, // Renomeado para melhor clareza
   isAuthenticated,
   onLogout,
 }) => {
-
   return (
     <div id="menu-flutuante">
-      {isAuthenticated && (
+      {isAuthenticated ? (
         <>
           <Link to="/favoritos">
             <button onClick={onLoginClick}>Favoritos</button>
           </Link>
           <div id="menu-line"></div>
           <Link to="/perfil">
-            <button onClick={onCadastroClick}>Conta</button>
+            <button onClick={onSignUpClick}>Conta</button>{" "}
+            {/* Alterado para onSignUpClick */}
           </Link>
           <div id="menu-line"></div>
           <Link to="/">
             <button onClick={onLogout}>Sair</button>
           </Link>
         </>
-      )}
-      {!isAuthenticated && (
+      ) : (
         <>
           <Link to="/">
             <button onClick={onLoginClick}>Entrar</button>
           </Link>
           <div id="menu-line"></div>
           <Link to="/cadastro">
-            <button onClick={onCadastroClick}>Cadastrar</button>
+            <button onClick={onSignUpClick}>Cadastrar</button>{" "}
+            {/* Alterado para onSignUpClick */}
           </Link>
         </>
       )}

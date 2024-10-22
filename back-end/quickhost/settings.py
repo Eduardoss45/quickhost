@@ -91,33 +91,62 @@ SIMPLE_JWT = {
     "ROTATE_REFRESH_TOKENS": True,
     "USER_ID_FIELD": "email",
     "USER_ID_CLAIM": "email",
-    "ACCESS_TOKEN_LIFETIME": timedelta(hours=3),  # Duração do token de acesso
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),  # Duração do token de refresh
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=59),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
 }
 
-
-AUTH_USER_MODEL = "data.User"
-
+AUTH_USER_MODEL = "data.UserAccount"
 
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "America/Sao_Paulo"
 
 USE_I18N = True
 
 USE_TZ = True
 
-
 STATIC_URL = "/static/"
 
-
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-MEDIA_URL = "/media/"
 
+MEDIA_URL = "/media/"
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
 ]
 
-
 CORS_ALLOW_ALL_ORIGINS = False
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} {asctime} {module} {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console"],
+            "level": "WARNING",
+            "propagate": False,
+        },
+        "django.db.backends": {
+            "handlers": ["console"],
+            "level": "ERROR",
+            "propagate": False,
+        },
+        "my_logger": {
+            "handlers": ["console"],
+            "level": "DEBUG",
+            "propagate": False,
+        },
+    },
+}

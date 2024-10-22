@@ -1,13 +1,15 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-function useUserData(id_user, token) {
-  const [data, setData] = useState(null); // Inicialmente null, pois estamos buscando dados de um usuário específico
+const useUserData = () => {
+  const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const token = localStorage.getItem("token");
+  const id_user = localStorage.getItem("id_user");
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchUserData = async () => {
       if (!id_user) {
         setError(new Error("User ID is required"));
         setLoading(false);
@@ -16,26 +18,31 @@ function useUserData(id_user, token) {
 
       try {
         const response = await axios.get(
-          `http://localhost:8000/user/${id_user}/`,
+          `${import.meta.env.VITE_BASE_URL}${
+            import.meta.env.VITE_USER_DATA_URL
+          }${id_user}/`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           }
         );
-        setData(response.data);
+        setUserData(response.data);
       } catch (error) {
         console.error("Erro ao buscar dados:", error);
-        setError(error);
+        setError(
+          error.response?.data.detail ||
+            "An error occurred while fetching user data"
+        );
       } finally {
         setLoading(false);
       }
     };
 
-    fetchData();
-  }, [id_user, token]); // Dependências do hook para refetch ao mudar id_user ou token
+    fetchUserData();
+  }, [id_user, token]);
 
-  return { data, loading, error };
-}
+  return { userData, loading, error };
+};
 
 export default useUserData;

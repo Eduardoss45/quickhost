@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 
-function useCadastro(url) {
+const useCadastro = () => {
   const [formData, setFormData] = useState({
     username: "",
     birth_date: "",
@@ -15,10 +15,10 @@ function useCadastro(url) {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
+    setFormData((prevFormData) => ({
+      ...prevFormData,
       [name]: value,
-    });
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -27,36 +27,32 @@ function useCadastro(url) {
     setError(null);
 
     try {
-      const response = await axios.post(url, formData, {
+      const response = await axios.post(import.meta.env.VITE_USER_DATA_URL, formData, {
         headers: {
           "Content-Type": "application/json",
         },
       });
-
+      console.log(response);
       setSuccess(true);
     } catch (error) {
-      console.error("Erro ao cadastrar o usuário:", error); // Log do erro
+      console.error("Erro ao cadastrar o usuário:", error);
       setError(error);
     } finally {
       setLoading(false);
     }
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     let timer;
-    if (success) {
+    if (success || error) {
       timer = setTimeout(() => {
-        setSuccess(false);
-      }, 10000);
-    } else if (error) {
-      timer = setTimeout(() => {
-        setError(false);
+        success ? setSuccess(false) : setError(null);
       }, 10000);
     }
     return () => clearTimeout(timer);
-  }, [success, error]); // Adicionei error aqui para garantir que seja monitorado
+  }, [success, error]);
 
   return { formData, loading, error, success, handleChange, handleSubmit };
-}
+};
 
 export default useCadastro;

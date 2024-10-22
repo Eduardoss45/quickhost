@@ -2,39 +2,43 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-
 from rest_framework import routers
 from rest_framework_simplejwt.views import TokenRefreshView
-
-from quickhost.api import viewsets as accommodationviewsets
 from quickhost.api.viewsets import (
-    UserCreate,
-    MyTokenObtainPairView,
-    UserUpdate,
-    UserDetailView,
+    AccommodationViewSet,
+    UserViewSet,
+    CustomTokenObtainPairView,
 )
 
-# Criação do roteador
-route = routers.DefaultRouter()
-
-# Registro do ViewSet de acomodações
-route.register(
-    r"accommodation",
-    accommodationviewsets.AccommodationViewSet,
-    basename="Accommodation",
-)
+router = routers.DefaultRouter()
+router.register(r"accommodations", AccommodationViewSet, basename="accommodations")
+router.register(r"users", UserViewSet, basename="users")
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("token/", MyTokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("token/", CustomTokenObtainPairView.as_view(), name="token_obtain"),
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
-    path("register/", UserCreate.as_view(), name="user-register"),
-    path("user/<uuid:id_user>/", UserDetailView.as_view(), name="user-detail"),
-    path("user/update/<uuid:id_user>/", UserUpdate.as_view(), name="user-update"),
+    path("", include(router.urls)),
     path(
-        "user/accommodation/create/<uuid:id_user>/",
-        accommodationviewsets.AccommodationViewSet.as_view({"post": "create"}),
-        name="user-accommodation",
+        "users/",
+        UserViewSet.as_view({"get": "list", "post": "create"}),
+        name="user_list",
     ),
-    path("", include(route.urls)),
+    path(
+        "users/<uuid:id_user>/",
+        UserViewSet.as_view({"get": "retrieve", "put": "update", "delete": "destroy"}),
+        name="user_detail",
+    ),
+    path(
+        "accommodations/<uuid:id_accommodation>/",
+        AccommodationViewSet.as_view(
+            {"get": "retrieve", "put": "update", "delete": "destroy"}
+        ),
+        name="accommodation_detail",
+    ),
+    path(
+        "users/<uuid:id_user>/accommodations/",
+        AccommodationViewSet.as_view({"post": "create"}),
+        name="create_accommodation",
+    ),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

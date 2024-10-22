@@ -5,16 +5,8 @@ import { FaArrowLeftLong } from "react-icons/fa6";
 import "./Cadastro.css";
 
 const Cadastro = ({ resetPage }) => {
-  const initialState = {
-    username: "",
-    birth_date: "",
-    phone_number: "",
-    email: "",
-    password: "",
-  };
-
   const { formData, loading, error, success, handleChange, handleSubmit } =
-    useCadastro("http://localhost:8000/register/");
+    useCadastro();
 
   const resetForm = () => {
     handleChange({ target: { name: "username", value: "" } });
@@ -28,7 +20,7 @@ const Cadastro = ({ resetPage }) => {
     if (success) {
       resetForm();
     }
-  }, [success]); // Only re-run the effect if `success` changes
+  }, [success]);
 
   return (
     <div id="page-row">
@@ -108,13 +100,17 @@ const Cadastro = ({ resetPage }) => {
               disabled={loading}
             />
           </div>
-          {error ? (
-            <p className="error message">
-              Erro ao cadastrar o usuário: {error.message}
-            </p>
-          ) : success ? (
-            <p className="success message">Usuário cadastrado com sucesso!</p>
-          ) : null}
+          <p
+            className={
+              error ? "error message" : success ? "success message" : ""
+            }
+          >
+            {error
+              ? `Erro ao cadastrar o usuário: ${error}`
+              : success
+              ? "Usuário cadastrado com sucesso!"
+              : ""}
+          </p>
         </form>
       </div>
     </div>

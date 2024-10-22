@@ -5,8 +5,8 @@ import useEdit from "../hooks/useEdit";
 import "./EditorDePerfil.css";
 
 const EditorDePerfil = ({ handleReset }) => {
-  const token = localStorage.getItem("token");
   const id_user = localStorage.getItem("id_user");
+  const token = localStorage.getItem("token");
 
   const {
     formData,
@@ -18,6 +18,7 @@ const EditorDePerfil = ({ handleReset }) => {
     handleChange,
   } = useEdit(id_user, token);
 
+  console.log(formData);
   const [image, setImage] = useState(null);
 
   useEffect(() => {
@@ -39,19 +40,12 @@ const EditorDePerfil = ({ handleReset }) => {
     event.preventDefault();
 
     const form = new FormData();
-    const addedKeys = new Set(); // Para controlar chaves já adicionadas
 
-    for (const [key, value] of Object.entries(formData)) {
+    Object.entries(formData).forEach(([key, value]) => {
       if (value !== null && value !== undefined) {
-        if (!addedKeys.has(key)) {
-          // Verifica se a chave já foi adicionada
-          form.append(key, value); // Adiciona o valor ao FormData
-          addedKeys.add(key); // Marca a chave como adicionada
-        } else {
-          console.warn(`A chave "${key}" já foi adicionada ao FormData.`);
-        }
+        form.append(key, value);
       }
-    }
+    });
 
     // Adiciona o profile_picture apenas se um arquivo for selecionado
     if (image) {
@@ -66,13 +60,16 @@ const EditorDePerfil = ({ handleReset }) => {
       if (success) {
         alert("Dados atualizados com sucesso!");
       }
-    } catch (err) {
-      console.error("Erro ao atualizar dados:", err);
+    } catch (error) {
+      console.error("Erro ao atualizar dados:", error);
     }
   };
 
   if (loading) return <p>Loading...</p>;
-  if (error) return <p>Ocorreu um erro: {error.message}</p>;
+
+  // Verificando se `error` está definido antes de acessar `response`
+  const errorMessage = error?.response?.data || "Erro desconhecido";
+  if (errorMessage) return <p>Ocorreu um erro: {errorMessage}</p>;
 
   return (
     <div id="page-row-perfil">

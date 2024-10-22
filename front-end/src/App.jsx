@@ -15,10 +15,8 @@ import useData from "./hooks/useData"; // Correção aqui
 import RegistroReservas from "./components/RegistroReservas";
 
 function App() {
-  const { data, loading, error } = useData(
-    "http://localhost:8000/accommodation/"
-  );
-  const accommodations = data && Array.isArray(data) ? data : []; // Ajustado para ser um array
+  const { data, loading, error } = useData();
+  const accommodations = data && Array.isArray(data) ? data : [];
   const [searchTerm, setSearchTerm] = useState("");
 
   const handleSearch = (term) => {
@@ -38,7 +36,7 @@ function App() {
         {loading ? (
           <>Carregando...</>
         ) : error ? (
-          <>Erro ao buscar dados: {error.message}</>
+          <>Erro ao buscar dados: {error.response.data}</>
         ) : (
           <Routes>
             <Route

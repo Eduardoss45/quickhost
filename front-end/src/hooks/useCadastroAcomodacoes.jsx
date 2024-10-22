@@ -77,14 +77,23 @@ const useCadastroAcomodacoes = () => {
         console.log(`Key: ${key}, Value: ${value}`, value);
       });
 
-      console.log(
-        `Enviando dados para: http://127.0.0.1:8000/user/accommodation/create/${id_user}/`
-      );
+      // Monta a URL com base na variável de ambiente
+      const apiUrl = `${
+        import.meta.env.VITE_QUICKHOST_BASE_URL
+      }${import.meta.env.VITE_QUICKHOST_USER_ACCOMMODATION_URL.replace(
+        "{id_user}",
+        id_user
+      )}`;
 
-      console.log("Dados enviados:", JSON.stringify(formData, null, 2));
+      console.log(`Enviando dados para: ${apiUrl}`);
 
       const response = await axios.post(
-        `http://127.0.0.1:8000/user/accommodation/create/${id_user}/`,
+        `${
+          import.meta.env.VITE_BASE_URL
+        }${import.meta.env.VITE_ACCOMMODATION_CREATE_URL.replace(
+          "<uuid:id_user>",
+          id_user
+        )}`,
         updatedFormData,
         {
           headers: {
@@ -95,13 +104,13 @@ const useCadastroAcomodacoes = () => {
 
       console.log("Resposta do servidor:", response.data);
       setSuccess(true);
-    } catch (err) {
-      console.error("Erro ao enviar os dados:", err);
-      if (err.response) {
-        console.error("Detalhes do erro:", err.response.data);
-        setError(err.response.data.detail);
+    } catch (error) {
+      console.error("Erro ao enviar os dados:", error);
+      if (error.response) {
+        console.error("Detalhes do erro:", error.response.data);
+        setError(error.response.data.detail);
       } else {
-        setError(err.message);
+        setError(error.message);
       }
     } finally {
       setLoading(false);
