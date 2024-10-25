@@ -3,6 +3,7 @@ from rest_framework import viewsets, status, response, exceptions
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.response import Response
 from django.http import HttpResponse
+from pprint import pprint  # Remover apos o debug
 from django.contrib.auth import get_user_model
 from .serializers import (
     AccommodationSerializer,
@@ -71,11 +72,15 @@ class UserViewSet(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         """Atualiza os dados de um usuário específico (protegido)."""
         user = self.get_object()
+
+        # Exibir os dados recebidos de forma organizada
+        print("Dados recebidos:", request.data)
+
         serializer = self.get_serializer(user, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
 
-        return self._get_user_response(user)
+        return Response(serializer.data)
 
     def destroy(self, request, *args, **kwargs):
         """Exclui um usuário específico (protegido)."""

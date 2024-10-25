@@ -18,7 +18,6 @@ const EditorDePerfil = ({ handleReset }) => {
     handleChange,
   } = useEdit(id_user, token);
 
-  console.log(formData);
   const [image, setImage] = useState(null);
 
   useEffect(() => {
@@ -66,10 +65,8 @@ const EditorDePerfil = ({ handleReset }) => {
   };
 
   if (loading) return <p>Loading...</p>;
-
-  // Verificando se `error` está definido antes de acessar `response`
-  const errorMessage = error?.response?.data || "Erro desconhecido";
-  if (errorMessage) return <p>Ocorreu um erro: {errorMessage}</p>;
+  // const errorMessage = error?.response?.data || "Erro desconhecido";
+  // if (errorMessage) return <p>Ocorreu um erro: {errorMessage}</p>;
 
   return (
     <div id="page-row-perfil">

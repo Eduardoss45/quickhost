@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { CiMenuBurger } from "react-icons/ci";
 import { FaUserCircle, FaHotel } from "react-icons/fa";
@@ -15,7 +15,10 @@ import useNavbar from "../hooks/useNavbar";
 
 const Navbar = ({ onSearch }) => {
   const { data: userData } = useUserData();
-  const { isAuthenticated, profilePicture, setProfilePicture } = useAuth();
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return localStorage.getItem("isAuthenticated") === "true";
+  });
+  const { profilePicture, setProfilePicture } = useAuth();
 
   const {
     isMenuOpen,
@@ -46,7 +49,9 @@ const Navbar = ({ onSearch }) => {
     localStorage.removeItem("token");
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("id_user");
-    isAuthenticated(false);
+    localStorage.removeItem("isAuthenticated");
+
+    setIsAuthenticated(false);
     setProfilePicture("");
   };
 
@@ -121,7 +126,7 @@ const Navbar = ({ onSearch }) => {
             hideLoginPainel={hideLoginPainel}
             showUserRegistrationPainel={showUserRegistrationPainel}
             onLoginSuccessful={onLoginSuccessful}
-            isAuthenticated={isAuthenticated} // Passando a função de autenticação
+            setIsAuthenticated={setIsAuthenticated}
           />
         </>
       )}

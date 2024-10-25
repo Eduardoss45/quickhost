@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import { IoMdClose } from "react-icons/io";
-import useLogin from "../hooks/useLogin"; // Importando o hook
+import useLogin from "../hooks/useLogin";
 
 import "./PainelFlutuanteLogin.css";
 
@@ -9,27 +9,30 @@ const PainelFlutuanteLogin = ({
   hideLoginPainel,
   showUserRegistrationPainel,
   onLoginSuccessful,
-  setIsAuthenticated, // Recebendo o setIsAuthenticated do pai
+  setIsAuthenticated,
 }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false); // Estado de carregamento
+  const [loading, setLoading] = useState(false);
 
-  // Usando o hook useLogin
-  const { handleLogin, errorMessage, successMessage, isAuthenticated } =
-    useLogin();
+  const handleAuthenticated = () => {
+    setIsAuthenticated(true);
+  };
+
+  const { handleLogin, errorMessage, successMessage } =
+    useLogin(handleAuthenticated);
 
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Evita o comportamento padrão do formulário
-    setLoading(true); // Inicia o carregamento
+    e.preventDefault();
+    setLoading(true);
+
     const success = await handleLogin(email, password);
 
     if (success) {
-      setIsAuthenticated(isAuthenticated); // Atualiza o estado no componente pai
-      onLoginSuccessful(); // Chama o callback do login bem-sucedido
-      hideLoginPainel(); // Oculta o painel de login
+      onLoginSuccessful();
+      hideLoginPainel();
     }
-    setLoading(false); // Finaliza o carregamento
+    setLoading(false);
   };
 
   return (

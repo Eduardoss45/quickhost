@@ -3,7 +3,7 @@ import "./MenuFlutuante.css";
 
 const MenuFlutuante = ({
   onLoginClick,
-  onSignUpClick, // Renomeado para melhor clareza
+  onSignUpClick,
   isAuthenticated,
   onLogout,
 }) => {
@@ -32,7 +32,6 @@ const MenuFlutuante = ({
           <div id="menu-line"></div>
           <Link to="/cadastro">
             <button onClick={onSignUpClick}>Cadastrar</button>{" "}
-            {/* Alterado para onSignUpClick */}
           </Link>
         </>
       )}

@@ -1,16 +1,15 @@
 import { useState } from "react";
 import axios from "axios";
 
-const useLogin = () => {
+const useLogin = (handleAuthenticated) => {
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(false); // Estado para gerenciar o carregamento
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async (email, password) => {
     setErrorMessage("");
     setSuccessMessage("");
-    setLoading(true); // Inicia o carregamento
+    setLoading(true);
 
     try {
       const response = await axios.post(
@@ -18,35 +17,37 @@ const useLogin = () => {
         { email, password }
       );
 
-      // Armazenamento de tokens no localStorage
+      console.log(response);
+
       storeTokens(response.data.tokens);
 
-      setIsAuthenticated(true);
       const msg = response.data.message;
       setSuccessMessage(msg);
+
+      if (handleAuthenticated) handleAuthenticated();
+
       return true;
     } catch (error) {
       const err = error.response?.data?.error || "Erro desconhecido";
       setErrorMessage(err);
-      setIsAuthenticated(false);
+
       return false;
     } finally {
-      setLoading(false); // Finaliza o carregamento
+      setLoading(false);
     }
   };
-
   const storeTokens = (tokens) => {
     localStorage.setItem("token", tokens.access);
     localStorage.setItem("refreshToken", tokens.refresh);
     localStorage.setItem("id_user", tokens.user.id_user);
+    localStorage.setItem("isAuthenticated", tokens.user.authenticated);
   };
 
   return {
     handleLogin,
     errorMessage,
     successMessage,
-    isAuthenticated,
-    loading, // Inclui o estado de carregamento
+    loading,
   };
 };
 

@@ -91,23 +91,28 @@ def validate_profile_picture(profile_picture):
     """Valida a imagem de perfil do usuário.
 
     Args:
-        profile_picture (File): Imagem a ser validada.
+        profile_picture (File or str): Imagem a ser validada, podendo ser um arquivo ou uma URL.
 
     Returns:
         str or None: Mensagem de erro se inválido, ou None se válido.
     """
-    if profile_picture is None:
+    print("Dados recebidos para validação:", profile_picture)
+
+    if isinstance(profile_picture, str) and profile_picture.startswith("http"):
+        # Retorna None se for uma URL, ignorando-a
         return None
 
     # Verifica se profile_picture é um arquivo
     if not hasattr(profile_picture, "name") or not hasattr(profile_picture, "size"):
-        return "Arquivo de imagem inválido."
+        raise serializers.ValidationError("Arquivo de imagem inválido.")
 
     valid_extensions = ["jpg", "jpeg", "png", "gif"]
     if not any(profile_picture.name.lower().endswith(ext) for ext in valid_extensions):
         return "Imagem de perfil inválida. Formatos suportados: jpg, jpeg, png, gif."
+
     if profile_picture.size > 5 * 1024 * 1024:
         return "A imagem de perfil deve ter no máximo 5MB."
+
     return None
 
 
@@ -154,4 +159,109 @@ def validate_password(password):
         return "A senha deve conter pelo menos uma letra maiúscula."
     if not re.search(r"[a-z]", password):
         return "A senha deve conter pelo menos uma letra minúscula."
+    return None
+
+
+def validate_internal_images(internal_images):
+    """Valida as imagens da acomodação"""
+
+    if not hasattr(image, "name") or not hasattr(image, "size"):
+        return False
+    valid_extensions = ["jpg", "jpeg", "png", "gif"]
+    if not any(image.name.lower().endswith(ext) for ext in valid_extensions):
+        return False
+    if image.size > 5 * 1024 * 1024:  # 5 MB
+        return False
+    return True
+
+
+def generate_random_filename(self, length=14):
+    """Gera um nome de arquivo aleatório com o tamanho especificado."""
+    characters = string.ascii_letters + string.digits
+    random_name = "".join(random.choice(characters) for _ in range(length))
+    return random_name
+
+
+def validate_room_count(room_count):
+    """Valida o número de quartos da acomodação.
+
+    Args:
+        room_count (int): Número de quartos a ser validado.
+
+    Returns:
+        str or None: Mensagem de erro se inválido, ou None se válido.
+    """
+    if room_count < 1 or room_count > 20:
+        return "O número de quartos deve ser entre 1 e 20."
+    return None
+
+
+def validate_bed_count(bed_count):
+    """Valida o número de camas da acomodação.
+
+    Args:
+        bed_count (int): Número de camas a ser validado.
+
+    Returns:
+        str or None: Mensagem de erro se inválido, ou None se válido.
+    """
+    if bed_count < 1 or bed_count > 20:
+        return "O número de camas deve ser entre 1 e 20."
+    return None
+
+
+def validate_bathroom_count(bathroom_count):
+    """Valida o número de banheiros da acomodação.
+
+    Args:
+        bathroom_count (int): Número de banheiros a ser validado.
+
+    Returns:
+        str or None: Mensagem de erro se inválido, ou None se válido.
+    """
+    if bathroom_count < 1 or bathroom_count > 20:
+        return "O número de banheiros deve ser entre 1 e 20."
+    return None
+
+
+def validate_guest_capacity(guest_capacity):
+    """Valida a capacidade de hóspedes da acomodação.
+
+    Args:
+        guest_capacity (int): Capacidade de hóspedes a ser validada.
+
+    Returns:
+        str or None: Mensagem de erro se inválido, ou None se válido.
+    """
+    if guest_capacity < 1 or guest_capacity > 20:
+        return "A capacidade de hóspedes deve ser entre 1 e 20."
+    return None
+
+
+def validate_price_per_night(price_per_night):
+    """Valida o preço por noite da acomodação.
+
+    Args:
+        price_per_night (float): Preço por noite a ser validado.
+
+    Returns:
+        str or None: Mensagem de erro se inválido, ou None se válido.
+    """
+    if price_per_night < 0:
+        return "O preço por noite deve ser um valor positivo."
+    return None
+
+
+def validate_main_cover_image(main_cover_image, internal_images):
+    """Valida a imagem de capa da acomodação.
+
+    Args:
+        main_cover_image (str): Imagem de capa a ser validada.
+        internal_images (list): Lista de imagens internas.
+
+    Returns:
+        str or None: Mensagem de erro se inválido, ou None se válido.
+    """
+    if main_cover_image and main_cover_image not in internal_images:
+        return "A imagem da capa deve ser uma das imagens internas."
     return None

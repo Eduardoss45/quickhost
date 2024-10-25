@@ -15,6 +15,12 @@ from .validation import (
     validate_profile_picture,
     validate_emergency_contact,
     validate_password,
+    validate_room_count,
+    validate_bed_count,
+    validate_bathroom_count,
+    validate_guest_capacity,
+    validate_price_per_night,
+    validate_main_cover_image,
 )
 
 User = get_user_model()
@@ -188,31 +194,25 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         """Atualiza os dados do usuário e retorna mensagem apropriada."""
         logger.debug(f"Iniciando a atualização do usuário: {instance.username}")
 
-        password_updated = False
-
         # Atualiza campos do usuário
-        instance.username = validated_data.get("username", instance.username)
-        instance.phone_number = validated_data.get(
-            "phone_number", instance.phone_number
-        )
-        instance.social_name = validated_data.get("social_name", instance.social_name)
-        instance.emergency_contact = validated_data.get(
-            "emergency_contact", instance.emergency_contact
-        )
+        fields_to_update = [
+            "username",
+            "phone_number",
+            "social_name",
+            "emergency_contact",
+        ]
+        for field in fields_to_update:
+            if field in validated_data:
+                setattr(instance, field, validated_data[field])
 
-        # Atualiza a imagem de perfil
+        # Atualiza a imagem de perfil (a validação já foi feita no validate)
         if "profile_picture" in validated_data:
-            profile_picture = validated_data["profile_picture"]
-            profile_picture_error = validate_profile_picture(profile_picture)
-            if not profile_picture_error:
-                instance.profile_picture = profile_picture
+            instance.profile_picture = validated_data["profile_picture"]
 
         # Atualiza a senha se presente
         if "password" in validated_data:
             new_password = validated_data["password"]
-            # Adicione validação para a nova senha se necessário
             instance.set_password(new_password)
-            password_updated = True
 
         # Salva as alterações no banco de dados
         try:
@@ -291,7 +291,69 @@ class AccommodationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.PropertyListing
-        fields = "__all__"
+        fields = [
+            "creator",
+            "main_cover_image",
+            "internal_images",
+            "is_active",
+            "category",
+            "room_count",
+            "bed_count",
+            "bathroom_count",
+            "guest_capacity",
+            "space_type",
+            "address",
+            "city",
+            "neighborhood",
+            "postal_code",
+            "complement",
+            "amenities",
+            "title",
+            "description",
+            "price_per_night",
+            "bank_account",
+        ]
+
+    def validate(self, attrs):
+        """Valida todos os campos do formulário de acomodação."""
+        errors = {}
+
+        # Validações de campos
+        room_count_error = validate_room_count(attrs.get("room_count"))
+        if room_count_error:
+            errors["room_count"] = room_count_error
+
+        bed_count_error = validate_bed_count(attrs.get("bed_count"))
+        if bed_count_error:
+            errors["bed_count"] = bed_count_error
+
+        bathroom_count_error = validate_bathroom_count(attrs.get("bathroom_count"))
+        if bathroom_count_error:
+            errors["bathroom_count"] = bathroom_count_error
+
+        guest_capacity_error = validate_guest_capacity(attrs.get("guest_capacity"))
+        if guest_capacity_error:
+            errors["guest_capacity"] = guest_capacity_error
+
+        price_per_night_error = validate_price_per_night(attrs.get("price_per_night"))
+        if price_per_night_error:
+            errors["price_per_night"] = price_per_night_error
+
+        category_error = validate_category(attrs.get("category"))
+        if category_error:
+            errors["category"] = category_error
+
+        main_cover_image_error = validate_main_cover_image(
+            attrs.get("main_cover_image"), attrs.get("internal_images")
+        )
+        if main_cover_image_error:
+            errors["main_cover_image"] = main_cover_image_error
+
+        if errors:
+            logger.error(f"Erros de validação encontrados: {errors}")
+            raise serializers.ValidationError(errors)
+
+        return attrs
 
     def create(self, validated_data):
         """Cria e salva uma nova acomodação no banco de dados."""
@@ -301,7 +363,7 @@ class AccommodationSerializer(serializers.ModelSerializer):
             internal_images = validated_data.pop("internal_images", [])
 
             logger.debug("Dados da acomodação: %s", validated_data)
-            accommodation = models.Accommodation.objects.create(**validated_data)
+            accommodation = models.PropertyListing.objects.create(**validated_data)
             logger.info(f"Acomodação criada: {accommodation.id_accommodation}.")
 
             if internal_images:
@@ -310,7 +372,7 @@ class AccommodationSerializer(serializers.ModelSerializer):
                 logger.info(f"URLs das imagens armazenadas: {internal_images}.")
 
             if bank_account_data:
-                bank_account = models.BankAccount.objects.create(**bank_account_data)
+                bank_account = models.BankDetails.objects.create(**bank_account_data)
                 accommodation.bank_account = bank_account
                 accommodation.save()
                 logger.info(f"Conta bancária associada à acomodação: {bank_account}.")
