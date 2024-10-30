@@ -15,6 +15,7 @@ const Home = ({ accommodations }) => {
   const filteredAccommodations = selectedCategory
     ? accommodations.filter((item) => item.category === selectedCategory)
     : accommodations;
+  console.log(filteredAccommodations);
 
   return (
     <>
@@ -25,10 +26,10 @@ const Home = ({ accommodations }) => {
         {filteredAccommodations.map((item, index) => (
           <Detalhes
             key={index}
-            image={item.internal_images} // Imagem interna da acomodação
+            image={item.internal_images[0] || "media/default-image.jpg"} // Primeira imagem ou padrão
             title={item.title} // Título da acomodação
             description={item.description} // Descrição da acomodação
-            price={item.price} // Preço da acomodação
+            price={item.price_per_night} // Alinha ao campo correto
             category={item.category} // Categoria da acomodação
             // Adicione outras propriedades que você precisar
           />

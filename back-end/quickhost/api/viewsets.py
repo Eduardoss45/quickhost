@@ -79,7 +79,9 @@ class UserViewSet(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         """Atualiza os dados de um usuário específico (protegido)."""
         user = self.get_object()  # Obtém o usuário a ser atualizado
-        serializer = self.get_serializer(user, data=request.data, partial=True)  # Cria o serializador com os dados recebidos
+        serializer = self.get_serializer(
+            user, data=request.data, partial=True
+        )  # Cria o serializador com os dados recebidos
         serializer.is_valid(raise_exception=True)  # Valida os dados
         self.perform_update(serializer)  # Realiza a atualização
         return Response(serializer.data)  # Retorna os dados atualizados
@@ -175,8 +177,15 @@ class AccommodationViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
+        # Serializa o queryset normalmente
         serializer = self.get_serializer(self.queryset, many=True)
-        return Response(serializer.data)
+        data = serializer.data
+
+        # Substitui None pelos caminhos de imagem disponíveis
+        for item, original in zip(data, self.queryset):
+            item["internal_images"] = original.internal_images or []
+
+        return Response(data)
 
     def retrieve(self, request, *args, **kwargs):
         """Obtém detalhes da acomodação, verificando permissões (protegido)."""

@@ -1,10 +1,13 @@
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.core.files.uploadedfile import TemporaryUploadedFile
+from django.core.files.storage import default_storage
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from django.urls import reverse
 from urllib.parse import urlparse
 from data import models
+import os
+import uuid
 import logging
 
 
@@ -59,10 +62,6 @@ def generate_new_filename(original_filename):
     extension = os.path.splitext(original_filename)[1]
     new_filename = f"{uuid.uuid4().hex}{extension}"
     return new_filename
-
-
-import os
-from django.core.files.storage import default_storage
 
 
 class UserCreateSerializer(serializers.ModelSerializer):
@@ -213,7 +212,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         """Atualiza os dados do usuário e retorna mensagem apropriada."""
         logger.debug(f"Iniciando a atualização do usuário: {instance.username}")
-    
+
         fields_to_update = [
             "username",
             "phone_number",
@@ -223,27 +222,29 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         for field in fields_to_update:
             if field in validated_data:
                 setattr(instance, field, validated_data[field])
-    
+
         # Verificar e atualizar a imagem de perfil apenas se não for URL
         if "profile_picture" in validated_data:
             profile_picture = validated_data["profile_picture"]
-    
+
             # Verificar se é uma URL
             if isinstance(profile_picture, str) and urlparse(profile_picture).scheme:
                 # Caso seja uma URL, você pode ignorar a atualização ou fazer algo específico
                 instance.profile_picture = profile_picture
-            elif isinstance(profile_picture, TemporaryUploadedFile):  # Caso seja um arquivo
+            elif isinstance(
+                profile_picture, TemporaryUploadedFile
+            ):  # Caso seja um arquivo
                 new_filename = generate_new_filename(profile_picture.name)
                 instance.profile_picture.save(
                     os.path.join(str(instance.id_user), new_filename),
                     profile_picture,
                     save=True,
                 )
-    
+
         if "password" in validated_data:
             new_password = validated_data["password"]
             instance.set_password(new_password)
-    
+
         # Tentativa de salvar a instância
         try:
             instance.save()
@@ -253,9 +254,9 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         except Exception as e:
             logger.error(f"Erro ao salvar usuário: {e}")
             raise serializers.ValidationError("Erro ao atualizar os dados do usuário.")
-    
+
         logger.info(f"Usuário '{instance.username}' atualizado com sucesso.")
-    
+
         return {
             "message": "Os dados do usuário foram alterados com sucesso.",
             "data": {
@@ -268,6 +269,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
                 ),
             },
         }
+
 
 class TokenObtainPairSerializer(TokenObtainPairSerializer):
     """Serializer para obtenção de token JWT."""
@@ -494,15 +496,39 @@ class AccommodationSerializer(serializers.ModelSerializer):
             bank_account_data = validated_data.pop("bank_account", None)
             internal_images = validated_data.pop("internal_images", [])
 
-            logger.debug("Dados da acomodação: %s", validated_data)
+            # Criação da acomodação
             accommodation = models.PropertyListing.objects.create(**validated_data)
-            logger.info(f"Acomodação criada: {accommodation.id_accommodation}.")
+            accommodation_uuid = (
+                accommodation.id_accommodation
+            )  # Supondo que isso seja o UUID da acomodação
+            logger.info(f"Acomodação criada: {accommodation_uuid}.")
 
-            if internal_images:
-                accommodation.internal_images = internal_images
-                accommodation.save()
-                logger.info(f"URLs das imagens armazenadas: {internal_images}.")
+            image_paths = []  # Lista para armazenar os caminhos das imagens
 
+            # Renomeia e salva as imagens internas
+            for image in internal_images:
+                # Verifica se a imagem é um TemporaryUploadedFile
+                if isinstance(image, TemporaryUploadedFile):
+                    # Gera um novo nome de arquivo com UUID
+                    new_filename = (
+                        f"{uuid.uuid4()}.jpg"  # Altere a extensão conforme necessário
+                    )
+                    image_folder = f"property_images/{accommodation_uuid}/"  # Diretório onde as imagens serão salvas
+                    file_path = os.path.join(image_folder, new_filename
+                    )
+
+                    # Salva a imagem no diretório
+                    if default_storage.save(file_path, image):
+                        image_paths.append(
+                            file_path
+                        )  # Adiciona o caminho da imagem à lista
+
+            accommodation.internal_images = list(map(str, image_paths))
+
+            accommodation.save()
+            logger.info(f"URLs das imagens armazenadas: {image_paths}.")
+
+            # Criação da conta bancária, se houver
             if bank_account_data:
                 bank_account = models.BankDetails.objects.create(**bank_account_data)
                 accommodation.bank_account = bank_account
