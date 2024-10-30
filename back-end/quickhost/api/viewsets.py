@@ -54,7 +54,14 @@ class UserViewSet(viewsets.ModelViewSet):
         """Lista todos os usuários (protegido)."""
         queryset = self.queryset
         serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+        data = serializer.data
+
+        # Remover campos específicos de todos os usuários na resposta
+        for item in data:
+            item.pop("password", None)  # Remova o campo 'password'
+            # Adicione outros campos que você deseja remover, se necessário
+
+        return Response(data)
 
     def retrieve(self, request, *args, **kwargs):
         """Obtém detalhes de um usuário específico (protegido)."""
@@ -71,16 +78,11 @@ class UserViewSet(viewsets.ModelViewSet):
 
     def update(self, request, *args, **kwargs):
         """Atualiza os dados de um usuário específico (protegido)."""
-        user = self.get_object()
-
-        # Exibir os dados recebidos de forma organizada
-        print("Dados recebidos:", request.data)
-
-        serializer = self.get_serializer(user, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
-
-        return Response(serializer.data)
+        user = self.get_object()  # Obtém o usuário a ser atualizado
+        serializer = self.get_serializer(user, data=request.data, partial=True)  # Cria o serializador com os dados recebidos
+        serializer.is_valid(raise_exception=True)  # Valida os dados
+        self.perform_update(serializer)  # Realiza a atualização
+        return Response(serializer.data)  # Retorna os dados atualizados
 
     def destroy(self, request, *args, **kwargs):
         """Exclui um usuário específico (protegido)."""
@@ -154,6 +156,8 @@ class AccommodationViewSet(viewsets.ModelViewSet):
             raise exceptions.ValidationError(
                 {"detail": "O ID do usuário deve estar no formato UUID."}
             )
+
+        print(f"Dados recebidos:{request.data}")
 
         return super().create(request, *args, **kwargs)
 

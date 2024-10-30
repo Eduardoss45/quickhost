@@ -25,12 +25,13 @@ const EditorDePerfil = ({ handleReset }) => {
   }, [fetchUserData]);
 
   const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    setImage(file);
+    const file = event.target.files[0]; // Pega o primeiro arquivo selecionado
+    console.log("Arquivo selecionado:", file); // Adiciona o log para exibir o arquivo
+    setImage(file); // Armazena o arquivo no estado
     handleChange({
       target: {
         id: "profile_picture",
-        value: file,
+        value: file, // Define o valor do input como o arquivo selecionado
       },
     });
   };

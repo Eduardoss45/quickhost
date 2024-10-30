@@ -1,10 +1,8 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 
-const useAuth = (handleAuthenticated) => {
-  const [profilePicture, setProfilePicture] = useState("");
-
+const useAuth = () => {
   useEffect(() => {
     const verifyAuthentication = async () => {
       const refreshToken = localStorage.getItem("refreshToken");
@@ -23,17 +21,11 @@ const useAuth = (handleAuthenticated) => {
               }`,
               { refresh: refreshToken }
             );
-            console.log(
-              `${import.meta.env.VITE_BASE_URL}${
-                import.meta.env.VITE_TOKEN_REFRESH_URL
-              }`
-            );
             console.log(response);
 
             localStorage.setItem("token", response.data.access);
             localStorage.setItem("refreshToken", response.data.refresh);
             localStorage.setItem("isAuthenticated", tokens.user.authenticated);
-
           } catch (error) {
             console.error("Erro ao renovar token:", error);
           }
@@ -44,7 +36,7 @@ const useAuth = (handleAuthenticated) => {
     verifyAuthentication();
   }, []);
 
-  return { profilePicture, setProfilePicture };
+  return;
 };
 
 export default useAuth;

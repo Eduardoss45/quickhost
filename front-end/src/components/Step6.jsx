@@ -94,6 +94,7 @@ const Step6 = ({ updateFieldHandler }) => {
             type="file"
             id="file-input"
             className="file-input"
+            name="internal_images"
             onChange={handleFileChange}
             multiple
             accept="image/*" // Permite apenas arquivos de imagem
@@ -131,4 +132,5 @@ const Step6 = ({ updateFieldHandler }) => {
   );
 };
 
-export default Step6;
+// REV 
+export default Step6; 

@@ -14,11 +14,12 @@ import useAuth from "../hooks/useAuth";
 import useNavbar from "../hooks/useNavbar";
 
 const Navbar = ({ onSearch }) => {
-  const { data: userData } = useUserData();
+  const { userData } = useUserData();
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     return localStorage.getItem("isAuthenticated") === "true";
   });
-  const { profilePicture, setProfilePicture } = useAuth();
+  const Authenticated = useAuth();
+  const [profilePicture, setProfilePicture] = useState("");
 
   const {
     isMenuOpen,

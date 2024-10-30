@@ -16,45 +16,7 @@ import Step9 from "../components/Step9";
 
 import "./CadastroAcomodacoes.css";
 
-const formTemplate = {
-  property: "",
-  internal_images: [],
-  category: "",
-  rooms: 1,
-  beds: 1,
-  bathroom: 1,
-  accommodated_guests: 1,
-  type_of_space: "",
-  address: "",
-  city: "",
-  neighborhood: "",
-  cep: "",
-  complement: "",
-  wifi: false,
-  tv: false,
-  kitchen: false,
-  washing_machine: false,
-  parking_included: false,
-  air_conditioning: false,
-  pool: false,
-  jacuzzi: false,
-  grill: false,
-  private_gym: false,
-  beach_access: false,
-  smoke_detector: false,
-  fire_extinguisher: false,
-  first_aid_kit: false,
-  outdoor_camera: false,
-  title: "",
-  description: "",
-  price: 0,
-  bank_name: "",
-  account_holder: "",
-  account_number: "",
-  agency_code: "",
-  account_type: "",
-  cpf: "",
-};
+const formTemplate = {};
 
 function CadastroAcomodacoes() {
   const [formData, setFormData] = useState(formTemplate);
@@ -67,15 +29,12 @@ function CadastroAcomodacoes() {
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       e.preventDefault();
-      console.log("Evento 'Enter' prevenido para não submeter o formulário.");
     }
   };
 
   // Função para atualizar os dados do formulário
   const updateFieldHandler = (e) => {
     const { name, value, type, checked } = e.target;
-    console.log(name, value, type, checked);
-    console.log(e.target);
     if (type === "checkbox") {
       setFormData((prevData) => ({
         ...prevData,
@@ -105,27 +64,7 @@ function CadastroAcomodacoes() {
     useForm(formComponents);
 
   const validateForm = () => {
-    const requiredFields = [
-      "category",
-      "rooms",
-      "beds",
-      "bathroom",
-      "accommodated_guests",
-      "type_of_space",
-      "address",
-      "city",
-      "neighborhood",
-      "cep",
-      "title",
-      "description",
-      "bank_name",
-      "account_holder",
-      "account_number",
-      "agency_code",
-      "account_type",
-      "cpf",
-      "price",
-    ];
+    const requiredFields = [];
 
     for (const field of requiredFields) {
       const value = formData[field];

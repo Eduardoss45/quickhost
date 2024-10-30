@@ -7,17 +7,18 @@ const useCadastroAcomodacoes = () => {
   const [success, setSuccess] = useState(false);
   const id_user = localStorage.getItem("id_user");
   const token = localStorage.getItem("token");
+  console.log(id_user);
 
-  const transformInternalImages = async (images) => {
-    return Promise.all(
-      images.map(async (image) => {
-        const response = await fetch(image[1]); // Usar o URL gerado
-        console.log(`Blob para ${image[0]}:`, response);
-        const blob = await response.blob();
-        return new File([blob], image[0], { type: blob.type });
-      })
-    );
-  };
+  // const transformInternalImages = async (images) => {
+  //   return Promise.all(
+  //     images.map(async (image) => {
+  //       const response = await fetch(image[1]);
+  //       console.log(`Blob para ${image[0]}:`, response);
+  //       const blob = await response.blob();
+  //       return new File([blob], image[0], { type: blob.type });
+  //     })
+  //   );
+  // };
 
   const handleChange = (e, setFormData) => {
     console.log("Evento recebido:", e);
@@ -53,13 +54,16 @@ const useCadastroAcomodacoes = () => {
     setSuccess(false);
 
     try {
-      // Usar FormData para enviar os dados
       const updatedFormData = new FormData();
+
+      const images = Array.isArray(formData.internal_images)
+        ? formData.internal_images
+        : Array.from(formData.internal_images || []);
+
       Object.keys(formData).forEach((key) => {
         if (key === "internal_images") {
-          // Adiciona cada arquivo de imagem ao FormData usando a chave "internal_images"
-          formData.internal_images.forEach((file) => {
-            updatedFormData.append("internal_images", file[1]); // Aqui usamos apenas file[1]
+          images.forEach((file) => {
+            updatedFormData.append("internal_images", file);
           });
         } else if (key === "bank_account") {
           Object.keys(formData.bank_account).forEach((bankKey) => {
@@ -73,19 +77,14 @@ const useCadastroAcomodacoes = () => {
         }
       });
 
-      updatedFormData.forEach((value, key) => {
-        console.log(`Key: ${key}, Value: ${value}`, value);
-      });
-
-      // Monta a URL com base na variável de ambiente
       const apiUrl = `${
-        import.meta.env.VITE_QUICKHOST_BASE_URL
-      }${import.meta.env.VITE_QUICKHOST_USER_ACCOMMODATION_URL.replace(
+        import.meta.env.VITE_BASE_URL
+      }${import.meta.env.VITE_ACCOMMODATION_CREATE_URL.replace(
         "{id_user}",
         id_user
       )}`;
 
-      console.log(`Enviando dados para: ${apiUrl}`);
+      console.log(`Enviando dados para: ${updatedFormData}`);
 
       const response = await axios.post(
         `${
@@ -101,7 +100,6 @@ const useCadastroAcomodacoes = () => {
           },
         }
       );
-
       console.log("Resposta do servidor:", response.data);
       setSuccess(true);
     } catch (error) {

@@ -19,10 +19,10 @@ const Step2 = ({ data, updateFieldHandler }) => {
 
   const [activeButton, setActiveButton] = useState(null);
   const [counts, setCounts] = useState({
-    rooms: data.rooms || 1,
-    beds: data.beds || 1,
-    bathroom: data.bathroom || 1,
-    accommodated_guests: data.accommodated_guests || 1,
+    room_count: data.room_count || 1,
+    bed_count: data.bed_count || 1,
+    bathroom_count: data.bathroom_count || 1,
+    guest_capacity: data.guest_capacity || 1,
   });
 
   const min = 1;

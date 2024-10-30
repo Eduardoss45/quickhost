@@ -3,13 +3,13 @@ import { CiEdit } from "react-icons/ci";
 import "./Step8.css";
 
 const Step8 = ({ updateFieldHandler }) => {
-  const [price, setPrice] = useState("");
+  const [pricePerNight, setPricePerNight] = useState("");
 
   const handlePriceChange = (e) => {
     const newPrice = parseFloat(e.target.value); // Converte o valor para número
-    setPrice(newPrice);
+    setPricePerNight(newPrice);
     updateFieldHandler({
-      target: { name: "price", value: newPrice },
+      target: { name: "price_per_night", value: newPrice },
     });
   };
 
@@ -21,7 +21,7 @@ const Step8 = ({ updateFieldHandler }) => {
         <strong>
           <input
             type="number"
-            value={price}
+            value={pricePerNight}
             onChange={handlePriceChange}
             placeholder="Preço"
           />

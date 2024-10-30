@@ -8,13 +8,13 @@ const Step3 = ({ data, updateFieldHandler }) => {
   const [selectedOption, setSelectedOption] = useState(null);
 
   useEffect(() => {
-    setSelectedOption(data.type_of_space || null); // Define o estado inicial
-  }, [data.type_of_space]);
+    setSelectedOption(data.space_type || null); // Define o estado inicial
+  }, [data.space_type]);
 
   const handleSelection = (option) => {
     setSelectedOption(option);
     updateFieldHandler({
-      target: { name: "type_of_space", value: option }, // Simula o evento
+      target: { name: "space_type", value: option }, // Simula o evento
     });
   };
 

@@ -29,9 +29,12 @@ const PainelFlutuanteLogin = ({
     const success = await handleLogin(email, password);
 
     if (success) {
-      onLoginSuccessful();
-      hideLoginPainel();
+      setTimeout(() => {
+        onLoginSuccessful();
+        hideLoginPainel();
+      }, 3000);
     }
+
     setLoading(false);
   };
 

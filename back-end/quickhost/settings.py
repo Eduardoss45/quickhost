@@ -91,7 +91,7 @@ SIMPLE_JWT = {
     "ROTATE_REFRESH_TOKENS": True,
     "USER_ID_FIELD": "email",
     "USER_ID_CLAIM": "email",
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=59),
+    "ACCESS_TOKEN_LIFETIME": timedelta(hours=10),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
 }
 
@@ -115,7 +115,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
 ]
 
-CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOW_ALL_ORIGINS = True
 
 LOGGING = {
     "version": 1,

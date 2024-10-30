@@ -1,7 +1,9 @@
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from django.core.files.uploadedfile import TemporaryUploadedFile
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from django.urls import reverse
+from urllib.parse import urlparse
 from data import models
 import logging
 
@@ -21,7 +23,29 @@ from .validation import (
     validate_guest_capacity,
     validate_price_per_night,
     validate_main_cover_image,
+    validate_space_type,
+    validate_address,
+    validate_city,
+    validate_category,
+    validate_neighborhood,
+    validate_postal_code,
+    validate_wifi,
+    validate_tv,
+    validate_kitchen,
+    validate_washing_machine,
+    validate_parking_included,
+    validate_air_conditioning,
+    validate_pool,
+    validate_jacuzzi,
+    validate_grill,
+    validate_private_gym,
+    validate_beach_access,
+    validate_smoke_detector,
+    validate_fire_extinguisher,
+    validate_first_aid_kit,
+    validate_outdoor_camera,
 )
+
 
 User = get_user_model()
 logger = logging.getLogger("my_logger")
@@ -110,14 +134,12 @@ class UserCreateSerializer(serializers.ModelSerializer):
         password = validated_data.pop("password", None)
         profile_picture = validated_data.pop("profile_picture", None)
 
-        # Cria o usuário e o marca como ativo imediatamente
         user = User.objects.create_user(**validated_data)
-        user.is_active = True  # Usuário é ativado imediatamente
+        user.is_active = True
         logger.info(
             f"Usuário '{user.username}' criado com sucesso. UUID: {user.id_user}"
         )
 
-        # Lida com a imagem de perfil
         if profile_picture:
             new_filename = generate_new_filename(profile_picture.name)
             user.profile_picture.save(
@@ -126,7 +148,6 @@ class UserCreateSerializer(serializers.ModelSerializer):
                 save=True,
             )
 
-        # Define a senha do usuário
         if password:
             user.set_password(password)
             user.save()
@@ -154,7 +175,6 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         """Valida os campos do usuário para atualização."""
         errors = {}
 
-        # Validações específicas para cada campo
         if "username" in attrs:
             username_error = validate_username(attrs.get("username"))
             if username_error:
@@ -193,8 +213,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         """Atualiza os dados do usuário e retorna mensagem apropriada."""
         logger.debug(f"Iniciando a atualização do usuário: {instance.username}")
-
-        # Atualiza campos do usuário
+    
         fields_to_update = [
             "username",
             "phone_number",
@@ -204,26 +223,39 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         for field in fields_to_update:
             if field in validated_data:
                 setattr(instance, field, validated_data[field])
-
-        # Atualiza a imagem de perfil (a validação já foi feita no validate)
+    
+        # Verificar e atualizar a imagem de perfil apenas se não for URL
         if "profile_picture" in validated_data:
-            instance.profile_picture = validated_data["profile_picture"]
-
-        # Atualiza a senha se presente
+            profile_picture = validated_data["profile_picture"]
+    
+            # Verificar se é uma URL
+            if isinstance(profile_picture, str) and urlparse(profile_picture).scheme:
+                # Caso seja uma URL, você pode ignorar a atualização ou fazer algo específico
+                instance.profile_picture = profile_picture
+            elif isinstance(profile_picture, TemporaryUploadedFile):  # Caso seja um arquivo
+                new_filename = generate_new_filename(profile_picture.name)
+                instance.profile_picture.save(
+                    os.path.join(str(instance.id_user), new_filename),
+                    profile_picture,
+                    save=True,
+                )
+    
         if "password" in validated_data:
             new_password = validated_data["password"]
             instance.set_password(new_password)
-
-        # Salva as alterações no banco de dados
+    
+        # Tentativa de salvar a instância
         try:
             instance.save()
+        except serializers.ValidationError as e:
+            logger.error(f"Erro de validação: {e}")
+            raise e
         except Exception as e:
             logger.error(f"Erro ao salvar usuário: {e}")
             raise serializers.ValidationError("Erro ao atualizar os dados do usuário.")
-
+    
         logger.info(f"Usuário '{instance.username}' atualizado com sucesso.")
-
-        # Retorna os dados do usuário atualizado
+    
         return {
             "message": "Os dados do usuário foram alterados com sucesso.",
             "data": {
@@ -236,7 +268,6 @@ class UserUpdateSerializer(serializers.ModelSerializer):
                 ),
             },
         }
-
 
 class TokenObtainPairSerializer(TokenObtainPairSerializer):
     """Serializer para obtenção de token JWT."""
@@ -295,7 +326,6 @@ class AccommodationSerializer(serializers.ModelSerializer):
             "creator",
             "main_cover_image",
             "internal_images",
-            "is_active",
             "category",
             "room_count",
             "bed_count",
@@ -307,7 +337,21 @@ class AccommodationSerializer(serializers.ModelSerializer):
             "neighborhood",
             "postal_code",
             "complement",
-            "amenities",
+            "wifi",
+            "tv",
+            "kitchen",
+            "washing_machine",
+            "parking_included",
+            "air_conditioning",
+            "pool",
+            "jacuzzi",
+            "grill",
+            "private_gym",
+            "beach_access",
+            "smoke_detector",
+            "fire_extinguisher",
+            "first_aid_kit",
+            "outdoor_camera",
             "title",
             "description",
             "price_per_night",
@@ -318,7 +362,7 @@ class AccommodationSerializer(serializers.ModelSerializer):
         """Valida todos os campos do formulário de acomodação."""
         errors = {}
 
-        # Validações de campos
+        # Chamadas de validação
         room_count_error = validate_room_count(attrs.get("room_count"))
         if room_count_error:
             errors["room_count"] = room_count_error
@@ -348,6 +392,94 @@ class AccommodationSerializer(serializers.ModelSerializer):
         )
         if main_cover_image_error:
             errors["main_cover_image"] = main_cover_image_error
+
+        # Chamadas para os novos campos de validação
+        space_type_error = validate_space_type(attrs.get("space_type"))
+        if space_type_error:
+            errors["space_type"] = space_type_error
+
+        address_error = validate_address(attrs.get("address"))
+        if address_error:
+            errors["address"] = address_error
+
+        city_error = validate_city(attrs.get("city"))
+        if city_error:
+            errors["city"] = city_error
+
+        neighborhood_error = validate_neighborhood(attrs.get("neighborhood"))
+        if neighborhood_error:
+            errors["neighborhood"] = neighborhood_error
+
+        postal_code_error = validate_postal_code(attrs.get("postal_code"))
+        if postal_code_error:
+            errors["postal_code"] = postal_code_error
+
+        # Validações de campos booleanos
+        wifi_error = validate_wifi(attrs.get("wifi"))
+        if wifi_error:
+            errors["wifi"] = wifi_error
+
+        tv_error = validate_tv(attrs.get("tv"))
+        if tv_error:
+            errors["tv"] = tv_error
+
+        kitchen_error = validate_kitchen(attrs.get("kitchen"))
+        if kitchen_error:
+            errors["kitchen"] = kitchen_error
+
+        washing_machine_error = validate_washing_machine(attrs.get("washing_machine"))
+        if washing_machine_error:
+            errors["washing_machine"] = washing_machine_error
+
+        parking_included_error = validate_parking_included(
+            attrs.get("parking_included")
+        )
+        if parking_included_error:
+            errors["parking_included"] = parking_included_error
+
+        air_conditioning_error = validate_air_conditioning(
+            attrs.get("air_conditioning")
+        )
+        if air_conditioning_error:
+            errors["air_conditioning"] = air_conditioning_error
+
+        pool_error = validate_pool(attrs.get("pool"))
+        if pool_error:
+            errors["pool"] = pool_error
+
+        jacuzzi_error = validate_jacuzzi(attrs.get("jacuzzi"))
+        if jacuzzi_error:
+            errors["jacuzzi"] = jacuzzi_error
+
+        grill_error = validate_grill(attrs.get("grill"))
+        if grill_error:
+            errors["grill"] = grill_error
+
+        private_gym_error = validate_private_gym(attrs.get("private_gym"))
+        if private_gym_error:
+            errors["private_gym"] = private_gym_error
+
+        beach_access_error = validate_beach_access(attrs.get("beach_access"))
+        if beach_access_error:
+            errors["beach_access"] = beach_access_error
+
+        smoke_detector_error = validate_smoke_detector(attrs.get("smoke_detector"))
+        if smoke_detector_error:
+            errors["smoke_detector"] = smoke_detector_error
+
+        fire_extinguisher_error = validate_fire_extinguisher(
+            attrs.get("fire_extinguisher")
+        )
+        if fire_extinguisher_error:
+            errors["fire_extinguisher"] = fire_extinguisher_error
+
+        first_aid_kit_error = validate_first_aid_kit(attrs.get("first_aid_kit"))
+        if first_aid_kit_error:
+            errors["first_aid_kit"] = first_aid_kit_error
+
+        outdoor_camera_error = validate_outdoor_camera(attrs.get("outdoor_camera"))
+        if outdoor_camera_error:
+            errors["outdoor_camera"] = outdoor_camera_error
 
         if errors:
             logger.error(f"Erros de validação encontrados: {errors}")

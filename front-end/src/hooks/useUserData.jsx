@@ -7,7 +7,7 @@ const useUserData = () => {
   const [error, setError] = useState(null);
   const token = localStorage.getItem("token");
   const id_user = localStorage.getItem("id_user");
-
+  console.log(token);
   useEffect(() => {
     const fetchUserData = async () => {
       if (!id_user) {
@@ -28,6 +28,7 @@ const useUserData = () => {
           }
         );
         setUserData(response.data);
+        console.log(response);
       } catch (error) {
         console.error("Erro ao buscar dados:", error);
         setError(

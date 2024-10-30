@@ -80,13 +80,12 @@ class PropertyListing(models.Model):
     id_accommodation = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     creator = models.ForeignKey(
         UserAccount, on_delete=models.CASCADE, related_name="accommodations"
-    )
+    ) # REV
     main_cover_image = models.CharField(max_length=255, blank=True, null=True)
     is_active = models.BooleanField(default=True)
     internal_images = models.JSONField(blank=True, null=True, default=list)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    # Escolhas de categorias de propriedades
     CATEGORY_CHOICES = [
         ("inn", "Inn"),
         ("chalet", "Chalet"),
@@ -96,7 +95,6 @@ class PropertyListing(models.Model):
     ]
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, default="inn")
 
-    # Contadores de características da propriedade
     room_count = models.IntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(20)], default=1
     )
@@ -110,7 +108,6 @@ class PropertyListing(models.Model):
         validators=[MinValueValidator(1), MaxValueValidator(20)], default=1
     )
 
-    # Tipo de espaço da propriedade
     SPACE_TYPE_CHOICES = [
         ("full_space", "Full Space"),
         ("limited_space", "Limited Space"),
@@ -119,26 +116,33 @@ class PropertyListing(models.Model):
         max_length=50, choices=SPACE_TYPE_CHOICES, default="full_space"
     )
 
-    # Endereço da propriedade
     address = models.CharField(max_length=255, default="Not informed")
     city = models.CharField(max_length=100, default="Not informed")
     neighborhood = models.CharField(max_length=100, default="Not informed")
     postal_code = models.CharField(max_length=10, default="Not informed")
     complement = models.CharField(max_length=255, default="Not informed", blank=True)
+    wifi = models.BooleanField(default=False)
+    tv = models.BooleanField(default=False)
+    kitchen = models.BooleanField(default=False)
+    washing_machine = models.BooleanField(default=False)
+    parking_included = models.BooleanField(default=False)
+    air_conditioning = models.BooleanField(default=False)
+    pool = models.BooleanField(default=False)
+    jacuzzi = models.BooleanField(default=False)
+    grill = models.BooleanField(default=False)
+    private_gym = models.BooleanField(default=False)
+    beach_access = models.BooleanField(default=False)
+    smoke_detector = models.BooleanField(default=False)
+    fire_extinguisher = models.BooleanField(default=False)
+    first_aid_kit = models.BooleanField(default=False)
+    outdoor_camera = models.BooleanField(default=False)
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    price_per_night = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
 
-    # Amenidades da propriedade armazenadas em um campo JSON
-    amenities = models.JSONField(default=dict, blank=True)
-
-    title = models.CharField(max_length=255)  # Título do anúncio
-    description = models.TextField()  # Descrição da propriedade
-    price_per_night = models.DecimalField(
-        max_digits=10, decimal_places=2, default=0.00
-    )  # Preço por noite
-
-    # Relacionamento com detalhes bancários
     bank_account = models.OneToOneField(
         BankDetails, on_delete=models.CASCADE, null=True, blank=True
-    )
+    )  # REV
 
     def __str__(self):
         return self.title or "Acomodação sem título"

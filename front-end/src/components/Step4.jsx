@@ -48,12 +48,12 @@ const Step4 = ({ data, updateFieldHandler }) => {
         <div>
           <input
             type="text"
-            name="cep"
+            name="postal_code"
             placeholder="CEP"
-            value={data.cep || ""}
+            value={data.postal_code || ""}
             onChange={(e) =>
               updateFieldHandler({
-                target: { name: "cep", value: e.target.value },
+                target: { name: "postal_code", value: e.target.value },
               })
             }
           />

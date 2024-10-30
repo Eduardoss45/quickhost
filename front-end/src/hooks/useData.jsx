@@ -10,7 +10,9 @@ const useData = () => {
       setLoading(true);
       try {
         const response = await axios.get(
-          `${import.meta.env.VITE_QUICKHOST_BASE_URL}${import.meta.env.VITE_ACCOMMODATION_DATA_URL}`
+          `${import.meta.env.VITE_BASE_URL}${
+            import.meta.env.VITE_ACCOMMODATION_DATA_URL
+          }`
         );
         setData(response.data);
       } catch (error) {
@@ -20,7 +22,6 @@ const useData = () => {
         setLoading(false);
       }
     };
-
     fetchData();
   }, []);
 

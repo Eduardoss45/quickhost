@@ -31,7 +31,18 @@ const useEdit = (id_user, token) => {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      setFormData(response.data);
+
+      // Define cada campo individualmente
+      const userData = response.data;
+      setFormData((prevData) => ({
+        ...prevData,
+        username: userData.username || "",
+        social_name: userData.social_name || "",
+        email: userData.email || "",
+        phone_number: userData.phone_number || "",
+        birth_date: userData.birth_date || "",
+        emergency_contact: userData.emergency_contact || "",
+      }));
       setSuccess(true);
     } catch (error) {
       handleError(error);
@@ -76,7 +87,7 @@ const useEdit = (id_user, token) => {
       setSuccess(true);
       setError(null);
     } catch (error) {
-      console.log(error)
+      console.log(error);
       handleError(error);
       setSuccess(false);
     }
