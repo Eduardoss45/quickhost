@@ -31,44 +31,50 @@ const Step6 = ({ updateFieldHandler }) => {
     e.stopPropagation();
     console.log("Files dropped");
     setIsDragging(false);
-    const files = e.dataTransfer.files; // Mantém como FileList
+    const files = e.dataTransfer.files;
     processFiles(files);
   };
 
   const handleFileChange = (e) => {
-    const files = e.target.files; // Mantém como FileList
+    const files = e.target.files;
     processFiles(files);
   };
 
   const processFiles = (files) => {
-    // Passa os arquivos diretamente para o updateFieldHandler
     if (typeof updateFieldHandler === "function") {
-      console.log(files);
       updateFieldHandler({
         target: {
           name: "internal_images",
-          value: files, // Passa o FileList diretamente
+          value: files,
         },
       });
     }
-
-    // Cria um array para exibir as prévias das imagens
     createImagePreviewArray(files);
   };
 
   const createImagePreviewArray = (files) => {
-    const newPhotos = []; // Array para armazenar as imagens para exibição
+    const newPhotos = [];
     for (let i = 0; i < files.length; i++) {
       newPhotos.push(files[i]);
     }
     setPhotos((prevPhotos) => {
-      // Revogando URLs antigas para liberar memória
       prevPhotos.forEach((photo) => URL.revokeObjectURL(photo));
-      return [...prevPhotos, ...newPhotos]; // Atualiza o estado com os novos arquivos
+      return [...prevPhotos, ...newPhotos];
     });
   };
 
-  // Limpeza de objetos URL ao desmontar o componente
+  const clearPhotos = () => {
+    setPhotos([]); // Limpa o estado de fotos
+    if (typeof updateFieldHandler === "function") {
+      updateFieldHandler({
+        target: {
+          name: "internal_images",
+          value: [],
+        },
+      });
+    }
+  };
+
   useEffect(() => {
     return () => {
       photos.forEach((photo) => URL.revokeObjectURL(photo));
@@ -80,7 +86,7 @@ const Step6 = ({ updateFieldHandler }) => {
       <h2>Adicione fotos de sua acomodação</h2>
       <p>Será necessário no mínimo 5 fotos para avançar.</p>
       <div
-        className={`photo-upload-container ${isDragging ? "dragging" : ""}`}
+        className={`box photo-upload-container ${isDragging ? "dragging" : ""}`}
         onDragEnter={handleDragEnter}
         onDragLeave={handleDragLeave}
         onDragOver={handleDragOver}
@@ -97,8 +103,8 @@ const Step6 = ({ updateFieldHandler }) => {
             name="internal_images"
             onChange={handleFileChange}
             multiple
-            accept="image/*" // Permite apenas arquivos de imagem
-            disabled={photos.length >= 5} // Desabilita se já tiver 5 fotos
+            accept="image/*"
+            disabled={photos.length >= 20}
           />
           <label htmlFor="file-input">
             <span id="step-six-button">Adicionar fotos</span>
@@ -106,31 +112,22 @@ const Step6 = ({ updateFieldHandler }) => {
         </div>
       </div>
       <p>Você poderá adicionar mais imagens posteriormente.</p>
-      {photos.length > 0 && (
-        <div className="uploaded-photos">
-          <h3>Fotos adicionadas:</h3>
-          <ul>
-            {photos.map((photo, index) => (
-              <li key={index}>
-                <img
-                  src={URL.createObjectURL(photo)} // Usando `photo` diretamente para prévia
-                  alt={photo.name} // O nome está diretamente acessível a partir do objeto File
-                  style={{ width: "100px", height: "auto" }}
-                />
-                {photo.name} {/* Exibe o nome do arquivo */}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-      {photos.length < 5 && (
+      {photos.length < 5 ? (
         <p style={{ color: "red" }}>
           Você precisa adicionar pelo menos 5 fotos para prosseguir.
         </p>
+      ) : (
+        <p>{photos.length}/20</p>
       )}
+      <button
+        onClick={clearPhotos}
+        disabled={photos.length === 0}
+        id="step-six-button"
+      >
+        Limpar Imagens
+      </button>
     </div>
   );
 };
 
-// REV 
-export default Step6; 
+export default Step6;

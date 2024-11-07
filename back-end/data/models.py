@@ -62,7 +62,7 @@ class UserAccount(AbstractUser):
         upload_to="profile_pictures/", blank=True, null=True
     )
     emergency_contact = models.CharField(max_length=150, null=True, blank=True)
-    registered_accommodations = models.TextField(default="[]", blank=True)
+    registered_accommodations = models.JSONField(default=list, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     USERNAME_FIELD = "email"
@@ -80,7 +80,7 @@ class PropertyListing(models.Model):
     id_accommodation = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     creator = models.ForeignKey(
         UserAccount, on_delete=models.CASCADE, related_name="accommodations"
-    ) # REV
+    )  # REV
     main_cover_image = models.CharField(max_length=255, blank=True, null=True)
     is_active = models.BooleanField(default=True)
     internal_images = models.JSONField(blank=True, null=True, default=list)

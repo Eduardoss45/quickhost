@@ -3,8 +3,9 @@ from django.core.files.uploadedfile import TemporaryUploadedFile
 from django.core.files.storage import default_storage
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
-from django.urls import reverse
+from django.db import transaction
 from urllib.parse import urlparse
+from django.urls import reverse
 from data import models
 import os
 import uuid
@@ -358,136 +359,8 @@ class AccommodationSerializer(serializers.ModelSerializer):
             "description",
             "price_per_night",
             "bank_account",
+            "is_active",
         ]
-
-    def validate(self, attrs):
-        """Valida todos os campos do formulário de acomodação."""
-        errors = {}
-
-        # Chamadas de validação
-        room_count_error = validate_room_count(attrs.get("room_count"))
-        if room_count_error:
-            errors["room_count"] = room_count_error
-
-        bed_count_error = validate_bed_count(attrs.get("bed_count"))
-        if bed_count_error:
-            errors["bed_count"] = bed_count_error
-
-        bathroom_count_error = validate_bathroom_count(attrs.get("bathroom_count"))
-        if bathroom_count_error:
-            errors["bathroom_count"] = bathroom_count_error
-
-        guest_capacity_error = validate_guest_capacity(attrs.get("guest_capacity"))
-        if guest_capacity_error:
-            errors["guest_capacity"] = guest_capacity_error
-
-        price_per_night_error = validate_price_per_night(attrs.get("price_per_night"))
-        if price_per_night_error:
-            errors["price_per_night"] = price_per_night_error
-
-        category_error = validate_category(attrs.get("category"))
-        if category_error:
-            errors["category"] = category_error
-
-        main_cover_image_error = validate_main_cover_image(
-            attrs.get("main_cover_image"), attrs.get("internal_images")
-        )
-        if main_cover_image_error:
-            errors["main_cover_image"] = main_cover_image_error
-
-        # Chamadas para os novos campos de validação
-        space_type_error = validate_space_type(attrs.get("space_type"))
-        if space_type_error:
-            errors["space_type"] = space_type_error
-
-        address_error = validate_address(attrs.get("address"))
-        if address_error:
-            errors["address"] = address_error
-
-        city_error = validate_city(attrs.get("city"))
-        if city_error:
-            errors["city"] = city_error
-
-        neighborhood_error = validate_neighborhood(attrs.get("neighborhood"))
-        if neighborhood_error:
-            errors["neighborhood"] = neighborhood_error
-
-        postal_code_error = validate_postal_code(attrs.get("postal_code"))
-        if postal_code_error:
-            errors["postal_code"] = postal_code_error
-
-        # Validações de campos booleanos
-        wifi_error = validate_wifi(attrs.get("wifi"))
-        if wifi_error:
-            errors["wifi"] = wifi_error
-
-        tv_error = validate_tv(attrs.get("tv"))
-        if tv_error:
-            errors["tv"] = tv_error
-
-        kitchen_error = validate_kitchen(attrs.get("kitchen"))
-        if kitchen_error:
-            errors["kitchen"] = kitchen_error
-
-        washing_machine_error = validate_washing_machine(attrs.get("washing_machine"))
-        if washing_machine_error:
-            errors["washing_machine"] = washing_machine_error
-
-        parking_included_error = validate_parking_included(
-            attrs.get("parking_included")
-        )
-        if parking_included_error:
-            errors["parking_included"] = parking_included_error
-
-        air_conditioning_error = validate_air_conditioning(
-            attrs.get("air_conditioning")
-        )
-        if air_conditioning_error:
-            errors["air_conditioning"] = air_conditioning_error
-
-        pool_error = validate_pool(attrs.get("pool"))
-        if pool_error:
-            errors["pool"] = pool_error
-
-        jacuzzi_error = validate_jacuzzi(attrs.get("jacuzzi"))
-        if jacuzzi_error:
-            errors["jacuzzi"] = jacuzzi_error
-
-        grill_error = validate_grill(attrs.get("grill"))
-        if grill_error:
-            errors["grill"] = grill_error
-
-        private_gym_error = validate_private_gym(attrs.get("private_gym"))
-        if private_gym_error:
-            errors["private_gym"] = private_gym_error
-
-        beach_access_error = validate_beach_access(attrs.get("beach_access"))
-        if beach_access_error:
-            errors["beach_access"] = beach_access_error
-
-        smoke_detector_error = validate_smoke_detector(attrs.get("smoke_detector"))
-        if smoke_detector_error:
-            errors["smoke_detector"] = smoke_detector_error
-
-        fire_extinguisher_error = validate_fire_extinguisher(
-            attrs.get("fire_extinguisher")
-        )
-        if fire_extinguisher_error:
-            errors["fire_extinguisher"] = fire_extinguisher_error
-
-        first_aid_kit_error = validate_first_aid_kit(attrs.get("first_aid_kit"))
-        if first_aid_kit_error:
-            errors["first_aid_kit"] = first_aid_kit_error
-
-        outdoor_camera_error = validate_outdoor_camera(attrs.get("outdoor_camera"))
-        if outdoor_camera_error:
-            errors["outdoor_camera"] = outdoor_camera_error
-
-        if errors:
-            logger.error(f"Erros de validação encontrados: {errors}")
-            raise serializers.ValidationError(errors)
-
-        return attrs
 
     def create(self, validated_data):
         """Cria e salva uma nova acomodação no banco de dados."""
@@ -495,47 +368,50 @@ class AccommodationSerializer(serializers.ModelSerializer):
         try:
             bank_account_data = validated_data.pop("bank_account", None)
             internal_images = validated_data.pop("internal_images", [])
+            user = validated_data.get("creator")
 
-            # Criação da acomodação
-            accommodation = models.PropertyListing.objects.create(**validated_data)
-            accommodation_uuid = (
-                accommodation.id_accommodation
-            )  # Supondo que isso seja o UUID da acomodação
-            logger.info(f"Acomodação criada: {accommodation_uuid}.")
+            with transaction.atomic():  # Usar transações para garantir consistência
+                # Criação da acomodação
+                accommodation = models.PropertyListing.objects.create(**validated_data)
+                accommodation_uuid = accommodation.id_accommodation
+                logger.info(f"Acomodação criada: {accommodation_uuid}.")
 
-            image_paths = []  # Lista para armazenar os caminhos das imagens
+                image_paths = []
 
-            # Renomeia e salva as imagens internas
-            for image in internal_images:
-                # Verifica se a imagem é um TemporaryUploadedFile
-                if isinstance(image, TemporaryUploadedFile):
-                    # Gera um novo nome de arquivo com UUID
-                    new_filename = (
-                        f"{uuid.uuid4()}.jpg"  # Altere a extensão conforme necessário
-                    )
-                    image_folder = f"property_images/{accommodation_uuid}/"  # Diretório onde as imagens serão salvas
-                    file_path = os.path.join(image_folder, new_filename
-                    )
+                # Renomeia e salva as imagens internas
+                for image in internal_images:
+                    if isinstance(image, TemporaryUploadedFile):
+                        new_filename = f"{uuid.uuid4()}.jpg"
+                        image_folder = f"property_images/{accommodation_uuid}/"
+                        file_path = os.path.join(image_folder, new_filename)
 
-                    # Salva a imagem no diretório
-                    if default_storage.save(file_path, image):
-                        image_paths.append(
-                            file_path
-                        )  # Adiciona o caminho da imagem à lista
+                        if default_storage.save(file_path, image):
+                            image_paths.append("media/" + file_path)
 
-            accommodation.internal_images = list(map(str, image_paths))
-
-            accommodation.save()
-            logger.info(f"URLs das imagens armazenadas: {image_paths}.")
-
-            # Criação da conta bancária, se houver
-            if bank_account_data:
-                bank_account = models.BankDetails.objects.create(**bank_account_data)
-                accommodation.bank_account = bank_account
+                accommodation.internal_images = list(map(str, image_paths))
+                accommodation.is_active = True
                 accommodation.save()
-                logger.info(f"Conta bancária associada à acomodação: {bank_account}.")
+                logger.info(f"URLs das imagens armazenadas: {image_paths}.")
 
-            return accommodation
+                # Adiciona o UUID da acomodação à lista registered_accommodations do usuário
+                user.registered_accommodations.append(str(accommodation_uuid))
+                user.save()
+                logger.info(
+                    f"Acomodação {accommodation_uuid} adicionada ao usuário {user.id_user}."
+                )
+
+                # Criação da conta bancária, se houver.
+                if bank_account_data:
+                    bank_account = models.BankDetails.objects.create(
+                        **bank_account_data
+                    )
+                    accommodation.bank_account = bank_account
+                    accommodation.save()
+                    logger.info(
+                        f"Conta bancária associada à acomodação: {bank_account}."
+                    )
+
+                return accommodation
 
         except Exception as e:
             logger.error(f"Ocorreu um erro ao criar acomodação: {str(e)}.")

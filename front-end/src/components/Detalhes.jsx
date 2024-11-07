@@ -1,9 +1,18 @@
 import "./Detalhes.css";
 
-const Detalhes = ({ image, status, name, description, price, category }) => {
+const Detalhes = ({
+  image,
+  status,
+  name,
+  description,
+  price,
+  category,
+  onClick,
+}) => {
   console.log(`${import.meta.env.VITE_BASE_URL}${image}`);
+
   return (
-    <div className="anuncio">
+    <div className="anuncio" onClick={onClick} style={{ cursor: "pointer" }}>
       <div className="img-anuncio">
         <img
           src={`${import.meta.env.VITE_BASE_URL}${image}`}

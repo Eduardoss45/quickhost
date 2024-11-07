@@ -17,7 +17,7 @@
   padding: 1rem 2rem;
 }
 
-#step-six > div {
+.box {
   display: flex;
   align-items: center;
   flex-direction: column;
@@ -37,7 +37,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  height: 400px;
   background-color: transparent;
 }
 
@@ -69,4 +69,24 @@
 
 #step-six-button:hover {
   background-color: var(--paleta-um);
+}
+
+.uploaded-photos {
+  display: flex;
+}
+
+.preview_box {
+  display: flex;
+}
+
+.preview_image {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.preview_image > img {
+  background-position: center;
+  background-size: cover;
+  width: 120px;
 }
