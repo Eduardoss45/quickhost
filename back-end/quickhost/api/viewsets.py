@@ -136,7 +136,7 @@ class AccommodationViewSet(viewsets.ModelViewSet):
         permission_classes = (
             [IsAuthenticated]
             if self.action
-            in ["create", "update", "partial_update", "destroy", "retrieve"]
+            in ["create", "update", "partial_update", "destroy"]
             else [AllowAny]
         )
         return [permission() for permission in permission_classes]
@@ -188,12 +188,35 @@ class AccommodationViewSet(viewsets.ModelViewSet):
         return Response(data)
 
     def retrieve(self, request, *args, **kwargs):
-        """Obtém detalhes da acomodação, verificando permissões (protegido)."""
-        accommodation = self.get_object()
-        if accommodation.property != request.user and not request.user.is_staff:
-            return response.Response(
-                {"error": "Você não tem permissão para ver essa acomodação."},
-                status=status.HTTP_403_FORBIDDEN,
-            )
+        """Retorna uma acomodação específica ou todas as acomodações, de forma pública."""
+        id_accommodation = kwargs.get("pk")
 
-        return super().retrieve(request, *args, **kwargs)
+        if id_accommodation:
+            try:
+                # Tenta converter o ID recebido em UUID
+                uuid_id = uuid.UUID(id_accommodation)
+                accommodation = self.queryset.filter(id_accommodation=uuid_id).first()
+                if accommodation is None:
+                    return Response(
+                        {"detail": "Acomodação não encontrada."},
+                        status=status.HTTP_404_NOT_FOUND,
+                    )
+                # Serializa a acomodação especificada
+                serializer = self.get_serializer(accommodation)
+                data = serializer.data
+                # Substitui None pelos caminhos de imagem disponíveis
+                data["internal_images"] = accommodation.internal_images or []
+                return Response(data)
+            except ValueError:
+                return Response(
+                    {"detail": "O ID da acomodação deve estar no formato UUID."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+        else:
+            # Retorna todas as acomodações se nenhum ID específico for fornecido
+            serializer = self.get_serializer(self.queryset, many=True)
+            data = serializer.data
+            # Substitui None pelos caminhos de imagem disponíveis
+            for item, original in zip(data, self.queryset):
+                item["internal_images"] = original.internal_images or []
+            return Response(data)

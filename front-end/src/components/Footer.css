@@ -61,6 +61,10 @@
   cursor: pointer;
 }
 
+.icon:nth-child(1) {
+  right: 50px;
+}
+
 .icon:hover {
   color: #0073e6; /* Adicione um efeito de hover para o ícone */
 }
@@ -86,4 +90,8 @@
 
 .bottom a:hover {
   text-decoration: underline;
+}
+
+.no-fixed {
+  position: sticky;
 }

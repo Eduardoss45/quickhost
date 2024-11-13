@@ -7,7 +7,6 @@ const useCadastroAcomodacoes = () => {
   const [success, setSuccess] = useState(false);
   const id_user = localStorage.getItem("id_user");
   const token = localStorage.getItem("token");
-  console.log(id_user);
 
   // const transformInternalImages = async (images) => {
   //   return Promise.all(

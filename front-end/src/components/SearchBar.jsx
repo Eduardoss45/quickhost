@@ -3,9 +3,9 @@ import { CiSearch } from "react-icons/ci";
 import "./SearchBar.css";
 
 const SearchBar = ({ onSearch }) => {
-  const handleInputChange = (event) => {
-    onSearch(event.target.value);
-  };
+  // const handleInputChange = (event) => {
+  //   onSearch(event.target.value);
+  // };
 
   return (
     <div id="barra">
@@ -19,7 +19,7 @@ const SearchBar = ({ onSearch }) => {
             id="search-bar-input"
             type="text"
             placeholder="Localização"
-            onChange={handleInputChange}
+            // onChange={handleInputChange}
           />
         </label>
       </nav>

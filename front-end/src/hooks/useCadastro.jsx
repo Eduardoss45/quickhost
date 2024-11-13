@@ -7,11 +7,13 @@ const useCadastro = () => {
     birth_date: "",
     phone_number: "",
     email: "",
+    cpf: "",
     password: "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+  console.log(formData);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -27,11 +29,15 @@ const useCadastro = () => {
     setError(null);
 
     try {
-      const response = await axios.post(import.meta.env.VITE_USER_DATA_URL, formData, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}${import.meta.env.VITE_USER_DATA_URL}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
       console.log(response);
       setSuccess(true);
     } catch (error) {

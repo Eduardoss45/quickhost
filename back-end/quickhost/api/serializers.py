@@ -73,11 +73,8 @@ class UserCreateSerializer(serializers.ModelSerializer):
         model = models.UserAccount
         fields = [
             "birth_date",
-            "phone_number",
             "username",
             "email",
-            "social_name",
-            "profile_picture",
             "cpf",
             "password",
         ]
@@ -91,10 +88,6 @@ class UserCreateSerializer(serializers.ModelSerializer):
         if birth_date_error:
             errors["birth_date"] = birth_date_error
 
-        phone_number_error = validate_phone_number(attrs.get("phone_number"))
-        if phone_number_error:
-            errors["phone_number"] = phone_number_error
-
         username_error = validate_username(attrs.get("username"))
         if username_error:
             errors["username"] = username_error
@@ -102,15 +95,6 @@ class UserCreateSerializer(serializers.ModelSerializer):
         email_error = validate_email(attrs.get("email"))
         if email_error:
             errors["email"] = email_error
-
-        social_name_error = validate_social_name(attrs.get("social_name"))
-        if social_name_error:
-            errors["social_name"] = social_name_error
-
-        profile_picture = attrs.get("profile_picture")
-        profile_picture_error = validate_profile_picture(profile_picture)
-        if profile_picture_error:
-            errors["profile_picture"] = profile_picture_error
 
         cpf_error = validate_cpf(attrs.get("cpf"))
         if cpf_error:
@@ -331,6 +315,7 @@ class AccommodationSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.PropertyListing
         fields = [
+            "id_accommodation",
             "creator",
             "main_cover_image",
             "internal_images",

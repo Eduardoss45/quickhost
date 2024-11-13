@@ -10,7 +10,6 @@ const useUserData = (creator) => {
   ); // Armazenando o ID do usuário
 
   const token = localStorage.getItem("token");
-  console.log("Token:", token);
 
   useEffect(() => {
     const fetchUserData = async () => {

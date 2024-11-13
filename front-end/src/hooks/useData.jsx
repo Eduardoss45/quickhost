@@ -14,7 +14,6 @@ const useData = () => {
             import.meta.env.VITE_ACCOMMODATION_DATA_URL
           }`
         );
-        console.log(response.data);
         setData(response.data);
       } catch (error) {
         console.error("Erro ao buscar os dados:", error);

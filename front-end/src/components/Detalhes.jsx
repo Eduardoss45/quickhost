@@ -9,7 +9,6 @@ const Detalhes = ({
   category,
   onClick,
 }) => {
-  console.log(`${import.meta.env.VITE_BASE_URL}${image}`);
 
   return (
     <div className="anuncio" onClick={onClick} style={{ cursor: "pointer" }}>

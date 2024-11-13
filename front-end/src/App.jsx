@@ -1,6 +1,6 @@
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
-import Cadastro from "./pages/Cadastro";
+import Cadastro from "./components/Cadastro";
 import Favoritos from "./pages/Favoritos";
 import Reservas from "./pages/Reservas";
 import Acomodacao from "./pages/Acomodacao";
@@ -11,8 +11,9 @@ import CadastroAcomodacoes from "./pages/CadastroAcomodacoes";
 import RegistroReservas from "./components/RegistroReservas";
 import Footer from "./components/Footer";
 import Anuncio from "./components/Anuncio";
+import Login from "./components/Login";
 
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useState } from "react";
 import useData from "./hooks/useData";
 
@@ -32,39 +33,87 @@ function App() {
     : accommodations;
 
   return (
-    <div className="App">
+    <div
+      className={`App ${location.pathname === "/entrar" ? "no-overflow" : ""}`}
+    >
       <BrowserRouter>
-        <Navbar onSearch={handleSearch} />
-        {loading ? (
-          <>Carregando...</>
-        ) : error ? (
-          <>Erro ao buscar dados: {error.response.data}</>
-        ) : (
-          <Routes>
-            <Route
-              path="/"
-              element={<Home accommodations={filteredAccommodations} />}
-            />
-            <Route path="/perfil" element={<EditorDePerfil />} />
-            <Route path="/cadastro" element={<Cadastro />} />
-            <Route path="/favoritos" element={<Favoritos />} />
-            <Route path="/reservas" element={<Reservas />} />
-            <Route path="/acomodacao" element={<Acomodacao />}>
-              <Route path="detalhes" element={<Anuncio />} />
-            </Route>
-            <Route path="/hospedar" element={<Hospedar />}>
-              <Route path="anuncio" element={<JanelaAnuncio />} />
-              <Route path="registro" element={<RegistroReservas />} />
-            </Route>
-            <Route
-              path="/cadastro/acomodacoes"
-              element={<CadastroAcomodacoes />}
-            />
-          </Routes>
-        )}
-        <Footer />
+        <InnerApp
+          accommodations={filteredAccommodations}
+          loading={loading}
+          error={error}
+          onSearch={handleSearch}
+        />
       </BrowserRouter>
     </div>
+  );
+}
+
+function InnerApp({ accommodations, loading, error, onSearch }) {
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return localStorage.getItem("isAuthenticated") === "true";
+  });
+  const location = useLocation();
+
+  return (
+    <>
+      {location.pathname !== "/entrar" && location.pathname !== "/cadastro" && (
+        <Navbar onSearch={onSearch} />
+      )}
+
+      {loading ? (
+        <>Carregando...</>
+      ) : error ? (
+        <>Erro ao buscar dados: {error.response.data}</>
+      ) : (
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <Home
+                isAuthenticated={isAuthenticated}
+                accommodations={accommodations}
+              />
+            }
+          />
+          <Route path="/acomodacao/:id" element={<Anuncio />} />
+          <Route path="/perfil" element={<EditorDePerfil />} />
+          <Route path="/cadastro" element={<Cadastro />} />
+          <Route path="/favoritos" element={<Favoritos />} />
+          <Route path="/reservas" element={<Reservas />} />
+          {/* <Route path="/acomodacao" element={<Acomodacao />}>
+            <Route path="detalhes" element={<Anuncio />} />
+          </Route> */}
+          <Route path="/hospedar" element={<Hospedar />}>
+            <Route path="anuncio" element={<JanelaAnuncio />} />
+            <Route path="registro" element={<RegistroReservas />} />
+          </Route>
+          <Route
+            path="/cadastro/acomodacoes"
+            element={<CadastroAcomodacoes />}
+          />
+          <Route
+            path="/entrar"
+            element={
+              <Login
+                style={loading || error ? { display: "none" } : {}}
+                isAuthenticated={isAuthenticated}
+                setIsAuthenticated={setIsAuthenticated}
+              />
+            }
+          />
+        </Routes>
+      )}
+
+      {location.pathname !== "/entrar" && location.pathname !== "/cadastro" && (
+        <Footer
+          className={`App ${
+            location.pathname !== "/entrar" && location.pathname !== "/cadastro"
+              ? "no-fixed"
+              : ""
+          }`}
+        />
+      )}
+    </>
   );
 }
 

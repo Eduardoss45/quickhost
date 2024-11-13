@@ -12,6 +12,7 @@ import { Link } from "react-router-dom";
 import useUserData from "../hooks/useUserData.jsx";
 
 import "./Anuncio.css";
+
 const Anuncio = ({ accommodation }) => {
   console.log(accommodation);
   const accommodationCreator = accommodation.creator;
@@ -207,7 +208,7 @@ const Anuncio = ({ accommodation }) => {
               </div>
             </div>
             <div className="linha-acomodacao-descricao"></div>
-            <aside>
+            {/* <aside>
               <h2>Informações Importantes</h2>
             </aside>
             <div>
@@ -222,9 +223,9 @@ const Anuncio = ({ accommodation }) => {
             <div>
               <h3></h3>
               <p></p>
-            </div>
+            </div> */}
           </div>
-          <div>
+          {/* <div>
             <div>
               <div>Quadro 1</div>
               <div>Quadro 2</div>
@@ -234,7 +235,7 @@ const Anuncio = ({ accommodation }) => {
             <div>Total</div>
             <button>Botão 1</button>
             <button>Botão 2</button>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

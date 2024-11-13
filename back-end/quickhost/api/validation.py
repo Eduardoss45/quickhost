@@ -66,8 +66,15 @@ def validate_profile_picture(profile_picture):
 
 
 def validate_cpf(cpf):
+    if cpf == "":
+        return "O CPF não pode estar vazio."
+
     if len(cpf) != 11:
         return "CPF inválido. Deve ter 11 dígitos."
+
+    # Verificação de formato usando regex (somente números)
+    if not re.match(r"^\d{11}$", cpf):
+        return "CPF deve conter apenas números."
 
 
 def validate_authenticated(authenticated):

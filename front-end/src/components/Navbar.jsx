@@ -3,34 +3,27 @@ import { Link, useLocation } from "react-router-dom";
 import { CiMenuBurger } from "react-icons/ci";
 import { FaUserCircle, FaHotel } from "react-icons/fa";
 import { MdHotel } from "react-icons/md";
-import logo from "../image/logo.png";
-import "./Navbar.css";
-
 import MenuFlutuante from "./MenuFlutuante";
 import SearchBar from "./SearchBar";
-import PainelFlutuanteLogin from "./PainelFlutuanteLogin";
 import useUserData from "../hooks/useUserData";
 import useAuth from "../hooks/useAuth";
 import useNavbar from "../hooks/useNavbar";
+import logo from "../image/logo.png";
+
+import "./Navbar.css";
 
 const Navbar = ({ onSearch }) => {
   const { userData } = useUserData();
-  const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    return localStorage.getItem("isAuthenticated") === "true";
-  });
   const Authenticated = useAuth();
   const [profilePicture, setProfilePicture] = useState("");
+  const isAuthenticated = localStorage.getItem("isAuthenticated");
 
   const {
     isMenuOpen,
-    isLoginPainelVisible,
     isSearchBarVisible,
     showUserRegistration,
-    onLoginSuccessful,
     toggleMenuVisibility,
     showLoginPainel,
-    showUserRegistrationPainel,
-    hideLoginPainel,
     initializePageState,
   } = useNavbar();
 
@@ -46,16 +39,6 @@ const Navbar = ({ onSearch }) => {
     }
   }, [userData, setProfilePicture]);
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("refreshToken");
-    localStorage.removeItem("id_user");
-    localStorage.removeItem("isAuthenticated");
-
-    setIsAuthenticated(false);
-    setProfilePicture("");
-  };
-
   return (
     <>
       <header>
@@ -64,7 +47,7 @@ const Navbar = ({ onSearch }) => {
             <img id="logo" src={logo} alt="logo da quickhost" />
           </Link>
           <nav id="nav-btn">
-            <Link to="reservas/">
+            <Link to={isAuthenticated ? "reservas" : "/entrar"}>
               <button className="btn navegacao">
                 <span>
                   <MdHotel />
@@ -72,7 +55,7 @@ const Navbar = ({ onSearch }) => {
                 </span>
               </button>
             </Link>
-            <Link to="/hospedar/anuncio">
+            <Link to={isAuthenticated ? "/hospedar/anuncio" : "/entrar"}>
               <button className="btn navegacao">
                 <span>
                   <FaHotel />
@@ -107,8 +90,6 @@ const Navbar = ({ onSearch }) => {
                 <MenuFlutuante
                   onLoginClick={showLoginPainel}
                   onCadastroClick={showUserRegistration}
-                  isAuthenticated={isAuthenticated}
-                  onLogout={handleLogout}
                 />
               )}
             </div>
@@ -120,17 +101,6 @@ const Navbar = ({ onSearch }) => {
           </div>
         )}
       </header>
-      {isLoginPainelVisible && (
-        <>
-          <div className="backdrop" onClick={hideLoginPainel}></div>
-          <PainelFlutuanteLogin
-            hideLoginPainel={hideLoginPainel}
-            showUserRegistrationPainel={showUserRegistrationPainel}
-            onLoginSuccessful={onLoginSuccessful}
-            setIsAuthenticated={setIsAuthenticated}
-          />
-        </>
-      )}
     </>
   );
 };

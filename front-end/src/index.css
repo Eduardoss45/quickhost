@@ -46,5 +46,9 @@ input {
 }
 
 .App {
-  padding-bottom: 4rem;
+  padding-bottom: 20rem;
+}
+
+.no-overflow {
+  padding-bottom: 0;
 }
