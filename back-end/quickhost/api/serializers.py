@@ -6,6 +6,7 @@ from rest_framework import serializers
 from django.db import transaction
 from urllib.parse import urlparse
 from django.urls import reverse
+from django.conf import settings
 from data import models
 import os
 import uuid
@@ -19,7 +20,7 @@ from .validation import (
     validate_email,
     validate_social_name,
     validate_profile_picture,
-    validate_emergency_contact,
+    validate_cpf,
     validate_password,
     validate_room_count,
     validate_bed_count,
@@ -77,7 +78,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
             "email",
             "social_name",
             "profile_picture",
-            "emergency_contact",
+            "cpf",
             "password",
         ]
         extra_kwargs = {"password": {"write_only": True}}
@@ -111,11 +112,9 @@ class UserCreateSerializer(serializers.ModelSerializer):
         if profile_picture_error:
             errors["profile_picture"] = profile_picture_error
 
-        emergency_contact_error = validate_emergency_contact(
-            attrs.get("emergency_contact")
-        )
-        if emergency_contact_error:
-            errors["emergency_contact"] = emergency_contact_error
+        cpf_error = validate_cpf(attrs.get("cpf"))
+        if cpf_error:
+            errors["cpf"] = cpf_error
 
         password_error = validate_password(attrs.get("password"))
         if password_error:
@@ -162,12 +161,14 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.UserAccount
         fields = [
-            "phone_number",
             "username",
+            "cpf",
+            "birth_date",
             "social_name",
-            "profile_picture",
-            "emergency_contact",
+            "email",
+            "phone_number",
             "password",
+            "profile_picture",
         ]
         extra_kwargs = {field: {"required": False} for field in fields}
 
@@ -197,12 +198,10 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             if profile_picture_error:
                 errors["profile_picture"] = profile_picture_error
 
-        if "emergency_contact" in attrs:
-            emergency_contact_error = validate_emergency_contact(
-                attrs.get("emergency_contact")
-            )
-            if emergency_contact_error:
-                errors["emergency_contact"] = emergency_contact_error
+        if "cpf" in attrs:
+            cpf_error = validate_cpf(attrs.get("cpf"))
+            if cpf_error:
+                errors["cpf"] = cpf_error
 
         if errors:
             logger.error(f"Erros de validação na atualização: {errors}")
@@ -216,9 +215,11 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
         fields_to_update = [
             "username",
+            "cpf",
             "phone_number",
             "social_name",
-            "emergency_contact",
+            "password",
+            "profile_picture",
         ]
         for field in fields_to_update:
             if field in validated_data:
@@ -242,6 +243,9 @@ class UserUpdateSerializer(serializers.ModelSerializer):
                     save=True,
                 )
 
+        if "cpf" in validated_data:
+            cpf = validated_data["cpf"]
+
         if "password" in validated_data:
             new_password = validated_data["password"]
             instance.set_password(new_password)
@@ -264,10 +268,11 @@ class UserUpdateSerializer(serializers.ModelSerializer):
                 "username": instance.username,
                 "phone_number": instance.phone_number,
                 "social_name": instance.social_name,
-                "emergency_contact": instance.emergency_contact,
+                "cpf": instance.cpf,
                 "profile_picture": (
                     instance.profile_picture.url if instance.profile_picture else None
                 ),
+                "password": instance.password,
             },
         }
 
@@ -369,6 +374,7 @@ class AccommodationSerializer(serializers.ModelSerializer):
             bank_account_data = validated_data.pop("bank_account", None)
             internal_images = validated_data.pop("internal_images", [])
             user = validated_data.get("creator")
+            print(user)
 
             with transaction.atomic():  # Usar transações para garantir consistência
                 # Criação da acomodação
@@ -385,6 +391,7 @@ class AccommodationSerializer(serializers.ModelSerializer):
                         image_folder = f"property_images/{accommodation_uuid}/"
                         file_path = os.path.join(image_folder, new_filename)
 
+                        logger.info(f"Salvando imagem {image.name} em {file_path}")
                         if default_storage.save(file_path, image):
                             image_paths.append("media/" + file_path)
 

@@ -1,10 +1,13 @@
 import { useState, useEffect } from "react";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { CiCamera } from "react-icons/ci";
+import { PiArrowCircleLeftThin } from "react-icons/pi";
+import { useDropzone } from "react-dropzone";
 import { Link } from "react-router-dom";
-import { FaArrowLeftLong } from "react-icons/fa6";
 import useEdit from "../hooks/useEdit";
 import "./EditorDePerfil.css";
 
-const EditorDePerfil = ({ handleReset }) => {
+const EditorDePerfil = () => {
   const id_user = localStorage.getItem("id_user");
   const token = localStorage.getItem("token");
 
@@ -18,123 +21,176 @@ const EditorDePerfil = ({ handleReset }) => {
     handleChange,
   } = useEdit(id_user, token);
 
+  const [showPassword, setShowPassword] = useState(false);
   const [image, setImage] = useState(null);
 
   useEffect(() => {
-    fetchUserData();
+    fetchUserData(); // Carregar os dados do usuário ao inicializar
   }, [fetchUserData]);
 
-  const handleFileChange = (event) => {
-    const file = event.target.files[0]; // Pega o primeiro arquivo selecionado
-    console.log("Arquivo selecionado:", file); // Adiciona o log para exibir o arquivo
-    setImage(file); // Armazena o arquivo no estado
+  const handleFileDrop = (acceptedFiles) => {
+    const file = acceptedFiles[0];
+    const fileExtension = file.name.split(".").pop().toLowerCase();
+
+    if (!["jpg", "jpeg", "png", "gif"].includes(fileExtension)) {
+      alert("Tipo de arquivo inválido. Somente imagens são permitidas.");
+      return;
+    }
+
+    setImage(file);
     handleChange({
       target: {
         id: "profile_picture",
-        value: file, // Define o valor do input como o arquivo selecionado
+        value: file,
       },
     });
   };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const handleReset = () => {
+    setImage(null);
+    fetchUserData(); // Recarrega os dados do usuário
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
     const form = new FormData();
+    // Adiciona dados ao FormData usando uma função utilitária
+    populateFormData(form, formData);
 
-    Object.entries(formData).forEach(([key, value]) => {
-      if (value !== null && value !== undefined) {
-        form.append(key, value);
-      }
-    });
-
-    // Adiciona o profile_picture apenas se um arquivo for selecionado
     if (image) {
       form.append("profile_picture", image);
     }
 
-    // Adicione um log para verificar o conteúdo do FormData antes do envio
-    console.log("Dados enviados:", Array.from(form.entries()));
+    console.log("Dados a serem enviados:", [...form.entries()]);
 
     try {
       await editUser(form);
       if (success) {
         alert("Dados atualizados com sucesso!");
+        fetchUserData(); // Recarrega os dados após a atualização
       }
     } catch (error) {
       console.error("Erro ao atualizar dados:", error);
     }
   };
 
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop: handleFileDrop,
+    accept: "image/*",
+    multiple: false,
+  });
+
   if (loading) return <p>Loading...</p>;
-  // const errorMessage = error?.response?.data || "Erro desconhecido";
-  // if (errorMessage) return <p>Ocorreu um erro: {errorMessage}</p>;
 
   return (
-    <div id="page-row-perfil">
-      <div id="left-arrow">
-        <Link to="/" onClick={handleReset}>
+    <div className="user-info-form">
+      <div>
+        <Link to="/">
           <span>
-            <FaArrowLeftLong />
+            <PiArrowCircleLeftThin />
           </span>
         </Link>
+        <h2>Minhas informações</h2>
       </div>
-      <div id="page-col-perfil">
-        <form onSubmit={handleSubmit}>
-          <h1>Informações pessoais</h1>
-          {renderInput("username", "Nome Legal", formData.username)}
-          {renderInput("social_name", "Nome Social", formData.social_name)}
-          {renderInput("email", "Endereço de email", formData.email, true)}
-          {renderInput("phone_number", "Telefone", formData.phone_number)}
-          {renderInput(
-            "birth_date",
-            "Data de nascimento",
-            formData.birth_date,
-            true
-          )}
-          {renderInput(
-            "emergency_contact",
-            "Contato de emergência",
-            formData.emergency_contact
-          )}
-          {renderFileInput("profile_picture", "Foto de perfil", image)}
+      <form onSubmit={handleSubmit}>
+        {renderInput("username", "Nome Completo", formData.username)}
+        {renderInput("cpf", "CPF", formData.cpf, false, "14")}
+        {renderInput(
+          "birth_date",
+          "Data de Nascimento",
+          formData.birth_date,
+          true
+        )}
+        {renderInput("social_name", "Nome Social", formData.social_name)}
+        {renderInput("email", "Email", formData.email, true)}
+        {renderInput(
+          "phone_number",
+          "Telefone",
+          formData.phone_number,
+          false,
+          "15"
+        )}
+        {renderPasswordInput("password", "Senha")}
+        {renderFileInput("profile_picture", "Foto de Perfil", image)}
 
-          <div className="row-line-edit">
-            <button type="submit" disabled={loading}>
-              {loading ? "Salvando..." : "Salvar"}
-            </button>
-          </div>
-        </form>
-      </div>
+        <div className="buttons">
+          <button type="button" onClick={handleReset} className="reset-button">
+            Redefinir
+          </button>
+          <button type="submit" className="save-button" disabled={loading}>
+            {loading ? "Salvando..." : "Salvar Alterações"}
+          </button>
+        </div>
+      </form>
     </div>
   );
 
-  function renderInput(id, label, value, disabled = false) {
+  function renderInput(id, label, value, readOnly = false, maxLength = null) {
     return (
       <div>
-        <label htmlFor={id}>
-          <div className="row-line-edit">{label}</div>
-          <span className="perfil-data">{value}</span>
-          <input id={id} onChange={handleChange} disabled={disabled} />
-        </label>
+        <label htmlFor={id}>{label}</label>
+        <input
+          type="text"
+          id={id}
+          name={id}
+          placeholder={value || `Digite seu ${label.toLowerCase()}`}
+          onChange={handleChange}
+          readOnly={readOnly}
+          maxLength={maxLength || undefined}
+        />
+      </div>
+    );
+  }
+
+  function renderPasswordInput(id, label) {
+    return (
+      <div className="password-field">
+        <label>{label}</label>
+        <input
+          type={showPassword ? "text" : "password"}
+          id={id}
+          name={id}
+          placeholder="Digite sua senha"
+          onChange={handleChange}
+        />
+        <button type="button" onClick={togglePasswordVisibility}>
+          {showPassword ? <FaEyeSlash /> : <FaEye />}
+        </button>
       </div>
     );
   }
 
   function renderFileInput(id, label, file) {
     return (
-      <div>
-        <label htmlFor={id}>
-          <div className="row-line-edit">{label}</div>
-          <span className="perfil-data">
-            {file ? file.name : "Nenhuma imagem selecionada"}
-          </span>
-          <div className="custom-file-upload">
-            <span>Escolha um arquivo</span>
-            <input id={id} type="file" onChange={handleFileChange} />
-          </div>
-        </label>
+      <div className="file-upload">
+        <label>{label}</label>
+        <div {...getRootProps({ className: "dropzone" })}>
+          <input {...getInputProps()} />
+          {isDragActive ? (
+            <p>Solte a imagem aqui...</p>
+          ) : (
+            <>
+              <CiCamera size={50} />
+              <p>{file ? file.name : "Nenhuma imagem selecionada"}</p>
+              <button type="button">Selecionar do Computador</button>
+            </>
+          )}
+        </div>
       </div>
     );
+  }
+
+  function populateFormData(form, data) {
+    Object.entries(data).forEach(([key, value]) => {
+      if (value !== null && value !== undefined) {
+        form.append(key, value);
+      }
+    });
   }
 };
 

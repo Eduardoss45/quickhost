@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import useCadastro from "../hooks/useCadastro";
 import { Link } from "react-router-dom";
-import { FaArrowLeftLong } from "react-icons/fa6";
+import { PiArrowCircleLeftThin } from "react-icons/pi";
 import "./Cadastro.css";
 
 const Cadastro = ({ resetPage }) => {
@@ -27,7 +27,7 @@ const Cadastro = ({ resetPage }) => {
       <div id="left-arrow">
         <Link to="/" onClick={resetPage}>
           <span>
-            <FaArrowLeftLong />
+            <PiArrowCircleLeftThin />
           </span>
         </Link>
       </div>

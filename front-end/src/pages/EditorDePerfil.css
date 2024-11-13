@@ -93,3 +93,115 @@
 .custom-file-upload:hover {
   background-color: #00000020;
 }
+
+/* Novo css abaixo */
+
+.user-info-form > div:nth-child(1) {
+  display: flex;
+  align-items: center;
+}
+
+.user-info-form > div:nth-child(1) span {
+  font-size: 3rem;
+}
+
+.user-info-form {
+  max-width: 700px;
+  padding: 20px;
+  /* border: 1px solid #ccc; */
+  border-radius: 8px;
+  font-family: Arial, sans-serif;
+}
+
+.user-info-form h2 {
+  color: #ff6a00;
+  font-size: 1.5em;
+  margin-bottom: 15px;
+}
+
+.user-info-form label {
+  display: block;
+  margin-top: 10px;
+  font-weight: bold;
+}
+
+.user-info-form input[type="text"],
+.user-info-form input[type="email"],
+.user-info-form input[type="date"],
+.user-info-form input[type="password"] {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.password-field {
+  position: relative;
+}
+
+.password-field button {
+  position: absolute;
+  right: 10px;
+  top: 75%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.file-upload {
+  margin-top: 15px;
+}
+
+.dropzone {
+  border: 2px dashed #ddd;
+  padding: 20px;
+  text-align: center;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.dropzone p {
+  margin: 10px 0;
+}
+
+.dropzone button {
+  margin-top: 10px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  background-color: transparent;
+  color: var(--paleta-dois);
+  border: 1px solid var(--paleta-dois);
+  cursor: pointer;
+}
+
+.dropzone:hover {
+  border-color: #ff6a00;
+}
+
+.buttons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 20px;
+}
+
+.reset-button,
+.save-button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.reset-button {
+  background-color: transparent;
+  border: 1px solid var(--paleta-dois);
+  color: var(--paleta-dois);
+}
+
+.save-button {
+  background-color: #ff6a00;
+  color: #fff;
+}

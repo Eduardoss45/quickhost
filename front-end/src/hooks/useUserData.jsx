@@ -1,13 +1,17 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-const useUserData = () => {
+const useUserData = (creator) => {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [id_user, setid_user] = useState(
+    creator || localStorage.getItem("id_user")
+  ); // Armazenando o ID do usuário
+
   const token = localStorage.getItem("token");
-  const id_user = localStorage.getItem("id_user");
-  console.log(token);
+  console.log("Token:", token);
+
   useEffect(() => {
     const fetchUserData = async () => {
       if (!id_user) {
@@ -28,7 +32,7 @@ const useUserData = () => {
           }
         );
         setUserData(response.data);
-        console.log(response);
+        console.log("Dados do usuário:", response.data);
       } catch (error) {
         console.error("Erro ao buscar dados:", error);
         setError(

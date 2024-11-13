@@ -61,7 +61,7 @@ class UserAccount(AbstractUser):
     profile_picture = models.ImageField(
         upload_to="profile_pictures/", blank=True, null=True
     )
-    emergency_contact = models.CharField(max_length=150, null=True, blank=True)
+    cpf = models.CharField(max_length=11, null=True)
     registered_accommodations = models.JSONField(default=list, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

@@ -1,0 +1,89 @@
+.footer {
+  display: flex;
+  padding: 2rem;
+  background-color: #f9f9f9;
+  color: #333;
+  font-family: Arial, sans-serif;
+  border-top: 1px solid #e0e0e0;
+  flex-direction: column;
+  bottom: 0;
+  position: fixed;
+  width: 100%;
+  text-align: center;
+}
+
+.footer > div:nth-child(1) {
+  display: flex;
+  justify-content: space-between;
+}
+
+.footer > div:nth-child(2) {
+  display: flex;
+  justify-content: space-between;
+}
+
+.footer > div > div:nth-child(1) {
+  display: flex;
+  justify-content: space-between;
+}
+
+.logo img {
+  width: 120px;
+  height: auto;
+  margin-bottom: 15px;
+}
+
+.nav {
+  display: flex;
+  gap: 25px;
+  margin-bottom: 15px;
+}
+
+.link {
+  color: #333;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.social {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.icon {
+  font-size: 24px;
+  color: #333;
+  cursor: pointer;
+}
+
+.icon:hover {
+  color: #0073e6; /* Adicione um efeito de hover para o ícone */
+}
+
+.bottom {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+  font-size: 14px;
+  color: #666;
+}
+
+.bottom p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.bottom a {
+  color: #666;
+  text-decoration: none;
+}
+
+.bottom a:hover {
+  text-decoration: underline;
+}

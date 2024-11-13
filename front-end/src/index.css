@@ -44,3 +44,7 @@ input {
 ::-webkit-scrollbar-thumb:hover {
   background: #00000080;
 }
+
+.App {
+  padding-bottom: 4rem;
+}

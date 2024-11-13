@@ -96,7 +96,7 @@ const Step2 = ({ data, updateFieldHandler }) => {
                     type="number"
                     min={min}
                     max={max}
-                    value={counts[key]}
+                    value={counts[key] || 1}
                     onChange={(e) => {
                       const newValue = Number(e.target.value);
                       console.log(`Campo ${key} alterado para ${newValue}`); // Log adicionado

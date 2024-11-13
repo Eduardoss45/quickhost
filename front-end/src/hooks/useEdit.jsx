@@ -7,10 +7,12 @@ const useEdit = (id_user, token) => {
     social_name: "",
     email: "",
     phone_number: "",
+    password: "",
     birth_date: "",
-    emergency_contact: "",
+    cpf: "",
     profile_picture: null,
   });
+  console.log(formData);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
@@ -40,8 +42,9 @@ const useEdit = (id_user, token) => {
         social_name: userData.social_name || "",
         email: userData.email || "",
         phone_number: userData.phone_number || "",
+        password: userData.password || "",
         birth_date: userData.birth_date || "",
-        emergency_contact: userData.emergency_contact || "",
+        cpf: userData.cpf || "",
       }));
       setSuccess(true);
     } catch (error) {
@@ -114,17 +117,10 @@ const useEdit = (id_user, token) => {
     const { id, value } = event.target;
 
     if (id in formData) {
-      if (id === "profile_picture" && isValidURL(value)) {
-        setFormData((prevData) => ({
-          ...prevData,
-          [id]: null,
-        }));
-      } else {
-        setFormData((prevData) => ({
-          ...prevData,
-          [id]: value,
-        }));
-      }
+      setFormData((prevData) => ({
+        ...prevData,
+        [id]: value,
+      }));
     } else {
       console.warn(`A chave "${id}" não existe no formData.`);
     }

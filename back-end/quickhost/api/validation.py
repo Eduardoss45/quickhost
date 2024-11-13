@@ -65,8 +65,9 @@ def validate_profile_picture(profile_picture):
     return None
 
 
-def validate_emergency_contact(emergency_contact):
-    return validate_phone_number(emergency_contact)
+def validate_cpf(cpf):
+    if len(cpf) != 11:
+        return "CPF inválido. Deve ter 11 dígitos."
 
 
 def validate_authenticated(authenticated):
