@@ -8,6 +8,8 @@ const MenuFlutuante = ({ onSignUpClick, onLoginClick }) => {
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("id_user");
     localStorage.removeItem("isAuthenticated");
+    localStorage.removeItem("email");
+    localStorage.removeItem("password");
   };
   return (
     <div id="menu-flutuante">

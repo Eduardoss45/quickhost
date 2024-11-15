@@ -9,23 +9,22 @@ import { WiSmoke } from "react-icons/wi";
 import { PiFireExtinguisherBold, PiSecurityCameraThin } from "react-icons/pi";
 import { FaStar } from "react-icons/fa";
 import { Link } from "react-router-dom";
-import useUserData from "../hooks/useUserData.jsx";
+import useDetalhes from "../hooks/useDetalhes.jsx";
 
 import "./Anuncio.css";
 
 const Anuncio = ({ accommodation }) => {
-  console.log(accommodation);
-  const accommodationCreator = accommodation.creator;
-  const creatorData = useUserData(accommodationCreator);
+  const creatorData = accommodation.creator
+    ? useDetalhes(accommodation.creator)
+    : null;
   const { userData: creator } = creatorData;
   const getColor = (condition) => (condition ? "#001969" : "#000000");
-  console.log(creator);
   return (
     <div className="pagina-anuncio">
       <div className="header-anuncio">
         <div className="header-anuncio-separador">
           <div className="header-btn-sair">
-            <Link to="/">
+            <Link to="/acomodacao">
               <PiArrowCircleLeftThin />
             </Link>
           </div>
@@ -103,7 +102,12 @@ const Anuncio = ({ accommodation }) => {
             <div className="conteudo-acomodacao-criador">
               <div>
                 {creator?.profile_picture && (
-                  <img src={creator.profile_picture} alt="Imagem do Criador" />
+                  <img
+                    src={`${import.meta.env.VITE_BASE_URL}${
+                      creator.profile_picture
+                    }`}
+                    alt="Imagem do Criador"
+                  />
                 )}
               </div>
               <div>

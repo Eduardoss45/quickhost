@@ -1,16 +1,14 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-const useUserData = (creator) => {
+const useUserData = () => {
+  const email = localStorage.getItem("email");
+  const password = localStorage.getItem("password");
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [id_user, setid_user] = useState(
-    creator || localStorage.getItem("id_user")
-  ); // Armazenando o ID do usuário
-
+  const id_user = localStorage.getItem("id_user");
   const token = localStorage.getItem("token");
-
   useEffect(() => {
     const fetchUserData = async () => {
       if (!id_user) {
@@ -18,8 +16,11 @@ const useUserData = (creator) => {
         setLoading(false);
         return;
       }
-
       try {
+        const params = {};
+        if (email) params.email = email;
+        if (password) params.password = password;
+
         const response = await axios.get(
           `${import.meta.env.VITE_BASE_URL}${
             import.meta.env.VITE_USER_DATA_URL
@@ -28,10 +29,10 @@ const useUserData = (creator) => {
             headers: {
               Authorization: `Bearer ${token}`,
             },
+            params,
           }
         );
         setUserData(response.data);
-        console.log("Dados do usuário:", response.data);
       } catch (error) {
         console.error("Erro ao buscar dados:", error);
         setError(
@@ -42,10 +43,8 @@ const useUserData = (creator) => {
         setLoading(false);
       }
     };
-
     fetchUserData();
-  }, [id_user, token]);
-
+  }, [id_user, token, email, password]);
   return { userData, loading, error };
 };
 

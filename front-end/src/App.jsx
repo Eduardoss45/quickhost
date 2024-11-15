@@ -75,7 +75,7 @@ function InnerApp({ accommodations, loading, error, onSearch }) {
               />
             }
           />
-          <Route path="/acomodacao/:id" element={<Anuncio />} />
+          <Route path="/acomodacao" element={<Anuncio />} />
           <Route path="/perfil" element={<EditorDePerfil />} />
           <Route path="/cadastro" element={<Cadastro />} />
           <Route path="/favoritos" element={<Favoritos />} />

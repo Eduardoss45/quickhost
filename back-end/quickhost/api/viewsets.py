@@ -3,8 +3,12 @@ from rest_framework import viewsets, status, response, exceptions
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.response import Response
 from django.http import HttpResponse
-from pprint import pprint  # Remover apos o debug
+from rest_framework import status
+from rest_framework.views import APIView
+from pprint import pprint
 from django.contrib.auth import get_user_model
+from data.models import PropertyListing
+
 from .serializers import (
     AccommodationSerializer,
     UserCreateSerializer,
@@ -12,11 +16,14 @@ from .serializers import (
     TokenObtainPairSerializer,
 )
 from data import models
+from uuid import UUID
 import uuid
 import logging
 
 logger = logging.getLogger("my_logger")
 
+
+Acommodation = get_user_model()
 User = get_user_model()
 
 
@@ -26,10 +33,9 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
 
     def get_permissions(self):
-        permission_classes = (
-            [AllowAny] if self.action == "create" else [IsAuthenticated]
-        )
-        return [permission() for permission in permission_classes]
+        if self.action in ["create", "get_by_uuid"]:
+            return [AllowAny()]
+        return [permission() for permission in self.permission_classes]
 
     def get_serializer_class(self):
         """Retorna o serializador apropriado com base na ação."""
@@ -56,10 +62,8 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         data = serializer.data
 
-        # Remover campos específicos de todos os usuários na resposta
         for item in data:
-            item.pop("password", None)  # Remova o campo 'password'
-            # Adicione outros campos que você deseja remover, se necessário
+            item.pop("password", None)
 
         return Response(data)
 
@@ -78,13 +82,11 @@ class UserViewSet(viewsets.ModelViewSet):
 
     def update(self, request, *args, **kwargs):
         """Atualiza os dados de um usuário específico (protegido)."""
-        user = self.get_object()  # Obtém o usuário a ser atualizado
-        serializer = self.get_serializer(
-            user, data=request.data, partial=True
-        )  # Cria o serializador com os dados recebidos
-        serializer.is_valid(raise_exception=True)  # Valida os dados
-        self.perform_update(serializer)  # Realiza a atualização
-        return Response(serializer.data)  # Retorna os dados atualizados
+        user = self.get_object()
+        serializer = self.get_serializer(user, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data)
 
     def destroy(self, request, *args, **kwargs):
         """Exclui um usuário específico (protegido)."""
@@ -135,8 +137,7 @@ class AccommodationViewSet(viewsets.ModelViewSet):
 
         permission_classes = (
             [IsAuthenticated]
-            if self.action
-            in ["create", "update", "partial_update", "destroy"]
+            if self.action in ["create", "update", "partial_update", "destroy"]
             else [AllowAny]
         )
         return [permission() for permission in permission_classes]
@@ -177,11 +178,9 @@ class AccommodationViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
-        # Serializa o queryset normalmente
         serializer = self.get_serializer(self.queryset, many=True)
         data = serializer.data
 
-        # Substitui None pelos caminhos de imagem disponíveis
         for item, original in zip(data, self.queryset):
             item["internal_images"] = original.internal_images or []
 
@@ -193,7 +192,7 @@ class AccommodationViewSet(viewsets.ModelViewSet):
 
         if id_accommodation:
             try:
-                # Tenta converter o ID recebido em UUID
+
                 uuid_id = uuid.UUID(id_accommodation)
                 accommodation = self.queryset.filter(id_accommodation=uuid_id).first()
                 if accommodation is None:
@@ -201,10 +200,10 @@ class AccommodationViewSet(viewsets.ModelViewSet):
                         {"detail": "Acomodação não encontrada."},
                         status=status.HTTP_404_NOT_FOUND,
                     )
-                # Serializa a acomodação especificada
+
                 serializer = self.get_serializer(accommodation)
                 data = serializer.data
-                # Substitui None pelos caminhos de imagem disponíveis
+
                 data["internal_images"] = accommodation.internal_images or []
                 return Response(data)
             except ValueError:
@@ -213,10 +212,54 @@ class AccommodationViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
         else:
-            # Retorna todas as acomodações se nenhum ID específico for fornecido
+
             serializer = self.get_serializer(self.queryset, many=True)
             data = serializer.data
-            # Substitui None pelos caminhos de imagem disponíveis
+
             for item, original in zip(data, self.queryset):
                 item["internal_images"] = original.internal_images or []
             return Response(data)
+
+
+class GetByUuidView(APIView):
+    def post(self, request):
+        uuid_str = request.data.get("uuid")
+
+        if not uuid_str:
+            return Response(
+                {"error": "UUID não fornecido"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            uuid = UUID(uuid_str)
+        except ValueError:
+            return Response(
+                {"error": "UUID inválido"}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        user = User.objects.filter(id_user=uuid).first()
+        if user:
+            return Response(
+                {
+                    "id_user": str(user.id_user),
+                    "email": user.email,
+                    "username": user.username,
+                    "profile_picture": (
+                        user.profile_picture.url if user.profile_picture else None
+                    ),
+                }
+            )
+
+        accommodation = PropertyListing.objects.filter(id_accommodation=uuid).first()
+        if accommodation:
+            return Response(
+                {
+                    "id_accommodation": str(accommodation.id_accommodation),
+                    "title": accommodation.title,
+                }
+            )
+
+        return Response(
+            {"error": "Nenhum usuário ou acomodação encontrado com este UUID"},
+            status=status.HTTP_404_NOT_FOUND,
+        )

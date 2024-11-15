@@ -19,7 +19,7 @@ const useLogin = (handleAuthenticated) => {
 
       console.log(response);
 
-      storeTokens(response.data.tokens);
+      storeTokens(response.data.tokens, password, email);
 
       const msg = response.data.message;
       setSuccessMessage(msg);
@@ -36,11 +36,13 @@ const useLogin = (handleAuthenticated) => {
       setLoading(false);
     }
   };
-  const storeTokens = (tokens) => {
+  const storeTokens = (tokens, password, email) => {
     localStorage.setItem("token", tokens.access);
     localStorage.setItem("refreshToken", tokens.refresh);
     localStorage.setItem("id_user", tokens.user.id_user);
     localStorage.setItem("isAuthenticated", tokens.user.authenticated);
+    localStorage.setItem("email", email);
+    localStorage.setItem("password", password);
   };
 
   return {

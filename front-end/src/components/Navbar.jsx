@@ -4,11 +4,11 @@ import { CiMenuBurger } from "react-icons/ci";
 import { FaUserCircle, FaHotel } from "react-icons/fa";
 import { MdHotel } from "react-icons/md";
 import MenuFlutuante from "./MenuFlutuante";
-import SearchBar from "./SearchBar";
 import useUserData from "../hooks/useUserData";
 import useAuth from "../hooks/useAuth";
 import useNavbar from "../hooks/useNavbar";
 import logo from "../image/logo.png";
+
 
 import "./Navbar.css";
 
@@ -20,7 +20,6 @@ const Navbar = ({ onSearch }) => {
 
   const {
     isMenuOpen,
-    isSearchBarVisible,
     showUserRegistration,
     toggleMenuVisibility,
     showLoginPainel,
@@ -95,11 +94,6 @@ const Navbar = ({ onSearch }) => {
             </div>
           </nav>
         </div>
-        {isSearchBarVisible && (
-          <div id="bottom-row">
-            <SearchBar onSearch={onSearch} />
-          </div>
-        )}
       </header>
     </>
   );

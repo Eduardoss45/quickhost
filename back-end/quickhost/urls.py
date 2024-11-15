@@ -8,6 +8,7 @@ from quickhost.api.viewsets import (
     AccommodationViewSet,
     UserViewSet,
     CustomTokenObtainPairView,
+    GetByUuidView,
 )
 
 router = routers.DefaultRouter()
@@ -41,4 +42,5 @@ urlpatterns = [
         AccommodationViewSet.as_view({"post": "create"}),
         name="create_accommodation",
     ),
+    path("details/", GetByUuidView.as_view(), name="details"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

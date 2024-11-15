@@ -1,1 +1,0 @@
-### Troca de senha! [OK]
