@@ -19,12 +19,16 @@ const Anuncio = ({ accommodation }) => {
     : null;
   const { userData: creator } = creatorData;
   const getColor = (condition) => (condition ? "#001969" : "#000000");
+
+  const handleReload = () => {
+    window.location.reload();
+  };
   return (
     <div className="pagina-anuncio">
       <div className="header-anuncio">
         <div className="header-anuncio-separador">
-          <div className="header-btn-sair">
-            <Link to="/acomodacao">
+          <div onClick={handleReload} className="header-btn-sair">
+            <Link to="/">
               <PiArrowCircleLeftThin />
             </Link>
           </div>
