@@ -264,3 +264,21 @@ def validate_first_aid_kit(first_aid_kit):
 
 def validate_outdoor_camera(outdoor_camera):
     return validate_boolean_field(outdoor_camera, "outdoor_camera")
+
+
+def validate_rating(rating):
+    """Verifica se o rating está dentro do intervalo permitido."""
+    if rating < 1 or rating > 5:
+        return "O rating deve estar entre 1 e 5."
+    return None
+
+
+def validate_comment(comment):
+    """Verifica se o campo comment não está vazio, tem pelo menos 100 caracteres e não ultrapassa 500 caracteres."""
+    if not comment or comment.strip() == "":
+        return "O campo comment é obrigatório e não pode ser vazio."
+    if len(comment) <= 100:
+        return "O campo comment deve ter pelo menos 100 caracteres."
+    if len(comment) >= 500:
+        return "O campo comment não pode ter mais de 500 caracteres."
+    return None  # Retorna o próprio valor do comentário se for válido

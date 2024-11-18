@@ -9,11 +9,13 @@ from quickhost.api.viewsets import (
     UserViewSet,
     CustomTokenObtainPairView,
     GetByUuidView,
+    ReviewViewSet,
 )
 
 router = routers.DefaultRouter()
 router.register(r"accommodations", AccommodationViewSet, basename="accommodations")
 router.register(r"users", UserViewSet, basename="users")
+router.register(r"reviews", ReviewViewSet, basename="reviews")
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -43,4 +45,16 @@ urlpatterns = [
         name="create_accommodation",
     ),
     path("details/", GetByUuidView.as_view(), name="details"),
+    path(
+        "reviews/",
+        ReviewViewSet.as_view({"get": "list", "post": "create"}),
+        name="review-list-create",
+    ),
+    path(
+        "reviews/<uuid:id_review>/",
+        ReviewViewSet.as_view(
+            {"get": "retrieve", "put": "update", "delete": "destroy"}
+        ),
+        name="review-detail",
+    ),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

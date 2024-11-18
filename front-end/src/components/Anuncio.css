@@ -158,16 +158,51 @@
 }
 
 .conteudo-acomodacao-recursos > div > div {
-  display: flex;
   align-items: center;
   gap: 1rem;
 }
 
 .conteudo-acomodacao-recursos > div > div > span:nth-of-type(1) {
   font-size: 3rem;
+  color: var(--paleta-sete);
 }
 
 .conteudo-acomodacao-titulo h2 {
   margin: 1rem 0;
   color: var(--paleta-um);
+}
+
+.caixa-avaliacao {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid black;
+  border-radius: 10px;
+  padding: 0.5rem 1rem;
+  font-size: 1.2rem;
+  background-color: transparent;
+}
+
+.avaliacao {
+  display: flex;
+}
+
+.star-icon {
+  display: flex;
+  list-style-type: none;
+  cursor: pointer;
+  font-size: 2rem;
+}
+.ativo {
+  color: var(--paleta-um);
+}
+.desativado {
+  color: var(--paleta-quatro);
+}
+.visible {
+  display: flex;
+}
+
+.hidden {
+  display: none;
 }

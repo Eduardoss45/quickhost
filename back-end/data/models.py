@@ -196,3 +196,19 @@ class FavoriteProperty(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.accommodation.title}"
+
+
+class Review(models.Model):
+    id_review = models.UUIDField(primary_key=True, default=uuid4, editable=False)
+    accommodation = models.ForeignKey(
+        "PropertyListing", on_delete=models.CASCADE, related_name="reviews"
+    )
+    user_comment = models.ForeignKey(
+        "UserAccount", on_delete=models.CASCADE, related_name="reviews"
+    )
+    rating = models.IntegerField(null=False)
+    comment = models.TextField(null=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Review {self.id_review} for accommodation {self.accommodation.id_accommodation}"

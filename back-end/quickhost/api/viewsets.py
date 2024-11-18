@@ -1,6 +1,7 @@
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework import viewsets, status, response, exceptions
 from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from django.http import HttpResponse
 from rest_framework import status
@@ -14,6 +15,7 @@ from .serializers import (
     UserCreateSerializer,
     UserUpdateSerializer,
     TokenObtainPairSerializer,
+    ReviewSerializer,
 )
 from data import models
 from uuid import UUID
@@ -263,3 +265,101 @@ class GetByUuidView(APIView):
             {"error": "Nenhum usuário ou acomodação encontrado com este UUID"},
             status=status.HTTP_404_NOT_FOUND,
         )
+
+
+class ReviewViewSet(viewsets.ModelViewSet):
+    """ViewSet para gerenciar as avaliações de acomodações."""
+
+    queryset = models.Review.objects.all()
+    serializer_class = ReviewSerializer
+
+    def get_permissions(self):
+
+        if self.action == "create":
+            return [IsAuthenticated()]
+        permissions = [permission() for permission in self.permission_classes]
+        return permissions
+
+    def create(self, request, *args, **kwargs):
+        """Cria uma nova avaliação para uma acomodação."""
+        data = request.data
+
+        serializer = self.get_serializer(data=data)
+
+        if not serializer.is_valid():
+
+            return response.Response(
+                serializer.errors, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        comment = data.get("comment")
+        rating = data.get("rating")
+
+        try:
+
+            print("REQUEST", request)
+            review = serializer.save(user_comment=request.user)
+
+        except Exception as e:
+            raise ValidationError("Erro ao criar review.")
+
+        return response.Response(
+            self.get_serializer(review).data, status=status.HTTP_201_CREATED
+        )
+
+    def list(self, request, *args, **kwargs):
+        """Lista todas as avaliações de uma acomodação específica ou todas."""
+        accommodation_id = request.query_params.get("accommodation_id", None)
+
+        if accommodation_id:
+            reviews = self.queryset.filter(accommodation_id=accommodation_id)
+        else:
+            reviews = self.queryset.all()
+
+        serializer = self.get_serializer(reviews, many=True)
+
+        return response.Response(serializer.data)
+
+    def retrieve(self, request, *args, **kwargs):
+        """Retorna os detalhes de uma avaliação específica."""
+        review = self.get_object()
+
+        serializer = self.get_serializer(review)
+        return response.Response(serializer.data)
+
+    def update(self, request, *args, **kwargs):
+        """Atualiza uma avaliação existente."""
+
+        review = self.get_object()
+
+        comment = request.data.get("comment")
+        rating = request.data.get("rating")
+        accommodation_id = request.data.get("accommodation_id")
+
+        if accommodation_id:
+            try:
+                accommodation = models.PropertyListing.objects.get(
+                    id_accommodation=accommodation_id
+                )
+                review.accommodation = accommodation
+
+            except models.PropertyListing.DoesNotExist:
+
+                raise ValidationError({"detail": "Acomodação não encontrada."})
+
+        if rating is not None:
+            review.rating = rating
+        if comment:
+            review.comment = comment
+
+        review.save()
+
+        return response.Response(self.get_serializer(review).data)
+
+    def destroy(self, request, *args, **kwargs):
+        """Deleta uma avaliação específica."""
+        review = self.get_object()
+
+        review.delete()
+
+        return response.Response(status=status.HTTP_204_NO_CONTENT)

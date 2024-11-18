@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import { PiArrowCircleLeftThin } from "react-icons/pi";
 import { FaWifi, FaCar, FaSwimmingPool, FaMedkit } from "react-icons/fa";
 import { LuMonitor } from "react-icons/lu";
@@ -7,21 +8,27 @@ import { TbAirConditioning, TbBeach } from "react-icons/tb";
 import { MdHotTub, MdOutdoorGrill, MdFitnessCenter } from "react-icons/md";
 import { WiSmoke } from "react-icons/wi";
 import { PiFireExtinguisherBold, PiSecurityCameraThin } from "react-icons/pi";
-import { FaStar } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import { IoStarSharp } from "react-icons/io5";
 import useDetalhes from "../hooks/useDetalhes.jsx";
 
 import "./Anuncio.css";
+import Avaliacao from "./Avaliacao.jsx";
 
 const Anuncio = ({ accommodation }) => {
+  const [avaliacao, setAvaliacao] = useState(null);
   const creatorData = accommodation.creator
     ? useDetalhes(accommodation.creator)
     : null;
   const { userData: creator } = creatorData;
-  const getColor = (condition) => (condition ? "#001969" : "#000000");
 
   const handleReload = () => {
     window.location.reload();
+  };
+
+  const handleClick = (rating) => {
+    setAvaliacao(rating);
+    console.log(rating);
   };
   return (
     <div className="pagina-anuncio">
@@ -42,7 +49,7 @@ const Anuncio = ({ accommodation }) => {
           </aside>
         </div>
         <div className="header-btn-favoritar">
-          <FaStar /> Favoritar
+          <IoStarSharp /> Favoritar
         </div>
       </div>
       <div className="conteudo-anuncio">
@@ -125,113 +132,192 @@ const Anuncio = ({ accommodation }) => {
             </aside>
             <div className="conteudo-acomodacao-recursos">
               <div>
-                <div>
+                <div className={`${accommodation.wifi ? "visible" : "hidden"}`}>
                   <span>
-                    <FaWifi color={getColor(accommodation.wifi)} />
+                    <FaWifi />
                   </span>
                   <span>Wifi</span>
                 </div>
-                <div>
+                <div
+                  className={`${
+                    accommodation.parking_included ? "visible" : "hidden"
+                  }`}
+                >
                   <span>
-                    <FaCar color={getColor(accommodation.parking_included)} />
+                    <FaCar />
                   </span>
                   <span>Estacionamento</span>
                 </div>
-                <div>
+                <div className={`${accommodation.pool ? "visible" : "hidden"}`}>
                   <span>
-                    <FaSwimmingPool color={getColor(accommodation.pool)} />
+                    <FaSwimmingPool />
                   </span>
                   <span>Piscina</span>
                 </div>
-                <div>
+                <div
+                  className={`${accommodation.jacuzzi ? "visible" : "hidden"}`}
+                >
                   <span>
-                    <MdHotTub color={getColor(accommodation.jacuzzi)} />
+                    <MdHotTub />
                   </span>
                   <span>Jacuzzi</span>
                 </div>
-                <div>
+                <div
+                  className={`${
+                    accommodation.air_conditioning ? "visible" : "hidden"
+                  }`}
+                >
                   <span>
-                    <TbAirConditioning
-                      color={getColor(accommodation.air_conditioning)}
-                    />
+                    <TbAirConditioning />
                   </span>
                   <span>Ar-Condicionado</span>
                 </div>
-                <div>
+                <div
+                  className={`${
+                    accommodation.washing_machine ? "visible" : "hidden"
+                  }`}
+                >
                   <span>
-                    <CgSmartHomeWashMachine
-                      color={getColor(accommodation.washing_machine)}
-                    />
+                    <CgSmartHomeWashMachine />
                   </span>
                   <span>Lavadora</span>
                 </div>
-                <div>
+                <div
+                  className={`${accommodation.grill ? "visible" : "hidden"}`}
+                >
                   <span>
-                    <MdOutdoorGrill color={getColor(accommodation.grill)} />
+                    <MdOutdoorGrill />
                   </span>
                   <span>Churrasqueira</span>
                 </div>
               </div>
               <div>
-                <div>
+                <div
+                  className={`${
+                    accommodation.first_aid_kit ? "visible" : "hidden"
+                  }`}
+                >
                   <span>
-                    <FaMedkit color={getColor(accommodation.first_aid_kit)} />
+                    <FaMedkit />
                   </span>
                   <span>Kit de Primeiros Socorros</span>
                 </div>
-                <div>
+                <div
+                  className={`${
+                    accommodation.fire_extinguisher ? "visible" : "hidden"
+                  }`}
+                >
                   <span>
-                    <PiFireExtinguisherBold
-                      color={getColor(accommodation.fire_extinguisher)}
-                    />
+                    <PiFireExtinguisherBold />
                   </span>
                   <span>Extintor de Incêndio</span>
                 </div>
-                <div>
+                <div
+                  className={`${
+                    accommodation.smoke_detector ? "visible" : "hidden"
+                  }`}
+                >
                   <span>
-                    <WiSmoke color={getColor(accommodation.smoke_detector)} />
+                    <WiSmoke />
                   </span>
                   <span>Detector de Fumaça</span>
                 </div>
-                <div>
+                <div
+                  className={`${
+                    accommodation.outdoor_camera ? "visible" : "hidden"
+                  }`}
+                >
                   <span>
-                    <PiSecurityCameraThin
-                      color={getColor(accommodation.outdoor_camera)}
-                    />
+                    <PiSecurityCameraThin />
                   </span>
                   <span>Câmera Externa</span>
                 </div>
-                <div>
+                <div
+                  className={`${accommodation.kitchen ? "visible" : "hidden"}`}
+                >
                   <span>
-                    <GrRestaurant color={getColor(accommodation.kitchen)} />
+                    <GrRestaurant />
                   </span>
                   <span>Cozinha</span>
                 </div>
-                <div>
+                <div className={`${accommodation.tv ? "visible" : "hidden"}`}>
                   <span>
-                    <LuMonitor color={getColor(accommodation.tv)} />
+                    <LuMonitor />
                   </span>
                   <span>TV</span>
+                </div>
+                <div
+                  className={`${
+                    accommodation.private_gym ? "visible" : "hidden"
+                  }`}
+                >
+                  <span>
+                    <MdFitnessCenter />
+                  </span>
+                  <span>Academia Privada</span>
+                </div>
+                <div
+                  className={`${
+                    accommodation.beach_access ? "visible" : "hidden"
+                  }`}
+                >
+                  <span>
+                    <TbBeach />
+                  </span>
+                  <span>Acesso a Praia</span>
                 </div>
               </div>
             </div>
             <div className="linha-acomodacao-descricao"></div>
-            {/* <aside>
+            <aside>
               <h2>Informações Importantes</h2>
             </aside>
             <div>
               <h3>Check-In e Check-Out</h3>
-              <p></p>
-              <p></p>
+              <p>Check-in a partir das 14h</p>
+              <p>Check-out até às 12h</p>
             </div>
             <div>
-              <h3></h3>
-              <p></p>
+              <h3>Política de Cancelamento</h3>
+              <p>Após o pagamento há a possibilidade de cancelamento.</p>
             </div>
             <div>
-              <h3></h3>
-              <p></p>
-            </div> */}
+              <h3>Câmera de Segurança</h3>
+              <p>{`${
+                accommodation.kitchen
+                  ? "Possui câmera de segurança na área externa"
+                  : "Não possui câmera de segurança"
+              }`}</p>
+            </div>
+            <div className="linha-acomodacao-descricao"></div>
+            <aside>
+              <h2>Avaliações (N)</h2>
+              <span>
+                <IoStarSharp /> (N.D)
+              </span>
+            </aside>
+            <div className="caixa-avaliacao">
+              <span>Escolha sua avaliação</span>
+              <ul className="avaliacao">
+                {[1, 2, 3, 4, 5].map((rating) => (
+                  <li
+                    key={rating}
+                    className="star-icon"
+                    onClick={() => handleClick(rating)}
+                  >
+                    {/* Usando FaStar para estrelas cheias e FaRegStar para estrelas vazias */}
+                    {avaliacao >= rating ? (
+                      <IoStarSharp className="ativo" />
+                    ) : (
+                      <IoStarSharp className="desativado" />
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <Avaliacao />
+            </div>
           </div>
           {/* <div>
             <div>

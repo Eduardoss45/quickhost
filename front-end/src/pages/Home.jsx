@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useState } from "react";
 import Detalhes from "../components/Detalhes";
 import Anuncio from "../components/Anuncio";
@@ -11,6 +12,8 @@ const Home = ({ accommodations }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOption, setSortOption] = useState("");
 
+  console.log(accommodations);
+
   const handleFilterClick = (category) => {
     setSelectedCategory(category);
   };
@@ -21,6 +24,7 @@ const Home = ({ accommodations }) => {
 
   const handleSort = (option) => {
     setSortOption(option);
+    console.log(option);
   };
 
   const handleDetalhesClick = (accommodation) => {
@@ -31,7 +35,6 @@ const Home = ({ accommodations }) => {
     setSelectedAccommodation(null);
   };
 
-  // Filtra as acomodações com base na pesquisa e na categoria
   const filteredAccommodations = accommodations.filter((item) => {
     const matchesCategory = selectedCategory
       ? item.category === selectedCategory
@@ -42,20 +45,34 @@ const Home = ({ accommodations }) => {
     return matchesCategory && matchesSearchTerm;
   });
 
-  // Ordena as acomodações com base na opção de ordenação
-  const sortedAccommodations = sortOption
-    ? filteredAccommodations.sort((a, b) => {
-        if (sortOption === "Avaliação") {
-          return b.rating - a.rating; // Ordena por avaliação (exemplo)
-        } else if (sortOption === "Mais recentes") {
-          return new Date(b.date_created) - new Date(a.date_created); // Ordena por mais recentes
-        } else if (sortOption === "Mais antigos") {
-          return new Date(a.date_created) - new Date(b.date_created); // Ordena por mais antigos
-        }
-        return 0;
-      })
-    : filteredAccommodations;
+  const sortedAccommodations = useMemo(() => {
+    if (!filteredAccommodations || filteredAccommodations.length === 0) {
+      return [];
+    }
 
+    if (!sortOption) {
+      return filteredAccommodations;
+    }
+
+    return [...filteredAccommodations].sort(
+      (a, b) => {
+        if (sortOption === "rating") {
+          return b.rating - a.rating; // Ordenação por avaliação
+        } else if (sortOption === "newest") {
+          // Ordenação por data de criação, mais recente primeiro
+          return new Date(b.created_at) - new Date(a.created_at);
+        } else if (sortOption === "oldest") {
+          // Ordenação por data de criação, mais antigo primeiro
+          return new Date(a.created_at) - new Date(b.created_at);
+        } else if (sortOption === "") {
+          // Caso não haja opção de ordenação, retorna as acomodações sem alteração
+          return 0; // Não altera a ordem, retornando as acomodações na ordem original
+        }
+        return 0; // Caso não tenha nenhuma opção de ordenação válida
+      },
+      [filteredAccommodations, sortOption]
+    );
+  });
   return (
     <>
       {selectedAccommodation ? (

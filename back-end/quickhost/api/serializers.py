@@ -1,5 +1,6 @@
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.core.files.uploadedfile import TemporaryUploadedFile
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.storage import default_storage
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
@@ -49,6 +50,8 @@ from .validation import (
     validate_fire_extinguisher,
     validate_first_aid_kit,
     validate_outdoor_camera,
+    validate_rating,
+    validate_comment,
 )
 
 
@@ -349,6 +352,7 @@ class AccommodationSerializer(serializers.ModelSerializer):
             "description",
             "price_per_night",
             "bank_account",
+            "created_at",
             "is_active",
         ]
 
@@ -359,7 +363,6 @@ class AccommodationSerializer(serializers.ModelSerializer):
             bank_account_data = validated_data.pop("bank_account", None)
             internal_images = validated_data.pop("internal_images", [])
             user = validated_data.get("creator")
-            print(user)
 
             with transaction.atomic():  # Usar transações para garantir consistência
                 # Criação da acomodação
@@ -408,3 +411,80 @@ class AccommodationSerializer(serializers.ModelSerializer):
         except Exception as e:
             logger.error(f"Ocorreu um erro ao criar acomodação: {str(e)}.")
             raise serializers.ValidationError("Erro ao criar acomodação.")
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    user_comment = serializers.UUIDField()
+    accommodation = serializers.PrimaryKeyRelatedField(
+        queryset=models.PropertyListing.objects.all()
+    )
+    rating = serializers.IntegerField(min_value=1, max_value=5, required=True)
+    comment = serializers.CharField(validators=[validate_comment])
+
+    class Meta:
+        model = models.Review
+        fields = [
+            "id_review",
+            "user_comment",
+            "accommodation",
+            "rating",
+            "comment",
+            "created_at",
+        ]
+        read_only_fields = ["created_at"]
+
+    def validate(self, attrs):
+        """Valida os dados da review antes de salvar."""
+        # Validação do rating
+        rating = attrs.get("rating")
+        if rating is not None:
+            rating_error = validate_rating(rating)
+            if rating_error:
+                raise serializers.ValidationError({"rating": rating_error})
+        # Validação do comentário
+        comment = attrs.get("comment")
+        if comment:
+            comment_error = validate_comment(comment)
+            if comment_error:
+                raise serializers.ValidationError({"comment": comment_error})
+        # Validação do usuário
+        user_uuid = attrs.get("user_comment")
+        if user_uuid:
+            try:
+                user_comment = models.UserAccount.objects.get(id_user=user_uuid)
+                attrs["user_comment"] = user_comment.id_user
+            except models.UserAccount.DoesNotExist:
+                raise serializers.ValidationError(
+                    {"user_comment": "Usuário não encontrado."}
+                )
+
+        # Validação da acomodação
+        accommodation = attrs.get("accommodation")
+        if accommodation:
+            try:
+                accommodation_obj = models.PropertyListing.objects.get(
+                    id_accommodation=accommodation.id_accommodation
+                )
+                attrs["accommodation"] = accommodation_obj
+            except models.PropertyListing.DoesNotExist:
+                raise serializers.ValidationError(
+                    {"accommodation": "Acomodação não encontrada."}
+                )
+        return attrs
+
+    def create(self, validated_data):
+        """Cria e salva uma nova review no banco de dados."""
+        try:
+            review = super().create(validated_data)
+            return review
+        except Exception as e:
+            
+            raise serializers.ValidationError("Erro ao criar review.")
+
+    def update(self, instance, validated_data):
+        """Atualiza os dados de uma review existente."""
+        try:
+            review = super().update(instance, validated_data)
+            return review
+        except Exception as e:
+            raise serializers.ValidationError("Erro ao atualizar review.")
