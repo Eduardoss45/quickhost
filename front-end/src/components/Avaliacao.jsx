@@ -1,9 +1,57 @@
-import React from 'react'
+import React from "react";
+import useDetalhes from "../hooks/useDetalhes.jsx";
+import { IoStarSharp } from "react-icons/io5";
+import "./Avaliacao.css";
 
-const Avaliacao = () => {
+const Avaliacao = ({ comentario }) => {
+  const { userData } = useDetalhes(comentario.user_comment);
+
   return (
-    <div>Avaliacao</div>
-  )
-}
+    <div className="review-card">
+      <div className="review-card-header">
+        <img
+          src={`${import.meta.env.VITE_BASE_URL}${
+            userData?.profile_picture || ""
+          }`}
+          alt={`Foto de perfil de ${userData?.username || "Nome indisponivel"}`}
+          className="profile-image"
+        />
+        <div>
+          <h4 className="name">{userData?.username || "Nome indisponivel"}</h4>
+          <di className="rating-date">
+            <div className="rating">
+              {[...Array(5)].map((_, index) => (
+                <IoStarSharp
+                  key={index}
+                  className={`star ${
+                    index < comentario.rating ? "" : "inactive"
+                  }`}
+                />
+              ))}
+            </div>
+            <p className="date">
+              {new Date(comentario.created_at).toLocaleDateString("pt-BR")}
+            </p>
+          </di>
+        </div>
+      </div>
+      <p className="review-text">{comentario.comment}</p>
+    </div>
+  );
+};
 
-export default Avaliacao
+const AvaliacoesList = ({ comentarios }) => {
+  if (!Array.isArray(comentarios) || comentarios.length === 0) {
+    return <p className="no-reviews">Nenhuma avaliação disponível.</p>;
+  }
+
+  return (
+    <div className="reviews-list">
+      {comentarios.map((comentario) => (
+        <Avaliacao key={comentario.id_review} comentario={comentario} />
+      ))}
+    </div>
+  );
+};
+
+export default AvaliacoesList;

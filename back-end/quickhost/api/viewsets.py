@@ -9,6 +9,7 @@ from rest_framework.views import APIView
 from pprint import pprint
 from django.contrib.auth import get_user_model
 from data.models import PropertyListing
+from django.db.models import Avg
 
 from .serializers import (
     AccommodationSerializer,
@@ -21,6 +22,8 @@ from data import models
 from uuid import UUID
 import uuid
 import logging
+import re
+
 
 logger = logging.getLogger("my_logger")
 
@@ -238,7 +241,6 @@ class GetByUuidView(APIView):
             return Response(
                 {"error": "UUID inválido"}, status=status.HTTP_400_BAD_REQUEST
             )
-
         user = User.objects.filter(id_user=uuid).first()
         if user:
             return Response(
@@ -251,7 +253,6 @@ class GetByUuidView(APIView):
                     ),
                 }
             )
-
         accommodation = PropertyListing.objects.filter(id_accommodation=uuid).first()
         if accommodation:
             return Response(
@@ -260,7 +261,6 @@ class GetByUuidView(APIView):
                     "title": accommodation.title,
                 }
             )
-
         return Response(
             {"error": "Nenhum usuário ou acomodação encontrado com este UUID"},
             status=status.HTTP_404_NOT_FOUND,
@@ -274,7 +274,6 @@ class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
 
     def get_permissions(self):
-
         if self.action == "create":
             return [IsAuthenticated()]
         permissions = [permission() for permission in self.permission_classes]
@@ -283,53 +282,99 @@ class ReviewViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         """Cria uma nova avaliação para uma acomodação."""
         data = request.data
-
         serializer = self.get_serializer(data=data)
-
         if not serializer.is_valid():
-
+            logger.error(f"Erro na validação dos dados: {serializer.errors}")
             return response.Response(
                 serializer.errors, status=status.HTTP_400_BAD_REQUEST
             )
-
         comment = data.get("comment")
         rating = data.get("rating")
-
         try:
-
-            print("REQUEST", request)
             review = serializer.save(user_comment=request.user)
-
+            logger.info(
+                f"Avaliação criada: {review.id_review} para a acomodação {review.accommodation.id_accommodation}"
+            )
+            # Atualizar a média da acomodação após criar a avaliação
+            self.update_average_rating(review.accommodation)
+            logger.info(
+                f"Média de avaliação atualizada para a acomodação {review.accommodation.id_accommodation}: {review.accommodation.average_rating}"
+            )
         except Exception as e:
-            raise ValidationError("Erro ao criar review.")
-
+            logger.error(f"Erro ao criar avaliação: {str(e)}")
+            raise ValidationError("Erro ao criar review.", e)
         return response.Response(
             self.get_serializer(review).data, status=status.HTTP_201_CREATED
         )
 
     def list(self, request, *args, **kwargs):
-        """Lista todas as avaliações de uma acomodação específica ou todas."""
+        """Lista todas as avaliações ou avaliações de uma acomodação específica."""
         accommodation_id = request.query_params.get("accommodation_id", None)
 
         if accommodation_id:
             reviews = self.queryset.filter(accommodation_id=accommodation_id)
+            logger.info(f"Listando avaliações para a acomodação {accommodation_id}")
         else:
             reviews = self.queryset.all()
+            logger.info("Listando todas as avaliações.")
 
         serializer = self.get_serializer(reviews, many=True)
-
         return response.Response(serializer.data)
 
     def retrieve(self, request, *args, **kwargs):
-        """Retorna os detalhes de uma avaliação específica."""
-        review = self.get_object()
+        """Retorna os detalhes de uma avaliação ou todas de uma acomodação."""
+        identifier = kwargs.get("pk")  # Captura o UUID da rota
+        logger.info(f"Buscando avaliação com identificador: {identifier}")
 
-        serializer = self.get_serializer(review)
-        return response.Response(serializer.data)
+        # Tentar buscar por id_review
+        try:
+            review = self.queryset.get(id_review=identifier)
+            serializer = self.get_serializer(review)
+            logger.info(f"Avaliação encontrada: {review.id_review}")
+            return response.Response(serializer.data)
+        except models.Review.DoesNotExist:
+            logger.warning(f"Avaliação {identifier} não encontrada.")
+
+        # Tentar buscar por id_accommodation
+        try:
+            accommodation = models.PropertyListing.objects.get(
+                id_accommodation=identifier
+            )
+            reviews = self.queryset.filter(accommodation=accommodation)
+            serializer = self.get_serializer(reviews, many=True)
+            logger.info(f"Acomodações encontradas para o id {identifier}.")
+
+            # Modificando o campo 'user_comment' nos dados
+            new_data = serializer.data
+            for review in new_data:
+                user_comment = review.get("user_comment")
+
+                # Extraímos o e-mail da string entre parênteses
+                match = re.search(r"\((.*?)\)", user_comment)
+                if match:
+                    user_email = match.group(1)  # E-mail extraído
+                    try:
+                        # Buscar o usuário baseado no e-mail (chave única)
+                        user = models.UserAccount.objects.get(email=user_email)
+                        review["user_comment"] = str(
+                            user.id_user
+                        )  # Substitui pelo UUID
+                    except models.UserAccount.DoesNotExist:
+                        # Caso o usuário não seja encontrado, deixar como estava
+                        review["user_comment"] = "Usuário não encontrado"
+                else:
+                    review["user_comment"] = "Formato de e-mail inválido"
+
+            return response.Response(new_data)
+        except models.PropertyListing.DoesNotExist:
+            logger.error(f"Acomodação {identifier} não encontrada.")
+            return response.Response(
+                {"detail": "Nenhuma avaliação ou acomodação encontrada."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
 
     def update(self, request, *args, **kwargs):
         """Atualiza uma avaliação existente."""
-
         review = self.get_object()
 
         comment = request.data.get("comment")
@@ -342,17 +387,29 @@ class ReviewViewSet(viewsets.ModelViewSet):
                     id_accommodation=accommodation_id
                 )
                 review.accommodation = accommodation
-
+                logger.info(
+                    f"Acomodação {accommodation_id} associada à avaliação {review.id_review}"
+                )
             except models.PropertyListing.DoesNotExist:
-
+                logger.error(f"Acomodação {accommodation_id} não encontrada.")
                 raise ValidationError({"detail": "Acomodação não encontrada."})
 
         if rating is not None:
             review.rating = rating
+            logger.info(
+                f"Avaliação {review.id_review} atualizada com novo rating: {rating}"
+            )
         if comment:
             review.comment = comment
+            logger.info(f"Avaliação {review.id_review} atualizada com novo comentário.")
 
         review.save()
+
+        # Atualizar a média da acomodação após atualizar a avaliação
+        self.update_average_rating(review.accommodation)
+        logger.info(
+            f"Média de avaliação atualizada para a acomodação {review.accommodation.id_accommodation}: {review.accommodation.average_rating}"
+        )
 
         return response.Response(self.get_serializer(review).data)
 
@@ -360,6 +417,29 @@ class ReviewViewSet(viewsets.ModelViewSet):
         """Deleta uma avaliação específica."""
         review = self.get_object()
 
+        accommodation = review.accommodation
         review.delete()
 
+        # Atualizar a média da acomodação após excluir a avaliação
+        self.update_average_rating(accommodation)
+        logger.info(
+            f"Avaliação {review.id_review} excluída e média atualizada para a acomodação {accommodation.id_accommodation}."
+        )
+
         return response.Response(status=status.HTTP_204_NO_CONTENT)
+
+    def update_average_rating(self, accommodation):
+        """Atualiza a média das avaliações de uma acomodação."""
+        reviews = accommodation.reviews.all()  # Acessa todas as avaliações associadas
+        if reviews.exists():
+            average = reviews.aggregate(Avg("rating"))["rating__avg"]
+            accommodation.average_rating = round(average, 2)
+            logger.info(
+                f"Nova média calculada para acomodação {accommodation.id_accommodation}: {accommodation.average_rating}"
+            )
+        else:
+            accommodation.average_rating = 0.00
+            logger.info(
+                f"Nenhuma avaliação encontrada. Média definida como 0 para a acomodação {accommodation.id_accommodation}."
+            )
+        accommodation.save()

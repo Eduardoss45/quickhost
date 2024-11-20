@@ -170,6 +170,7 @@
 .conteudo-acomodacao-titulo h2 {
   margin: 1rem 0;
   color: var(--paleta-um);
+  font-weight: 600;
 }
 
 .caixa-avaliacao {
@@ -205,4 +206,54 @@
 
 .hidden {
   display: none;
+}
+
+.acomodacao-informacoes-importantes {
+  margin: 1rem 0;
+}
+
+.acomodacao-informacoes-importantes h2 {
+  color: var(--paleta-um);
+  font-weight: 600;
+}
+
+.acomodacao-informacoes-importantes div {
+  margin: 1rem 0;
+}
+
+.acomodacao-informacoes-importantes p {
+  color: var(--paleta-quatro);
+}
+
+.acomodacao-informacoes-importantes h3:nth-child(1) {
+  margin-bottom: 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 400;
+}
+
+.acomodacao-informacoes-importantes h3:nth-last-child(2) {
+  margin-bottom: 0.5rem;
+  font-size: 1.5rem;
+  font-weight: 400;
+}
+
+.acomodacao-informacoes-avaliacao {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 1rem 0;
+}
+
+.acomodacao-informacoes-avaliacao h2 {
+  color: var(--paleta-um);
+}
+
+.acomodacao-informacoes-avaliacao p {
+  font-size: 1.5rem;
+  color: var(--paleta-um);
+}
+
+.acomodacao-informacoes-avaliacao p > span {
+  color: var(--paleta-sete);
+  font-weight: bold;
 }

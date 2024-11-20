@@ -85,6 +85,9 @@ class PropertyListing(models.Model):
     is_active = models.BooleanField(default=True)
     internal_images = models.JSONField(blank=True, null=True, default=list)
     created_at = models.DateTimeField(auto_now_add=True)
+    average_rating = models.DecimalField(
+        max_digits=3, decimal_places=2, default=0.00, blank=True
+    )
 
     CATEGORY_CHOICES = [
         ("inn", "Inn"),
@@ -165,6 +168,18 @@ class PropertyListing(models.Model):
             update_registered_accommodations(self.creator, self.id_accommodation)
 
         super().save(*args, **kwargs)
+
+        def update_average_rating(self):
+            """Atualiza a média de avaliações da acomodação."""
+            reviews = self.reviews.all()  # Acessa todas as avaliações associadas
+            if reviews.exists():
+                average = reviews.aggregate(Avg("rating"))["rating__avg"]
+                self.average_rating = round(
+                    average, 2
+                )  # Armazena a média com 2 casas decimais
+            else:
+                self.average_rating = 0.00  # Caso não haja avaliações
+            self.save()  # Salva a acomodação com a média atualizada
 
 
 # ---------------------

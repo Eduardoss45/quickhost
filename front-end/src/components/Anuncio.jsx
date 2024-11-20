@@ -14,6 +14,7 @@ import useDetalhes from "../hooks/useDetalhes.jsx";
 
 import "./Anuncio.css";
 import Avaliacao from "./Avaliacao.jsx";
+import useComents from "../hooks/useComents.jsx";
 
 const Anuncio = ({ accommodation }) => {
   const [avaliacao, setAvaliacao] = useState(null);
@@ -21,6 +22,9 @@ const Anuncio = ({ accommodation }) => {
     ? useDetalhes(accommodation.creator)
     : null;
   const { userData: creator } = creatorData;
+  const { comentarios, loading, error } = useComents(
+    accommodation?.id_accommodation
+  );
 
   const handleReload = () => {
     window.location.reload();
@@ -269,32 +273,43 @@ const Anuncio = ({ accommodation }) => {
               </div>
             </div>
             <div className="linha-acomodacao-descricao"></div>
-            <aside>
-              <h2>Informações Importantes</h2>
-            </aside>
-            <div>
-              <h3>Check-In e Check-Out</h3>
-              <p>Check-in a partir das 14h</p>
-              <p>Check-out até às 12h</p>
+            <div className="acomodacao-informacoes-importantes">
+              <aside>
+                <h2>Informações Importantes</h2>
+              </aside>
+              <div>
+                <h3>Check-In e Check-Out</h3>
+                <p>Check-in a partir das 14h</p>
+                <p>Check-out até às 12h</p>
+              </div>
+              <div>
+                <h3>Política de Cancelamento</h3>
+                <p>Após o pagamento há a possibilidade de cancelamento.</p>
+              </div>
+              <div>
+                <h3>Câmera de Segurança</h3>
+                <p>{`${
+                  accommodation.kitchen
+                    ? "Possui câmera de segurança na área externa"
+                    : "Não possui câmera de segurança"
+                }`}</p>
+              </div>
+              <div className="linha-acomodacao-descricao"></div>
             </div>
-            <div>
-              <h3>Política de Cancelamento</h3>
-              <p>Após o pagamento há a possibilidade de cancelamento.</p>
-            </div>
-            <div>
-              <h3>Câmera de Segurança</h3>
-              <p>{`${
-                accommodation.kitchen
-                  ? "Possui câmera de segurança na área externa"
-                  : "Não possui câmera de segurança"
-              }`}</p>
-            </div>
-            <div className="linha-acomodacao-descricao"></div>
-            <aside>
-              <h2>Avaliações (N)</h2>
-              <span>
-                <IoStarSharp /> (N.D)
-              </span>
+            <aside className="acomodacao-informacoes-avaliacao">
+              <h2>
+                Avaliações{" "}
+                {comentarios?.length > 0
+                  ? `${comentarios.length}`
+                  : "Nenhuma avaliação disponível"}
+              </h2>
+              <p>
+                <IoStarSharp />{" "}
+                <span>
+                  {accommodation?.average_rating ||
+                    "Nenhuma avaliação disponível"}
+                </span>
+              </p>
             </aside>
             <div className="caixa-avaliacao">
               <span>Escolha sua avaliação</span>
@@ -316,7 +331,7 @@ const Anuncio = ({ accommodation }) => {
               </ul>
             </div>
             <div>
-              <Avaliacao />
+              <Avaliacao comentarios={comentarios} />
             </div>
           </div>
           {/* <div>

@@ -351,6 +351,7 @@ class AccommodationSerializer(serializers.ModelSerializer):
             "title",
             "description",
             "price_per_night",
+            "average_rating",
             "bank_account",
             "created_at",
             "is_active",
@@ -478,7 +479,7 @@ class ReviewSerializer(serializers.ModelSerializer):
             review = super().create(validated_data)
             return review
         except Exception as e:
-            
+
             raise serializers.ValidationError("Erro ao criar review.")
 
     def update(self, instance, validated_data):
