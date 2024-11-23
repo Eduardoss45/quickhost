@@ -8,7 +8,7 @@ from rest_framework import status
 from rest_framework.views import APIView
 from pprint import pprint
 from django.contrib.auth import get_user_model
-from data.models import PropertyListing
+from data.models import PropertyListing, UserAccount
 from django.db.models import Avg
 
 from .serializers import (
@@ -17,6 +17,7 @@ from .serializers import (
     UserUpdateSerializer,
     TokenObtainPairSerializer,
     ReviewSerializer,
+    BookingSerializer,
 )
 from data import models
 from uuid import UUID
@@ -443,3 +444,71 @@ class ReviewViewSet(viewsets.ModelViewSet):
                 f"Nenhuma avaliação encontrada. Média definida como 0 para a acomodação {accommodation.id_accommodation}."
             )
         accommodation.save()
+
+
+class BookingViewSet(viewsets.ModelViewSet):
+    queryset = models.Booking.objects.all()
+    serializer_class = BookingSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        """Filtra as reservas pelo usuário autenticado."""
+        return self.queryset.filter(user_booking=self.request.user)
+
+    def perform_create(self, serializer):
+        """Define o usuário autenticado como `user_booking` ao salvar a reserva."""
+        serializer.save(user_booking=self.request.user)
+
+    def create(self, request, *args, **kwargs):
+        """Cria uma nova reserva para uma acomodação."""
+        logger.info(f"Tentativa de criar reserva por usuário {request.user}")
+
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+
+        logger.info(f"Reserva criada com sucesso: {serializer.data}")
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def list(self, request, *args, **kwargs):
+        """Lista todas as reservas do usuário autenticado."""
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+
+        logger.info(f"Listando reservas para o usuário {request.user}")
+        return Response(serializer.data)
+
+    def retrieve(self, request, *args, **kwargs):
+        """Obtém os detalhes de uma reserva específica."""
+        try:
+            booking = self.get_queryset().get(pk=kwargs["pk"])
+        except models.Booking.DoesNotExist:
+            logger.warning(
+                f"Reserva {kwargs['pk']} não encontrada para o usuário {request.user}"
+            )
+            return Response(
+                {"detail": "Reserva não encontrada."}, status=status.HTTP_404_NOT_FOUND
+            )
+
+        serializer = self.get_serializer(booking)
+        logger.info(
+            f"Detalhes da reserva {kwargs['pk']} retornados para {request.user}"
+        )
+        return Response(serializer.data)
+
+    def update(self, request, *args, **kwargs):
+        """Atualiza os detalhes de uma reserva específica."""
+        booking = self.get_object()
+        serializer = self.get_serializer(booking, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        logger.info(f"Reserva {booking.id_booking} atualizada por {request.user}")
+        return Response(serializer.data)
+
+    def destroy(self, request, *args, **kwargs):
+        """Exclui uma reserva específica."""
+        booking = self.get_object()
+        logger.info(f"Reserva {booking.id_booking} excluída por {request.user}")
+        booking.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

@@ -68,7 +68,7 @@
   flex: 1;
 }
 
-.icon {
+.registration-form > .icon {
   position: absolute;
   right: 10px;
   top: 40%;

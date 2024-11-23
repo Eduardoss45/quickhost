@@ -1,65 +1,33 @@
 import React from "react";
-import { Outlet, NavLink, useLocation } from "react-router-dom";
-import { FaArrowLeftLong } from "react-icons/fa6";
-import { IoAddCircle } from "react-icons/io5";
+import { Link } from "react-router-dom";
+import { IoAdd } from "react-icons/io5";
 import "./Hospedar.css";
+import CardHospedagens from "../components/CardHospedagens";
 
 const Hospedar = () => {
-  const location = useLocation();
-  const path = location.pathname;
-
-  let headerText = "Nome da aba";
-  let showIcon = true;
-
-  if (path === "/hospedar/anuncio") {
-    headerText = "Seus anúncios";
-    showIcon = true;
-  } else if (path === "/hospedar/registro") {
-    headerText = "Suas reservas";
-    showIcon = false; // Esconder o ícone para essa rota
-  }
-
   return (
-    <div id="hospedar">
-      <div id="menu-hospedar">
-        <div id="menu-hospedar-rotas">
-          <span id="rota-saida">
-            <NavLink to="/">
-              <FaArrowLeftLong />
-            </NavLink>
-          </span>
-          <div id="rotas-aninhadas">
-            <NavLink
-              to="anuncio"
-              className={({ isActive }) => (isActive ? "active" : "")}
-            >
-              <button>
-                <span>Anúncios</span>
-              </button>
-            </NavLink>
-            <NavLink
-              to="registro"
-              className={({ isActive }) => (isActive ? "active" : "")}
-            >
-              <button>
-                <span>Reservas</span>
-              </button>
-            </NavLink>
-          </div>
-        </div>
-        <div id="hospedar-info">
-          <h1>{headerText}</h1>
-          {showIcon && (
-            <span>
-              <NavLink to="/cadastro/acomodacoes">
-                <IoAddCircle />
-              </NavLink>
-            </span>
-          )}
+    <div className="pagina-hospedar">
+      <div className="menu-hospedar">
+        <h2>Hospedar</h2>
+        <div>
+          <Link to="/acomodacoes">
+            <button>
+              <span>
+                <IoAdd />
+              </span>
+              Criar Hospedagem
+            </button>
+          </Link>
         </div>
       </div>
+      <div className="hospedar-texto-alternativo">
+        <p>
+          Parece que você não tem nenhum anúncio ativo... Clique em “Criar
+          Hospedagem” para anunciar
+        </p>
+      </div>
       <div>
-        <Outlet /> {/* Renderiza conteúdo com base na URL aninhada */}
+        <CardHospedagens />
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaEye, FaEyeSlash, FaCalendarAlt } from "react-icons/fa";
+import { IoEyeOutline, IoEyeOffOutline } from "react-icons/io5";
 import useCadastro from "../hooks/useCadastro"; // Usando o hook de cadastro
 import bg from "../image/login.png";
 import "./Cadastro.css";
@@ -104,7 +104,7 @@ function Cadastro() {
               className="toggle-password"
               onClick={togglePasswordVisibility}
             >
-              {showPassword ? <FaEyeSlash /> : <FaEye />}
+              {showPassword ? <IoEyeOffOutline /> : <IoEyeOutline />}
             </button>
           </div>
 
@@ -124,7 +124,7 @@ function Cadastro() {
               className="toggle-password"
               onClick={toggleConfirmPasswordVisibility}
             >
-              {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+              {showConfirmPassword ? <IoEyeOffOutline /> : <IoEyeOutline />}
             </button>
           </div>
 

@@ -99,30 +99,31 @@
 .user-info-form > div:nth-child(1) {
   display: flex;
   align-items: center;
+  gap: 1rem;
 }
 
 .user-info-form > div:nth-child(1) span {
-  font-size: 3rem;
+  font-size: 4rem;
 }
 
 .user-info-form {
-  max-width: 700px;
+  max-width: 800px;
   padding: 20px;
-  /* border: 1px solid #ccc; */
   border-radius: 8px;
   font-family: Arial, sans-serif;
 }
 
 .user-info-form h2 {
-  color: #ff6a00;
-  font-size: 1.5em;
+  color: var(--paleta-um);
+  font-size: 2em;
   margin-bottom: 15px;
 }
 
 .user-info-form label {
   display: block;
-  margin-top: 10px;
+  margin-top: 2rem;
   font-weight: bold;
+  font-size: 1.5rem;
 }
 
 .user-info-form input[type="text"],
@@ -130,10 +131,14 @@
 .user-info-form input[type="date"],
 .user-info-form input[type="password"] {
   width: 100%;
-  padding: 8px;
+  padding: 16px;
   margin-top: 5px;
   border: 1px solid #ddd;
   border-radius: 4px;
+}
+
+.user-info-form input::placeholder {
+  font-size: 1rem;
 }
 
 .password-field {
@@ -143,7 +148,7 @@
 .password-field button {
   position: absolute;
   right: 10px;
-  top: 75%;
+  top: 70%;
   transform: translateY(-50%);
   background: none;
   border: none;
@@ -178,7 +183,7 @@
 }
 
 .dropzone:hover {
-  border-color: #ff6a00;
+  border-color: var(--paleta-um);
 }
 
 .buttons {
@@ -202,6 +207,6 @@
 }
 
 .save-button {
-  background-color: #ff6a00;
+  background-color: var(--paleta-um);
   color: #fff;
 }

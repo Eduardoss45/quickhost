@@ -1,0 +1,10 @@
+.pagina-favoritos {
+  margin: 2rem;
+}
+
+.pagina-favoritos h2 {
+  color: var(--paleta-um);
+  font-size: 2rem;
+  font-weight: bold;
+  padding: 2rem 0;
+}

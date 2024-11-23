@@ -1,32 +1,88 @@
-#menu-flutuante {
-  display: flex;
-  flex-direction: column;
-  position: absolute;
-  bottom: -150%;
-  background-color: var(--paleta-tres);
-  padding: 0.4rem;
-  border-radius: 10px;
-}
-
-#menu-flutuante a {
-  text-decoration: none;
-  color: var(--paleta-quatro);
-}
-
-#menu-flutuante a:visited {
-  color: var(--paleta-quatro);
-}
-
-#menu-flutuante button {
-  border: none;
-  background-color: transparent;
-  font-size: 1rem;
-  color: var(--paleta-quatro);
-}
-
-#menu-line {
-  border-bottom: 1px solid var(--paleta-quatro);
-  width: 119%;
-  left: -6px;
+/* Estilo geral do menu flutuante */
+.menu-flutuante {
   position: relative;
+  z-index: 1;
+}
+
+/* Botão de perfil */
+.menu-flutuante .profile-button {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+.menu-flutuante .icon {
+  font-size: 24px;
+}
+
+/* Avatar de perfil */
+.menu-flutuante .avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+/* Dropdown */
+.menu-flutuante .dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: white;
+  border-radius: 5px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  width: 200px;
+  animation: menuFlutuanteFadeIn 0.3s ease;
+}
+
+/* Cabeçalho do dropdown */
+.menu-flutuante .dropdown-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+/* Avatar grande */
+.menu-flutuante .avatar-large {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+/* Itens do dropdown */
+.menu-flutuante .dropdown-item {
+  padding: 10px 20px;
+  background-color: white;
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.menu-flutuante .dropdown-item:hover {
+  background-color: #f0f0f0;
+}
+
+/* Linha de separação */
+.menu-flutuante hr {
+  margin: 5px 0;
+  border: 0;
+  border-top: 1px solid #e0e0e0;
+}
+
+/* Animação do dropdown */
+@keyframes menuFlutuanteFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

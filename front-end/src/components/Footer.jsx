@@ -27,8 +27,12 @@ function Footer() {
           </nav>
         </div>
         <div className="social">
-          <FaGithub className="icon" />
-          <FaInstagram className="icon" />
+          <a href="https://github.com/Eduardoss45/quickhost" target="blank">
+            <FaGithub className="icon" />
+          </a>
+          <a href="https://www.instagram.com/quickhost_/" target="blank">
+            <FaInstagram className="icon" />
+          </a>
         </div>
       </div>
       <div>

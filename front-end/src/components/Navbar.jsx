@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { CiMenuBurger } from "react-icons/ci";
-import { FaUserCircle, FaHotel } from "react-icons/fa";
-import { MdHotel } from "react-icons/md";
+import { SlDirections } from "react-icons/sl";
+import { FaUser } from "react-icons/fa";
+import { IoBedOutline, IoChatbubbleOutline } from "react-icons/io5";
+
 import MenuFlutuante from "./MenuFlutuante";
 import useUserData from "../hooks/useUserData";
 import useAuth from "../hooks/useAuth";
 import useNavbar from "../hooks/useNavbar";
 import logo from "../image/logo.png";
-
 
 import "./Navbar.css";
 
@@ -16,6 +17,7 @@ const Navbar = ({ onSearch }) => {
   const { userData } = useUserData();
   const Authenticated = useAuth();
   const [profilePicture, setProfilePicture] = useState("");
+  const [name, setName] = useState("");
   const isAuthenticated = localStorage.getItem("isAuthenticated");
 
   const {
@@ -26,6 +28,22 @@ const Navbar = ({ onSearch }) => {
     initializePageState,
   } = useNavbar();
 
+  const toggleMenu = () => {
+    setMenuOpen(!menuOpen);
+  };
+
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const handleLogin = () => {
+    setIsLoggedIn(true);
+    setMenuOpen(false);
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setMenuOpen(false);
+  };
+
   const location = useLocation();
 
   useEffect(() => {
@@ -35,8 +53,9 @@ const Navbar = ({ onSearch }) => {
   useEffect(() => {
     if (userData) {
       setProfilePicture(userData.profile_picture || "");
+      setName(userData.username || "");
     }
-  }, [userData, setProfilePicture]);
+  }, [userData, setProfilePicture, setName]);
 
   return (
     <>
@@ -49,24 +68,29 @@ const Navbar = ({ onSearch }) => {
             <Link to={isAuthenticated ? "reservas" : "/entrar"}>
               <button className="btn navegacao">
                 <span>
-                  <MdHotel />
+                  <IoBedOutline />
                   Reservas
                 </span>
               </button>
             </Link>
-            <Link to={isAuthenticated ? "/hospedar/anuncio" : "/entrar"}>
+            <Link to={isAuthenticated ? "/hospedar" : "/entrar"}>
               <button className="btn navegacao">
                 <span>
-                  <FaHotel />
+                  <SlDirections />
                   Hospedar
+                </span>
+              </button>
+            </Link>
+            <Link to={isAuthenticated ? "" : "/entrar"}>
+              <button className="btn navegacao">
+                <span>
+                  <IoChatbubbleOutline />
+                  Mensagens
                 </span>
               </button>
             </Link>
             <div id="box-relativo">
               <button className="btn menu" onClick={toggleMenuVisibility}>
-                <span id="hanb">
-                  <CiMenuBurger />
-                </span>
                 <span id="user">
                   {isAuthenticated ? (
                     profilePicture ? (
@@ -78,18 +102,24 @@ const Navbar = ({ onSearch }) => {
                         />
                       </div>
                     ) : (
-                      <FaUserCircle />
+                      <FaUser />
                     )
                   ) : (
-                    <FaUserCircle />
+                    <FaUser />
                   )}
                 </span>
               </button>
               {isMenuOpen && (
-                <MenuFlutuante
-                  onLoginClick={showLoginPainel}
-                  onCadastroClick={showUserRegistration}
-                />
+                <>
+                  <MenuFlutuante
+                    onLoginClick={showLoginPainel}
+                    onCadastroClick={showUserRegistration}
+                    onClick={toggleMenu}
+                    profilePicture={profilePicture || undefined}
+                    name={name || undefined}
+                    isAuthenticated={isAuthenticated}
+                  />
+                </>
               )}
             </div>
           </nav>

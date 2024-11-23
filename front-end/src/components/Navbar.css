@@ -1,7 +1,6 @@
 header {
   display: flex;
   flex-direction: column;
-  /* background-color: var(--paleta-um); */
   background-color: transparent;
 }
 
@@ -31,10 +30,12 @@ header {
   gap: 1rem;
 }
 
-#nav-btn span {
+#nav-btn > span {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  font-size: 1.25rem;
+  justify-content: center;
 }
 .btn {
   background-color: transparent;
@@ -43,57 +44,44 @@ header {
 }
 
 .navegacao {
-  border-radius: 0.9rem;
+  border-radius: 7px;
   padding: 0.5rem;
   outline: none;
+  font-size: 1.25rem;
 }
 
 .menu {
-  border-radius: 2rem;
+  border-radius: 7px;
   padding: 0.1rem;
   display: flex;
   align-items: center;
   gap: 0.3rem;
 }
 
-#hanb {
-  font-size: 1.3rem;
-  margin-left: 0.4rem;
-}
-#user {
-  font-size: 2.5rem;
-  width: 2.5rem;
-}
-
-#hanb,
 #user {
   display: flex;
+  font-size: 2.5rem;
+  width: 2.5rem;
 }
 
 #box-relativo {
   position: relative;
 }
 
-.backdrop {
+header .backdrop {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(
-    0,
-    0,
-    0,
-    0.5
-  ); /* Ajuste o valor alpha conforme desejado */
-  z-index: 1000; /* Deve estar acima de todos os outros elementos */
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 3;
 }
 
 #profile {
   width: 2.5rem;
   height: 2.5rem;
   display: flex;
-  clip-path: circle(50%);
 }
 
 #profile-picture {

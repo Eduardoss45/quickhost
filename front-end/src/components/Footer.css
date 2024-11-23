@@ -3,7 +3,6 @@
   padding: 2rem;
   background-color: var(--paleta-seis);
   color: var(--paleta-quatro);
-  font-family: Arial, sans-serif;
   flex-direction: column;
   bottom: 0;
   position: fixed;
@@ -11,6 +10,7 @@
   text-align: center;
   gap: 1rem;
   box-shadow: 0px -3px 20px 0px #3d3d3d20;
+  z-index: 1;
 }
 
 .footer > div:nth-child(1) {
@@ -57,17 +57,17 @@
   margin-bottom: 20px;
 }
 
-.icon {
+.social > a > .icon {
   font-size: 36px;
   color: var(--paleta-sete);
   cursor: pointer;
 }
 
-.icon:nth-child(1) {
+.social > .icon:nth-child(1) {
   right: 50px;
 }
 
-.icon:hover {
+.social > .icon:hover {
   color: var(--paleta-dois);
 }
 

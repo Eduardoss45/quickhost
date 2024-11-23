@@ -1,22 +1,14 @@
-
-### Tela de configurações [ ]
-
-### Trocar navbar com nova animação [ ]
-
-### Trocar menu do usuário (logado/não logado) [ ]
-
+### Tela de configurações [X]
+### Trocar navbar com nova animação [X]
+### Trocar menu do usuário (logado/não logado) [X]
+### Telas de minhas reservas [X]
+### Criar componente de exibição de reservas [X]
+### Atualizar tela de hospedagem [X]
+### Criar componente de favoritos [X]
+### Criar tela de cancelar hospedagem [X]
 ### Telas de pagamento [ ]
-
-### Telas de minhas reservas [ ]
-
-### Criar componente de exibição de reservas [ ]
-
-### Atualizar tela de hospedagem [ ]
-
 ### Criar o editor de anuncio [ ]
-
 ### Criar telas de check-in/check-out [ ]
-
-### Criar componente de favoritos [ ]
-
 ### Criar o chat se possivel [ ]
+### Definir um parametro para permissão de comentarios nas acomodações [ ]
+### Aplicar o filtro com base na avaliação [ ]

@@ -1,62 +1,47 @@
-#hospedar {
+.pagina-hospedar {
   padding: 3rem;
 }
 
-#menu-hospedar {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-#menu-hospedar-rotas {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-}
-
-#rota-saida {
-  font-size: 2.5rem;
-}
-
-#rotas-aninhadas {
-  margin: 0 auto;
-  display: flex;
-  gap: 4rem;
-}
-
-#rotas-aninhadas button {
-  background-color: transparent;
-  border: none;
-  font-size: 1.5rem;
-}
-
-#hospedar-info {
+.menu-hospedar {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
 }
 
-#menu-hospedar-rotas > span > a,
-#rotas-aninhadas > a > button > span,
-#hospedar-info > h1,
-#hospedar-info > span > a > svg {
-  color: var(--paleta-dois);
-}
-
-#hospedar-info h1 {
-  font-size: 3rem;
-  font-weight: 400;
-}
-
-#hospedar-info span {
-  font-size: 4rem;
-}
-
-#hospedar-info > span > a {
+.menu-hospedar button {
   display: flex;
+  align-items: center;
+  font-size: 1rem;
+  padding: 0.5rem 2rem;
+  border-radius: 8px;
+  border: none;
+  background: var(--paleta-um);
+  color: var(--paleta-seis);
 }
 
-.active {
-  border-bottom: 1px solid var(--paleta-quatro);
+.menu-hospedar button > span {
+  display: flex;
+  font-size: 1.5rem;
+}
+
+.menu-hospedar h2 {
+  font-weight: bold;
+  font-size: 1.5rem;
+  color: var(--paleta-um);
+}
+
+.pagina-hospedar > .hospedar-texto-alternativo {
+  display: flex;
+  height: 90vh;
+  align-items: center;
+  justify-content: center;
+}
+
+.pagina-hospedar > div > p {
+  color: var(--paleta-quatro);
+  width: 400px;
+  text-align: center;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }

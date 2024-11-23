@@ -1,7 +1,10 @@
 import re
-from datetime import date
+from datetime import datetime, date, timedelta
 import string
 import random
+import logging
+
+logger = logging.getLogger("my_logger")
 
 
 def validate_birth_date(birth_date):
@@ -282,3 +285,64 @@ def validate_comment(comment):
     if len(comment) >= 500:
         return "O campo comment não pode ter mais de 500 caracteres."
     return None  # Retorna o próprio valor do comentário se for válido
+
+
+def validate_check_in_date(check_in_date):
+    """
+    Valida a data de check-in:
+    - Deve ser uma data válida no formato YYYY-MM-DD.
+    - Deve ser a partir de amanhã (não hoje ou no passado).
+    """
+    if isinstance(check_in_date, date):
+        check_in_date = check_in_date.strftime(
+            "%Y-%m-%d"
+        )  # Converte para string, se necessário
+
+    try:
+        date_obj = datetime.strptime(
+            check_in_date, "%Y-%m-%d"
+        ).date()  # Converte para objeto date
+    except ValueError:
+        return "Data de check-in inválida. Use o formato YYYY-MM-DD."
+
+    if date_obj <= date.today():
+        logger.info(f"Datas: {date_obj, date.today}")
+        return "A data de check-in deve ser a partir de amanhã."
+
+    return None
+
+
+def validate_check_out_date(check_out_date, check_in_date):
+    """
+    Valida a data de check-out:
+    - Deve ser uma data válida no formato YYYY-MM-DD.
+    - Deve ser pelo menos um dia após a data de check-in.
+    """
+    if isinstance(check_out_date, date):
+        check_out_date = check_out_date.strftime(
+            "%Y-%m-%d"
+        )  # Converte para string, se necessário
+
+    try:
+        check_out_date_obj = datetime.strptime(
+            check_out_date, "%Y-%m-%d"
+        ).date()  # Converte para objeto date
+    except ValueError:
+        return "A data de check-out deve ser uma data válida no formato YYYY-MM-DD."
+
+    if check_out_date_obj <= check_in_date:
+        return "A data de check-out deve ser pelo menos um dia após a data de check-in."
+
+    return None
+
+
+def validate_total_price(price):
+    if price <= 0:
+        return "O preço total deve ser maior que zero."
+    return None
+
+
+def validate_is_active(is_active):
+    if not isinstance(is_active, bool):
+        return "O campo 'is_active' deve ser True ou False."
+    return None

@@ -98,7 +98,7 @@ function CadastroAcomodacoes() {
       onKeyDown={handleKeyDown}
     >
       <div className="description-bar">
-        <Link to="/hospedar/anuncio">
+        <Link to="/hospedar">
           <div className="box-button">
             <button className="btn-painel">sair</button>
           </div>

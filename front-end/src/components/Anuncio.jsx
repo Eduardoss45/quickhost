@@ -11,10 +11,11 @@ import { PiFireExtinguisherBold, PiSecurityCameraThin } from "react-icons/pi";
 import { Link } from "react-router-dom";
 import { IoStarSharp } from "react-icons/io5";
 import useDetalhes from "../hooks/useDetalhes.jsx";
-
-import "./Anuncio.css";
+import SeletorData from "./SeletorData.jsx";
 import Avaliacao from "./Avaliacao.jsx";
 import useComents from "../hooks/useComents.jsx";
+
+import "./Anuncio.css";
 
 const Anuncio = ({ accommodation }) => {
   const [avaliacao, setAvaliacao] = useState(null);
@@ -33,6 +34,12 @@ const Anuncio = ({ accommodation }) => {
   const handleClick = (rating) => {
     setAvaliacao(rating);
     console.log(rating);
+  };
+
+  const handleDateChange = (checkin, checkout) => {
+    // Aqui você pode lidar com as datas de check-in e check-out
+    console.log("Check-in:", checkin);
+    console.log("Check-out:", checkout);
   };
   return (
     <div className="pagina-anuncio">
@@ -334,17 +341,29 @@ const Anuncio = ({ accommodation }) => {
               <Avaliacao comentarios={comentarios} />
             </div>
           </div>
-          {/* <div>
+          <div className="acomodacao-painel-reservas">
             <div>
-              <div>Quadro 1</div>
-              <div>Quadro 2</div>
+              <SeletorData onDateChange={handleDateChange} />
+              <div className="acomodacao-painel-hospedagem">
+                <p>Acomodação</p>
+                <span>R$ 0,00</span>
+              </div>
+              <div className="linha-acomodacao-descricao"></div>
+              <div className="acomodacao-painel-hospedagem">
+                <p>Taxa de Serviço</p>
+                <span>R$ 0,00</span>
+              </div>
+              <div className="linha-acomodacao-descricao"></div>
+              <div className="acomodacao-painel-hospedagem">
+                <p>Total</p>
+                <span>R$ 0,00</span>
+              </div>
+              <div className="acomodacao-painel-botoes">
+                <button>Reservar para a Temporada</button>
+                <button>Enviar Mensagem</button>
+              </div>
             </div>
-            <div>Preço</div>
-            <div>Taxa</div>
-            <div>Total</div>
-            <button>Botão 1</button>
-            <button>Botão 2</button>
-          </div> */}
+          </div>
         </div>
       </div>
     </div>

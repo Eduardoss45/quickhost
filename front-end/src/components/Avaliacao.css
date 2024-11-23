@@ -56,3 +56,7 @@
   font-size: 14px;
   color: var(--paleta-quatro);
 }
+
+.no-reviews {
+  margin: 1rem 0;
+}

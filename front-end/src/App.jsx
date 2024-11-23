@@ -3,19 +3,17 @@ import Home from "./pages/Home";
 import Cadastro from "./components/Cadastro";
 import Favoritos from "./pages/Favoritos";
 import Reservas from "./pages/Reservas";
-import Acomodacao from "./pages/Acomodacao";
-import JanelaAnuncio from "./components/JanelaAnuncio";
 import EditorDePerfil from "./pages/EditorDePerfil";
 import Hospedar from "./pages/Hospedar";
 import CadastroAcomodacoes from "./pages/CadastroAcomodacoes";
-import RegistroReservas from "./components/RegistroReservas";
 import Footer from "./components/Footer";
 import Anuncio from "./components/Anuncio";
 import Login from "./components/Login";
+import Configuracoes from "./pages/Configuracoes";
+import useData from "./hooks/useData";
 
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useState } from "react";
-import useData from "./hooks/useData";
 
 function App() {
   const { data, loading, error } = useData();
@@ -77,18 +75,16 @@ function InnerApp({ accommodations, loading, error, onSearch }) {
           />
           <Route path="/acomodacao" element={<Anuncio />} />
           <Route path="/perfil" element={<EditorDePerfil />} />
+          <Route path="/configuracoes" element={<Configuracoes />} />
           <Route path="/cadastro" element={<Cadastro />} />
           <Route path="/favoritos" element={<Favoritos />} />
           <Route path="/reservas" element={<Reservas />} />
           {/* <Route path="/acomodacao" element={<Acomodacao />}>
             <Route path="detalhes" element={<Anuncio />} />
           </Route> */}
-          <Route path="/hospedar" element={<Hospedar />}>
-            <Route path="anuncio" element={<JanelaAnuncio />} />
-            <Route path="registro" element={<RegistroReservas />} />
-          </Route>
+          <Route path="/hospedar" element={<Hospedar />} />
           <Route
-            path="/cadastro/acomodacoes"
+            path="/acomodacoes"
             element={<CadastroAcomodacoes />}
           />
           <Route

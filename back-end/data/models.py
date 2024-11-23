@@ -63,6 +63,7 @@ class UserAccount(AbstractUser):
     )
     cpf = models.CharField(max_length=11, null=True)
     registered_accommodations = models.JSONField(default=list, blank=True)
+    registered_bookings = models.JSONField(default=list, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     USERNAME_FIELD = "email"
@@ -186,16 +187,19 @@ class PropertyListing(models.Model):
 # Modelo de Reserva
 # ---------------------
 class Booking(models.Model):
-    user = models.ForeignKey(UserAccount, on_delete=models.CASCADE)
+    id_booking = models.UUIDField(primary_key=True, default=uuid4, editable=False)
+    user_booking = models.ForeignKey(UserAccount, on_delete=models.CASCADE)
     accommodation = models.ForeignKey(PropertyListing, on_delete=models.CASCADE)
     check_in_date = models.DateField()
     check_out_date = models.DateField()
-    total_price = models.DecimalField(max_digits=10, decimal_places=2)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Reserva de {self.user.username} para {self.accommodation.title}"
+        return (
+            f"Reserva de {self.user_booking.username} para {self.accommodation.title}"
+        )
 
 
 # ---------------------

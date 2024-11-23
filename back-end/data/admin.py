@@ -26,6 +26,7 @@ class UserAccountAdmin(admin.ModelAdmin):
 @admin.register(PropertyListing)
 class PropertyListingAdmin(admin.ModelAdmin):
     list_display = (
+        "id_accommodation",
         "title",
         "category",
         "price_per_night",
@@ -45,11 +46,12 @@ class PropertyListingAdmin(admin.ModelAdmin):
 @admin.register(Booking)
 class BookingAdmin(admin.ModelAdmin):
     list_display = (
-        "user",
+        "id_booking",
+        "user_booking",
         "accommodation",
         "check_in_date",
         "check_out_date",
-        "total_price",
+        "price",
         "is_active",
     )
     search_fields = ("user__username", "accommodation__title")

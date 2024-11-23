@@ -1,15 +1,19 @@
-import { Link } from "react-router-dom";
-
-import { FaArrowLeftLong } from "react-icons/fa6";
-
+import CardReservas from "../components/CardReservas";
+import CardCancelarReservas from "../components/CardCancelarReservas";
+import "./Reservas.css";
 const Reservas = () => {
   return (
-    <div>
-      <Link to="/">
-        <FaArrowLeftLong />
-      </Link>
-      <h1>Reservas</h1>
-      {/* Um map vai percorrer uma ou mais reservas e estarão em relação com as acomodações de de um ou mais anfitriões do sistema */}
+    <div className="pagina-reservas">
+      <h2>Minhas Reservas</h2>
+      <CardReservas />
+      <div className="reservas-texto-alternativo">
+        <p>
+          Parece que você não tem nenhuma reserva ativa... procure uma ao seu
+          gosto na página inicial
+        </p>
+      </div>
+      <CardCancelarReservas />
+      {/* criar condicional para gerenciar a visualização desses componentes */}
     </div>
   );
 };

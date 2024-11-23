@@ -57,18 +57,15 @@ const Home = ({ accommodations }) => {
     return [...filteredAccommodations].sort(
       (a, b) => {
         if (sortOption === "rating") {
-          return b.rating - a.rating; // Ordenação por avaliação
+          return b.rating - a.rating;
         } else if (sortOption === "newest") {
-          // Ordenação por data de criação, mais recente primeiro
           return new Date(b.created_at) - new Date(a.created_at);
         } else if (sortOption === "oldest") {
-          // Ordenação por data de criação, mais antigo primeiro
           return new Date(a.created_at) - new Date(b.created_at);
         } else if (sortOption === "") {
-          // Caso não haja opção de ordenação, retorna as acomodações sem alteração
-          return 0; // Não altera a ordem, retornando as acomodações na ordem original
+          return 0;
         }
-        return 0; // Caso não tenha nenhuma opção de ordenação válida
+        return 0;
       },
       [filteredAccommodations, sortOption]
     );

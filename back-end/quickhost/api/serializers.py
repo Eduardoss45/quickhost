@@ -8,6 +8,8 @@ from django.db import transaction
 from urllib.parse import urlparse
 from django.urls import reverse
 from django.conf import settings
+from datetime import datetime, date
+from decimal import Decimal
 from data import models
 import os
 import uuid
@@ -52,6 +54,10 @@ from .validation import (
     validate_outdoor_camera,
     validate_rating,
     validate_comment,
+    validate_check_in_date,
+    validate_check_out_date,
+    validate_total_price,
+    validate_is_active,
 )
 
 
@@ -148,14 +154,18 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.UserAccount
         fields = [
-            "username",
-            "cpf",
+            "id_user",
             "birth_date",
-            "social_name",
-            "email",
             "phone_number",
-            "password",
+            "username",
+            "email",
+            "social_name",
             "profile_picture",
+            "cpf",
+            "registered_accommodations",
+            "registered_bookings",
+            "created_at",
+            "password",
         ]
         extra_kwargs = {field: {"required": False} for field in fields}
 
@@ -365,6 +375,36 @@ class AccommodationSerializer(serializers.ModelSerializer):
             internal_images = validated_data.pop("internal_images", [])
             user = validated_data.get("creator")
 
+            # Obtém o preço inicial
+            price_per_night = validated_data.get("price_per_night", 0)
+
+            # Converte price_per_night para Decimal, se não for
+            price_per_night = Decimal(price_per_night)
+
+            # Calcula a taxa linear com base no preço
+            # A taxa vai de 3% até 16%, com base no preço da acomodação
+            if price_per_night > 0:
+                # Calcula a taxa linear. Ajuste os valores conforme necessário.
+                min_rate = Decimal("0.03")  # 3%
+                max_rate = Decimal("0.16")  # 16%
+                max_price_for_max_rate = Decimal(
+                    "1000"
+                )  # Preço máximo para atingir 16%
+
+                # Calcula a taxa proporcional (linear) de acordo com o preço
+                if price_per_night <= max_price_for_max_rate:
+                    rate = min_rate + (max_rate - min_rate) * (
+                        price_per_night / max_price_for_max_rate
+                    )
+                else:
+                    rate = max_rate  # A taxa máxima de 16% é aplicada se o preço for maior que o limite
+
+                # Aplica a taxa ao preço
+                price_per_night *= 1 + rate
+
+            # Atualiza o preço final no validated_data
+            validated_data["price_per_night"] = round(price_per_night, 2)
+
             with transaction.atomic():  # Usar transações para garantir consistência
                 # Criação da acomodação
                 accommodation = models.PropertyListing.objects.create(**validated_data)
@@ -489,3 +529,117 @@ class ReviewSerializer(serializers.ModelSerializer):
             return review
         except Exception as e:
             raise serializers.ValidationError("Erro ao atualizar review.")
+
+
+class BookingSerializer(serializers.ModelSerializer):
+    user_booking = serializers.PrimaryKeyRelatedField(
+        queryset=models.UserAccount.objects.all()  # Usa diretamente o queryset para buscar o usuário
+    )
+    accommodation = serializers.PrimaryKeyRelatedField(
+        queryset=models.PropertyListing.objects.all()  # Usa diretamente o queryset para buscar a acomodação
+    )
+
+    class Meta:
+        model = models.Booking
+        fields = [
+            "id_booking",
+            "user_booking",
+            "accommodation",
+            "check_in_date",
+            "check_out_date",
+            "price",
+            "is_active",
+            "created_at",
+        ]
+
+    def _validate_date(self, value):
+        """Valida e converte a data para o formato dd-mm-yyyy."""
+        if isinstance(value, (datetime, date)):
+            return value.date() if isinstance(value, datetime) else value
+        try:
+            return datetime.strptime(value, "%d-%m-%Y").date()
+        except ValueError:
+            raise serializers.ValidationError(
+                "A data deve estar no formato correto. Use o formato dd-mm-yyyy."
+            )
+
+    def validate_check_in_date(self, value):
+        return self._validate_date(value)
+
+    def validate_check_out_date(self, value):
+        return self._validate_date(value)
+
+    def validate(self, attrs):
+        check_in_date = attrs.get("check_in_date")
+        check_out_date = attrs.get("check_out_date")
+
+        # Validação do check-in
+        check_in_error = validate_check_in_date(check_in_date)
+        if check_in_error:
+            raise serializers.ValidationError({"check_in_date": check_in_error})
+
+        # Validação do check-out
+        check_out_error = validate_check_out_date(check_out_date, check_in_date)
+        if check_out_error:
+            raise serializers.ValidationError({"check_out_date": check_out_error})
+
+        # Calcular o preço total
+        price = attrs.get("price")
+        if price and check_in_date and check_out_date:
+            total_price = self.calculate_total_price(
+                check_in_date, check_out_date, price
+            )
+            attrs["price"] = total_price  # Aplica o preço total calculado
+
+        return attrs
+
+    def calculate_total_price(self, check_in_date, check_out_date, price):
+        """
+        Calcula o preço total considerando a quantidade de dias e uma taxa de 10%.
+        - A quantidade de dias é obtida pela diferença entre a data de check-out e check-in.
+        - O preço total é multiplicado pela quantidade de dias e aplicado uma taxa de 10%.
+        """
+        if isinstance(check_in_date, str):
+            check_in_date_obj = datetime.strptime(check_in_date, "%d-%m-%Y").date()
+        else:
+            check_in_date_obj = check_in_date
+
+        if isinstance(check_out_date, str):
+            check_out_date_obj = datetime.strptime(check_out_date, "%d-%m-%Y").date()
+        else:
+            check_out_date_obj = check_out_date
+
+        if check_out_date_obj <= check_in_date_obj:
+            raise serializers.ValidationError(
+                "A data de check-out deve ser após a data de check-in."
+            )
+
+        # Calcula a quantidade de dias
+        days_difference = (check_out_date_obj - check_in_date_obj).days
+
+        if days_difference < 1:
+            raise serializers.ValidationError(
+                "A quantidade de dias deve ser pelo menos 1."
+            )
+
+        # Aplica a taxa de 10% e multiplica pelo número de dias
+        price_decimal = Decimal(price)  # Converte o preço para Decimal
+        total_price = (
+            price_decimal * Decimal(days_difference) * Decimal("1.10")
+        )  # 1.10 como Decimal
+
+        return total_price
+
+    def create(self, validated_data):
+        """Cria e salva uma nova reserva no banco de dados."""
+        try:
+            return super().create(validated_data)
+        except Exception as e:
+            raise serializers.ValidationError(f"Erro ao criar reserva: {str(e)}")
+
+    def update(self, instance, validated_data):
+        """Atualiza os dados de uma reserva existente."""
+        try:
+            return super().update(instance, validated_data)
+        except Exception as e:
+            raise serializers.ValidationError(f"Erro ao atualizar reserva: {str(e)}")
