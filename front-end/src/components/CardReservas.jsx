@@ -2,14 +2,22 @@ import React from "react";
 import { IoEyeOutline, IoChatbubbleOutline } from "react-icons/io5";
 import { PiPhoneThin, PiTrashSimple } from "react-icons/pi";
 import { CiLocationOn, CiUser } from "react-icons/ci";
+import useDetalhes from "../hooks/useDetalhes";
+import useAccommodation from "../hooks/useAccommodation";
 import "./CardReservas.css";
 
-const CardReservas = () => {
+const CardReservas = ({ reserva }) => {
+  const { userData } = useDetalhes(reserva);
+  const { accommodationData } = useAccommodation(userData?.accommodation);
+  const { userData: dados } = useDetalhes(accommodationData?.creator);
+  if (!accommodationData) return <p>Carregando dados da acomodação...</p>;
   return (
     <div className="card">
       <div className="image-container">
         <img
-          src="path/to/your/image.jpg"
+          src={`${import.meta.env.VITE_BASE_URL}${
+            accommodationData.internal_images[0]
+          }`}
           alt="Vista da acomodação"
           className="image"
         />
@@ -18,17 +26,19 @@ const CardReservas = () => {
         <div className="details-container">
           <div>
             <div className="title-container">
-              <h2 className="title">Nome da Acomodação</h2>
-              <p className="host">Nome do Anfitrião</p>
+              <h2 className="title">{accommodationData.title}</h2>
+              <p className="host">
+                {dados?.username || "Anfitrião Desconhecido"}
+              </p>
             </div>
             <div className="dates-container">
               <div className="date-item">
                 <span>Check-in</span>
-                <p>13/09/2024</p>
+                <p>{userData?.check_in_date || "Data não disponível"}</p>
               </div>
               <div className="date-item">
                 <span>Check-out</span>
-                <p>16/09/2024</p>
+                <p>{userData?.check_out_date || "Data não disponível"}</p>
               </div>
             </div>
           </div>
@@ -39,20 +49,26 @@ const CardReservas = () => {
                 <CiLocationOn className="icon" />
               </span>
               <p className="info">
-                Endereço: Rua das Ruas, 123 - Centro • Cidade, UF • 12345-678
+                Endereço:{" "}
+                {accommodationData?.address || "Endereço não disponível"}
               </p>
             </div>
             <div>
               <span>
                 <PiPhoneThin className="icon" />
               </span>
-              <p className="info">Telefone: +55 24 3371 1413</p>
+              <p className="info">
+                Telefone: {dados?.phone_number || "Telefone não disponível"}
+              </p>
             </div>
             <div>
               <span>
                 <CiUser className="icon" />
               </span>
-              <p className="info">Hóspede: Fátima Silva Santos</p>
+              <p className="info">
+                Hóspede:{" "}
+                {reserva?.guest_name || "Nome do hóspede não disponível"}
+              </p>
             </div>
           </div>
           <div className="card-reservas-line"></div>

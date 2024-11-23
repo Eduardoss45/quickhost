@@ -19,6 +19,9 @@ import "./Anuncio.css";
 
 const Anuncio = ({ accommodation }) => {
   const [avaliacao, setAvaliacao] = useState(null);
+  const [total, setTotal] = useState(0);
+  const [tax, setTax] = useState(0);
+
   const creatorData = accommodation.creator
     ? useDetalhes(accommodation.creator)
     : null;
@@ -36,10 +39,16 @@ const Anuncio = ({ accommodation }) => {
     console.log(rating);
   };
 
-  const handleDateChange = (checkin, checkout) => {
-    // Aqui você pode lidar com as datas de check-in e check-out
-    console.log("Check-in:", checkin);
-    console.log("Check-out:", checkout);
+  const handleDataChange = (newCheckin, newCheckout, newTotal, newTax) => {
+    // Atualiza os estados
+    setTotal(newTotal);
+    setTax(newTax);
+
+    // Para debug
+    console.log("Check-in:", newCheckin);
+    console.log("Check-out:", newCheckout);
+    console.log("Total:", newTotal);
+    console.log("Tax:", newTax);
   };
   return (
     <div className="pagina-anuncio">
@@ -343,20 +352,23 @@ const Anuncio = ({ accommodation }) => {
           </div>
           <div className="acomodacao-painel-reservas">
             <div>
-              <SeletorData onDateChange={handleDateChange} />
+              <SeletorData
+                pricePerDay={accommodation.price_per_night}
+                onDateChange={handleDataChange}
+              />
               <div className="acomodacao-painel-hospedagem">
                 <p>Acomodação</p>
-                <span>R$ 0,00</span>
+                <span>{`R$ ${accommodation.price_per_night || "0,00"}`}</span>
               </div>
               <div className="linha-acomodacao-descricao"></div>
               <div className="acomodacao-painel-hospedagem">
                 <p>Taxa de Serviço</p>
-                <span>R$ 0,00</span>
+                <span>{`R$ ${tax || "0,00"}`}</span>
               </div>
               <div className="linha-acomodacao-descricao"></div>
               <div className="acomodacao-painel-hospedagem">
                 <p>Total</p>
-                <span>R$ 0,00</span>
+                <span>{`R$ ${total || "0,00"}`}</span>
               </div>
               <div className="acomodacao-painel-botoes">
                 <button>Reservar para a Temporada</button>

@@ -19,7 +19,6 @@ function App() {
   const { data, loading, error } = useData();
   const accommodations = data && Array.isArray(data) ? data : [];
   const [searchTerm, setSearchTerm] = useState("");
-
   const handleSearch = (term) => {
     setSearchTerm(term);
   };
@@ -83,10 +82,7 @@ function InnerApp({ accommodations, loading, error, onSearch }) {
             <Route path="detalhes" element={<Anuncio />} />
           </Route> */}
           <Route path="/hospedar" element={<Hospedar />} />
-          <Route
-            path="/acomodacoes"
-            element={<CadastroAcomodacoes />}
-          />
+          <Route path="/acomodacoes" element={<CadastroAcomodacoes />} />
           <Route
             path="/entrar"
             element={

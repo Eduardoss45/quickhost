@@ -1,68 +1,85 @@
 import React, { useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { ptBR } from "date-fns/locale"; // Localizador em português
+import { ptBR } from "date-fns/locale";
 import "./SeletorData.css";
 
-const SeletorData = ({ onDateChange }) => {
-  const [checkinDate, setCheckinDate] = useState(null); // Estado para Check-in
-  const [checkoutDate, setCheckoutDate] = useState(null); // Estado para Check-out
-  const [editDate, setEditDate] = useState(null); // Para controlar se estamos editando check-in ou check-out
-  const [errorMessage, setErrorMessage] = useState(""); // Estado para armazenar a mensagem de erro
-  const [isVisible, setIsVisible] = useState(true); // Estado para controlar a visibilidade do seletor de data (inicialmente, o seletor está visível)
+const SeletorData = ({ onDateChange, pricePerDay }) => {
+  const [checkinDate, setCheckinDate] = useState(null);
+  const [checkoutDate, setCheckoutDate] = useState(null);
+  const [editDate, setEditDate] = useState(null);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isVisible, setIsVisible] = useState(true);
 
-  const today = new Date(); // Data atual
+  const today = new Date();
 
   const handleDateClick = (dateType) => {
-    setEditDate(dateType); // Define qual data será editada (check-in ou check-out)
-    setErrorMessage(""); // Limpa a mensagem de erro ao abrir o seletor
-    setIsVisible(true); // Reabre o seletor de data sempre que clicar em uma caixa
+    setEditDate(dateType);
+    setErrorMessage("");
+    setIsVisible(true);
+  };
+
+  const calculateTotalPriceAndTax = (checkIn, checkOut, price) => {
+    const daysDifference = Math.ceil(
+      (checkOut - checkIn) / (1000 * 60 * 60 * 24)
+    );
+    if (daysDifference < 1) return { total: 0, tax: 0 };
+
+    let taxRate = 1.05; // Taxa padrão
+    if (daysDifference > 3 && daysDifference <= 7) {
+      taxRate = 1.1;
+    } else if (daysDifference > 7) {
+      taxRate = 1.15;
+    }
+
+    const totalPrice = price * daysDifference * taxRate;
+    const taxValue = totalPrice - price * daysDifference;
+    return { total: totalPrice.toFixed(2), tax: taxValue.toFixed(2) };
   };
 
   const handleDatePickerChange = (date) => {
-    // Verifica se a data é anterior à data atual
     if (date < today) {
       setErrorMessage("A data não pode ser anterior ao dia de hoje");
-      return; // Não atualiza a data se for inválida
+      return;
     }
 
     if (editDate === "checkin") {
-      // Verifica se a data de check-in é posterior ou igual ao checkout
       if (checkoutDate && date >= checkoutDate) {
         setErrorMessage(
           "A data de Check-in não pode ser igual ou depois de Check-out"
         );
-        return; // Não atualiza o Check-in se for inválido
+        return;
       }
-      setCheckinDate(date); // Atualiza a data de check-in
-      onDateChange(date, checkoutDate); // Passa as duas datas para o componente pai
+      setCheckinDate(date);
+      if (checkoutDate) {
+        const { total, tax } = calculateTotalPriceAndTax(
+          date,
+          checkoutDate,
+          pricePerDay
+        );
+        onDateChange(date, checkoutDate, total, tax);
+      }
     } else if (editDate === "checkout") {
-      // Verifica se a data de checkout é antes ou igual ao checkin
       if (checkinDate && date <= checkinDate) {
         setErrorMessage(
           "A data de Check-out não pode ser igual ou antes de Check-in"
         );
-        return; // Não atualiza o Check-out se for inválido
+        return;
       }
-      setCheckoutDate(date); // Atualiza a data de check-out
-      onDateChange(checkinDate, date); // Passa as duas datas para o componente pai
+      setCheckoutDate(date);
+      if (checkinDate) {
+        const { total, tax } = calculateTotalPriceAndTax(
+          checkinDate,
+          date,
+          pricePerDay
+        );
+        onDateChange(checkinDate, date, total, tax);
+      }
     }
 
-    // Fecha o seletor de data quando ambas as datas forem selecionadas
     if (checkinDate && checkoutDate) {
-      setIsVisible(false); // Fecha o seletor de data
+      setIsVisible(false);
     }
-  };
-
-  // Função para comparar as datas completas (ano, mês e dia)
-  const isSelectedDate = (date) => {
-    if (editDate === "checkin" && checkinDate) {
-      return date.getTime() === checkinDate.getTime(); // Compara as datas completas de Check-in
-    }
-    if (editDate === "checkout" && checkoutDate) {
-      return date.getTime() === checkoutDate.getTime(); // Compara as datas completas de Check-out
-    }
-    return false;
   };
 
   return (
@@ -92,17 +109,13 @@ const SeletorData = ({ onDateChange }) => {
         </div>
       </div>
 
-      {/* Seletor de data - será ocultado quando ambas as datas forem selecionadas */}
       {isVisible && (editDate === "checkin" || editDate === "checkout") && (
         <DatePicker
-          selected={editDate === "checkin" ? checkinDate : checkoutDate} // Define a data selecionada com base no tipo de data
+          selected={editDate === "checkin" ? checkinDate : checkoutDate}
           onChange={handleDatePickerChange}
           inline
           calendarClassName={`custom-calendar`}
-          dayClassName={(date) =>
-            isSelectedDate(date) ? "custom-selected-day" : ""
-          }
-          locale={ptBR} // Define o localizador em português do Brasil
+          locale={ptBR}
           renderCustomHeader={({
             date,
             decreaseMonth,
@@ -136,7 +149,6 @@ const SeletorData = ({ onDateChange }) => {
         />
       )}
 
-      {/* Mensagem de erro */}
       {errorMessage && <p className="error-message">{errorMessage}</p>}
     </div>
   );

@@ -12,7 +12,7 @@ const Home = ({ accommodations }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOption, setSortOption] = useState("");
 
-  console.log(accommodations);
+  // console.log(accommodations);
 
   const handleFilterClick = (category) => {
     setSelectedCategory(category);

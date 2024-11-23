@@ -63,7 +63,9 @@ class UserAccount(AbstractUser):
     )
     cpf = models.CharField(max_length=11, null=True)
     registered_accommodations = models.JSONField(default=list, blank=True)
+    registered_reviews = models.JSONField(default=list, blank=True)
     registered_bookings = models.JSONField(default=list, blank=True)
+    registered_favorite_property = models.JSONField(default=list, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     USERNAME_FIELD = "email"
@@ -201,6 +203,9 @@ class Booking(models.Model):
             f"Reserva de {self.user_booking.username} para {self.accommodation.title}"
         )
 
+        if self.pk is None:
+            update_registered_bookings(self.user_booking, self.id_bookings)
+
 
 # ---------------------
 # Modelo de Favoritos
@@ -231,3 +236,6 @@ class Review(models.Model):
 
     def __str__(self):
         return f"Review {self.id_review} for accommodation {self.accommodation.id_accommodation}"
+
+        if self.pk is None:
+            update_registered_reviews(self.user_comment, self.id_review)

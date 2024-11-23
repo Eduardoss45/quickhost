@@ -8,7 +8,7 @@ from rest_framework import status
 from rest_framework.views import APIView
 from pprint import pprint
 from django.contrib.auth import get_user_model
-from data.models import PropertyListing, UserAccount
+from data.models import PropertyListing, UserAccount, Booking
 from django.db.models import Avg
 
 from .serializers import (
@@ -242,6 +242,8 @@ class GetByUuidView(APIView):
             return Response(
                 {"error": "UUID inválido"}, status=status.HTTP_400_BAD_REQUEST
             )
+
+        # Verificando se o UUID corresponde a um usuário
         user = User.objects.filter(id_user=uuid).first()
         if user:
             return Response(
@@ -252,8 +254,11 @@ class GetByUuidView(APIView):
                     "profile_picture": (
                         user.profile_picture.url if user.profile_picture else None
                     ),
+                    "phone_number": (user.phone_number),
                 }
             )
+
+        # Verificando se o UUID corresponde a uma acomodação
         accommodation = PropertyListing.objects.filter(id_accommodation=uuid).first()
         if accommodation:
             return Response(
@@ -262,8 +267,23 @@ class GetByUuidView(APIView):
                     "title": accommodation.title,
                 }
             )
+
+        # Verificando se o UUID corresponde a uma reserva
+        booking = Booking.objects.filter(id_booking=uuid).first()
+        if booking:
+            return Response(
+                {
+                    "accommodation": str(booking.accommodation.id_accommodation),
+                    "check_in_date": str(booking.check_in_date),
+                    "check_out_date": str(booking.check_out_date),
+                }
+            )
+
+        # Caso não encontre nenhum dado
         return Response(
-            {"error": "Nenhum usuário ou acomodação encontrado com este UUID"},
+            {
+                "error": "Nenhum dado relacionado a (usuário, acomodação, reservas) encontrado com este UUID"
+            },
             status=status.HTTP_404_NOT_FOUND,
         )
 

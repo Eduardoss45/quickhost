@@ -18,7 +18,7 @@ const Avaliacao = ({ comentario }) => {
         />
         <div>
           <h4 className="name">{userData?.username || "Nome indisponivel"}</h4>
-          <di className="rating-date">
+          <div className="rating-date">
             <div className="rating">
               {[...Array(5)].map((_, index) => (
                 <IoStarSharp
@@ -32,7 +32,7 @@ const Avaliacao = ({ comentario }) => {
             <p className="date">
               {new Date(comentario.created_at).toLocaleDateString("pt-BR")}
             </p>
-          </di>
+          </div>
         </div>
       </div>
       <p className="review-text">{comentario.comment}</p>

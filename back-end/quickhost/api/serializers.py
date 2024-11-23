@@ -515,12 +515,27 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         """Cria e salva uma nova review no banco de dados."""
+        user = validated_data.get("user_comment")
         try:
+            # Cria a instância da review
             review = super().create(validated_data)
-            return review
-        except Exception as e:
 
-            raise serializers.ValidationError("Erro ao criar review.")
+            # Atualiza o campo registered_bookings, se necessário (apenas como exemplo)
+            if user.registered_bookings is None:
+                user.registered_bookings = []
+
+            # Verifica se o ID da acomodação está relacionado a uma reserva
+            accommodation_id = str(review.accommodation.id_accommodation)
+            if accommodation_id not in user.registered_bookings:
+                user.registered_bookings.append(accommodation_id)
+
+            user.save()
+            return review
+        except ValueError as ve:
+            raise serializers.ValidationError(f"Erro de validação: {str(ve)}")
+        except Exception as e:
+            raise serializers.ValidationError(f"Erro ao criar review: {str(e)}")
+     
 
     def update(self, instance, validated_data):
         """Atualiza os dados de uma review existente."""
@@ -595,9 +610,9 @@ class BookingSerializer(serializers.ModelSerializer):
 
     def calculate_total_price(self, check_in_date, check_out_date, price):
         """
-        Calcula o preço total considerando a quantidade de dias e uma taxa de 10%.
+        Calcula o preço total considerando a quantidade de dias e uma taxa variável.
         - A quantidade de dias é obtida pela diferença entre a data de check-out e check-in.
-        - O preço total é multiplicado pela quantidade de dias e aplicado uma taxa de 10%.
+        - A taxa varia entre 5% e 15% dependendo da quantidade de dias.
         """
         if isinstance(check_in_date, str):
             check_in_date_obj = datetime.strptime(check_in_date, "%d-%m-%Y").date()
@@ -622,20 +637,46 @@ class BookingSerializer(serializers.ModelSerializer):
                 "A quantidade de dias deve ser pelo menos 1."
             )
 
-        # Aplica a taxa de 10% e multiplica pelo número de dias
-        price_decimal = Decimal(price)  # Converte o preço para Decimal
-        total_price = (
-            price_decimal * Decimal(days_difference) * Decimal("1.10")
-        )  # 1.10 como Decimal
+        # Define a taxa baseada na quantidade de dias
+        if days_difference <= 3:
+            tax_rate = Decimal("1.05")  # 5% de taxa
+        elif 4 <= days_difference <= 7:
+            tax_rate = Decimal("1.10")  # 10% de taxa
+        else:
+            tax_rate = Decimal("1.15")  # 15% de taxa
+        # Converte o preço para Decimal e aplica a taxa
+        price_decimal = Decimal(price)
+        total_price = price_decimal * days_difference * tax_rate
+        logger.info(f"Entrada: {check_in_date_obj}.")
+        logger.info(f"Saida: {check_out_date_obj}.")
+        logger.info(f"Dias: {days_difference}.")
+        logger.info(f"Taxa: {tax_rate}.")
+        logger.info(f"Preço: {price_decimal}.")
+        logger.info(f"Total: {total_price}.")
 
         return total_price
 
     def create(self, validated_data):
         """Cria e salva uma nova reserva no banco de dados."""
+        user = validated_data.get("user_booking")
+
         try:
-            return super().create(validated_data)
+            # Cria a reserva primeiro
+            instance = super().create(validated_data)
+
+            # Adiciona o ID da reserva ao campo registered_bookings
+            if user.registered_bookings is None:
+                user.registered_bookings = []
+            user.registered_bookings.append(str(instance.id_booking))
+            user.save()
+
+            return instance
+        except ValueError as ve:
+            raise serializers.ValidationError(f"Erro ao validar dados: {str(ve)}")
         except Exception as e:
-            raise serializers.ValidationError(f"Erro ao criar reserva: {str(e)}")
+            raise serializers.ValidationError(
+                f"Erro inesperado ao criar reserva: {str(e)}"
+            )
 
     def update(self, instance, validated_data):
         """Atualiza os dados de uma reserva existente."""
