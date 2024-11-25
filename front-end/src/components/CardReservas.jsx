@@ -6,7 +6,7 @@ import useDetalhes from "../hooks/useDetalhes";
 import useAccommodation from "../hooks/useAccommodation";
 import "./CardReservas.css";
 
-const CardReservas = ({ reserva }) => {
+const CardReservas = ({ userName, reserva }) => {
   const { userData } = useDetalhes(reserva);
   const { accommodationData } = useAccommodation(userData?.accommodation);
   const { userData: dados } = useDetalhes(accommodationData?.creator);
@@ -66,8 +66,7 @@ const CardReservas = ({ reserva }) => {
                 <CiUser className="icon" />
               </span>
               <p className="info">
-                Hóspede:{" "}
-                {reserva?.guest_name || "Nome do hóspede não disponível"}
+                Hóspede: {userName || "Nome do hóspede não disponível"}
               </p>
             </div>
           </div>

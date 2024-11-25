@@ -60,8 +60,13 @@ class BookingAdmin(admin.ModelAdmin):
 
 @admin.register(FavoriteProperty)
 class FavoritePropertyAdmin(admin.ModelAdmin):
-    list_display = ("user", "accommodation", "created_at")
-    search_fields = ("user__username", "accommodation__title")
+    list_display = (
+        "id_favorite_property",
+        "user_favorite_property",
+        "accommodation",
+        "created_at",
+    )
+    search_fields = ("user_favorite_property__username", "accommodation__title")
     list_filter = ("created_at",)
 
 

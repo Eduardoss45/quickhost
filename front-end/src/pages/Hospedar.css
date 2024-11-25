@@ -7,6 +7,7 @@
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
+  margin: 3rem 0;
 }
 
 .menu-hospedar button {
@@ -36,6 +37,14 @@
   height: 90vh;
   align-items: center;
   justify-content: center;
+}
+
+.pagina-hospedar > .hospedar-items {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 3rem;
 }
 
 .pagina-hospedar > div > p {

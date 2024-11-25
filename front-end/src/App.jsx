@@ -1,16 +1,18 @@
+import Footer from "./components/Footer";
+import Anuncio from "./components/Anuncio";
+import Login from "./components/Login";
 import Navbar from "./components/Navbar";
-import Home from "./pages/Home";
 import Cadastro from "./components/Cadastro";
+import Home from "./pages/Home";
 import Favoritos from "./pages/Favoritos";
 import Reservas from "./pages/Reservas";
 import EditorDePerfil from "./pages/EditorDePerfil";
 import Hospedar from "./pages/Hospedar";
 import CadastroAcomodacoes from "./pages/CadastroAcomodacoes";
-import Footer from "./components/Footer";
-import Anuncio from "./components/Anuncio";
-import Login from "./components/Login";
 import Configuracoes from "./pages/Configuracoes";
 import useData from "./hooks/useData";
+import useUserData from "./hooks/useUserData";
+import Step1 from "./template/components/Step1";
 
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useState } from "react";
@@ -46,6 +48,7 @@ function App() {
 }
 
 function InnerApp({ accommodations, loading, error, onSearch }) {
+  const { userData } = useUserData();
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     return localStorage.getItem("isAuthenticated") === "true";
   });
@@ -78,11 +81,17 @@ function InnerApp({ accommodations, loading, error, onSearch }) {
           <Route path="/cadastro" element={<Cadastro />} />
           <Route path="/favoritos" element={<Favoritos />} />
           <Route path="/reservas" element={<Reservas />} />
-          {/* <Route path="/acomodacao" element={<Acomodacao />}>
-            <Route path="detalhes" element={<Anuncio />} />
-          </Route> */}
-          <Route path="/hospedar" element={<Hospedar />} />
-          <Route path="/acomodacoes" element={<CadastroAcomodacoes />} />
+          <Route
+            path="/hospedar"
+            element={
+              <Hospedar
+                accommodationData={userData?.registered_accommodations || null}
+              />
+            }
+          />
+          <Route path="/acomodacoes" element={<CadastroAcomodacoes />}>
+            <Route path="nova" element={<Step1 />} />
+          </Route>
           <Route
             path="/entrar"
             element={
@@ -96,15 +105,18 @@ function InnerApp({ accommodations, loading, error, onSearch }) {
         </Routes>
       )}
 
-      {location.pathname !== "/entrar" && location.pathname !== "/cadastro" && (
-        <Footer
-          className={`App ${
-            location.pathname !== "/entrar" && location.pathname !== "/cadastro"
-              ? "no-fixed"
-              : ""
-          }`}
-        />
-      )}
+      {location.pathname !== "/entrar" &&
+        location.pathname !== "/cadastro" &&
+        location.pathname !== "/acomodacoes/nova" && (
+          <Footer
+            className={`App ${
+              location.pathname !== "/entrar" &&
+              location.pathname !== "/cadastro"
+                ? "no-fixed"
+                : ""
+            }`}
+          />
+        )}
     </>
   );
 }

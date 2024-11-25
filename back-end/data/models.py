@@ -1,16 +1,25 @@
-# models.py
+from django.db.models import UniqueConstraint, Avg
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
 from uuid import uuid4
-import json
 from .validators import (
     validate_room_count,
     validate_bed_count,
     validate_bathroom_count,
     validate_guest_capacity,
 )
-from .converters import update_registered_accommodations
+from .converters import (
+    update_registered_accommodations,
+    update_registered_accommodations_bookings,
+    update_registered_bookings,
+    update_registered_favorite_property,
+    update_registered_reviews,
+)
 
 
 # ---------------------
@@ -65,6 +74,7 @@ class UserAccount(AbstractUser):
     registered_accommodations = models.JSONField(default=list, blank=True)
     registered_reviews = models.JSONField(default=list, blank=True)
     registered_bookings = models.JSONField(default=list, blank=True)
+    registered_accommodations_bookings = models.JSONField(default=list, blank=True)
     registered_favorite_property = models.JSONField(default=list, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -83,7 +93,10 @@ class PropertyListing(models.Model):
     id_accommodation = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     creator = models.ForeignKey(
         UserAccount, on_delete=models.CASCADE, related_name="accommodations"
-    )  # REV
+    )
+    consecutive_days_limit = models.IntegerField(
+        blank=True, null=True, help_text="Número de dias consecutivos permitido."
+    )
     main_cover_image = models.CharField(max_length=255, blank=True, null=True)
     is_active = models.BooleanField(default=True)
     internal_images = models.JSONField(blank=True, null=True, default=list)
@@ -91,13 +104,20 @@ class PropertyListing(models.Model):
     average_rating = models.DecimalField(
         max_digits=3, decimal_places=2, default=0.00, blank=True
     )
-
+    registered_user_bookings = models.JSONField(default=list, blank=True)
+    registered_bookings = models.JSONField(default=list, blank=True)
+    discount = models.BooleanField(default=False)
+    cleaning_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    price_per_night = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    final_price = models.DecimalField(
+        max_digits=10, decimal_places=2, default=0.00, blank=True, null=True
+    )
     CATEGORY_CHOICES = [
-        ("inn", "Inn"),
-        ("chalet", "Chalet"),
-        ("apartment", "Apartment"),
-        ("home", "Home"),
-        ("room", "Room"),
+        ("inn", _("Inn")),
+        ("chalet", _("Chalet")),
+        ("apartment", _("Apartment")),
+        ("home", _("Home")),
+        ("room", _("Room")),
     ]
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, default="inn")
 
@@ -115,8 +135,8 @@ class PropertyListing(models.Model):
     )
 
     SPACE_TYPE_CHOICES = [
-        ("full_space", "Full Space"),
-        ("limited_space", "Limited Space"),
+        ("full_space", _("Full Space")),
+        ("limited_space", _("Limited Space")),
     ]
     space_type = models.CharField(
         max_length=50, choices=SPACE_TYPE_CHOICES, default="full_space"
@@ -126,7 +146,7 @@ class PropertyListing(models.Model):
     city = models.CharField(max_length=100, default="Not informed")
     neighborhood = models.CharField(max_length=100, default="Not informed")
     postal_code = models.CharField(max_length=10, default="Not informed")
-    complement = models.CharField(max_length=255, default="Not informed", blank=True)
+    uf = models.CharField(max_length=10, default="Not informed", blank=True)
     wifi = models.BooleanField(default=False)
     tv = models.BooleanField(default=False)
     kitchen = models.BooleanField(default=False)
@@ -144,45 +164,31 @@ class PropertyListing(models.Model):
     outdoor_camera = models.BooleanField(default=False)
     title = models.CharField(max_length=255)
     description = models.TextField()
-    price_per_night = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
 
     bank_account = models.OneToOneField(
         BankDetails, on_delete=models.CASCADE, null=True, blank=True
-    )  # REV
+    )
 
     def __str__(self):
-        return self.title or "Acomodação sem título"
+        return self.title or _("Accommodation without title")
+
+    def calculate_final_price(self):
+        """Calcula o preço final da acomodação com base no preço por noite e a taxa de limpeza."""
+        total_cost = self.price_per_night + self.cleaning_fee
+        return total_cost
 
     def save(self, *args, **kwargs):
-        # Validações durante o salvamento
         validate_room_count(self.room_count)
         validate_bed_count(self.bed_count)
         validate_bathroom_count(self.bathroom_count)
         validate_guest_capacity(self.guest_capacity)
+        self.final_price = self.calculate_final_price()
 
-        if self.main_cover_image and self.main_cover_image not in json.loads(
-            self.internal_images
-        ):
-            raise ValueError(
-                "A imagem da capa deve ser uma das cinco imagens internas."
+        if self.main_cover_image and self.main_cover_image not in self.internal_images:
+            raise ValidationError(
+                _("The cover image must be one of the internal images.")
             )
-
-        if self.pk is None:  # Apenas se for uma nova acomodação
-            update_registered_accommodations(self.creator, self.id_accommodation)
-
         super().save(*args, **kwargs)
-
-        def update_average_rating(self):
-            """Atualiza a média de avaliações da acomodação."""
-            reviews = self.reviews.all()  # Acessa todas as avaliações associadas
-            if reviews.exists():
-                average = reviews.aggregate(Avg("rating"))["rating__avg"]
-                self.average_rating = round(
-                    average, 2
-                )  # Armazena a média com 2 casas decimais
-            else:
-                self.average_rating = 0.00  # Caso não haja avaliações
-            self.save()  # Salva a acomodação com a média atualizada
 
 
 # ---------------------
@@ -190,8 +196,8 @@ class PropertyListing(models.Model):
 # ---------------------
 class Booking(models.Model):
     id_booking = models.UUIDField(primary_key=True, default=uuid4, editable=False)
-    user_booking = models.ForeignKey(UserAccount, on_delete=models.CASCADE)
-    accommodation = models.ForeignKey(PropertyListing, on_delete=models.CASCADE)
+    user_booking = models.ForeignKey("UserAccount", on_delete=models.CASCADE)
+    accommodation = models.ForeignKey("PropertyListing", on_delete=models.CASCADE)
     check_in_date = models.DateField()
     check_out_date = models.DateField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
@@ -203,25 +209,57 @@ class Booking(models.Model):
             f"Reserva de {self.user_booking.username} para {self.accommodation.title}"
         )
 
-        if self.pk is None:
-            update_registered_bookings(self.user_booking, self.id_bookings)
+
+@receiver(post_save, sender=Booking)
+def add_to_registered_bookings(sender, instance, created, **kwargs):
+    """
+    Adiciona a reserva ao campo 'registered_bookings e registered_accommodations_bookings' do usuário quando criada.
+    """
+    if created:
+        update_registered_bookings(instance.user_booking, instance, instance.id_booking)
+        update_registered_user_bookings(instance.user_booking, instance.id_booking)
+        update_registered_accommodations_bookings(
+            instance.user_booking, instance.id_accommodation
+        )
 
 
 # ---------------------
 # Modelo de Favoritos
 # ---------------------
 class FavoriteProperty(models.Model):
-    user = models.ForeignKey(UserAccount, on_delete=models.CASCADE)
-    accommodation = models.ForeignKey(PropertyListing, on_delete=models.CASCADE)
+    id_favorite_property = models.UUIDField(
+        primary_key=True, default=uuid4, editable=False
+    )
+    user_favorite_property = models.ForeignKey("UserAccount", on_delete=models.CASCADE)
+    accommodation = models.ForeignKey("PropertyListing", on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ("user", "accommodation")
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user_favorite_property", "accommodation"],
+                name="unique_user_accommodation_favorite",
+            )
+        ]
 
     def __str__(self):
-        return f"{self.user.username} - {self.accommodation.title}"
+        return f"{self.user_favorite_property.username} - {self.accommodation.title}"
 
 
+@receiver(post_save, sender=FavoriteProperty)
+def add_to_registered_favorite_property(sender, instance, created, **kwargs):
+    """
+    Adiciona a propriedade favorita ao campo 'registered_favorite_property' do usuário.
+    """
+    if created:
+        update_registered_favorite_property(
+            instance.user_favorite_property, instance.id_favorite_property
+        )
+
+
+# ---------------------
+# Modelo de Avaliações
+# ---------------------
 class Review(models.Model):
     id_review = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     accommodation = models.ForeignKey(
@@ -237,5 +275,12 @@ class Review(models.Model):
     def __str__(self):
         return f"Review {self.id_review} for accommodation {self.accommodation.id_accommodation}"
 
-        if self.pk is None:
-            update_registered_reviews(self.user_comment, self.id_review)
+
+@receiver(post_save, sender=Review)
+def add_to_registered_reviews(sender, instance, created, **kwargs):
+    """
+    Adiciona a avaliação ao campo 'registered_reviews' do usuário e atualiza a média de avaliações.
+    """
+    if created:
+        update_registered_reviews(instance.user_comment, instance.id_review)
+        instance.accommodation.update_average_rating()

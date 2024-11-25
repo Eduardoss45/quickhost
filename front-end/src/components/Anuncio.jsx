@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { PiArrowCircleLeftThin } from "react-icons/pi";
 import { FaWifi, FaCar, FaSwimmingPool, FaMedkit } from "react-icons/fa";
 import { LuMonitor } from "react-icons/lu";
@@ -10,16 +10,18 @@ import { WiSmoke } from "react-icons/wi";
 import { PiFireExtinguisherBold, PiSecurityCameraThin } from "react-icons/pi";
 import { Link } from "react-router-dom";
 import { IoStarSharp } from "react-icons/io5";
-import useDetalhes from "../hooks/useDetalhes.jsx";
+import useDetalhes from "../hooks/useDetalhes";
 import SeletorData from "./SeletorData.jsx";
 import Avaliacao from "./Avaliacao.jsx";
 import useComents from "../hooks/useComents.jsx";
+import useUserData from "../hooks/useUserData.jsx";
 
 import "./Anuncio.css";
 
 const Anuncio = ({ accommodation }) => {
   const [avaliacao, setAvaliacao] = useState(null);
   const [total, setTotal] = useState(0);
+  const { userData: dados } = useUserData();
   const [tax, setTax] = useState(0);
 
   const creatorData = accommodation.creator
@@ -40,16 +42,14 @@ const Anuncio = ({ accommodation }) => {
   };
 
   const handleDataChange = (newCheckin, newCheckout, newTotal, newTax) => {
-    // Atualiza os estados
     setTotal(newTotal);
     setTax(newTax);
-
-    // Para debug
     console.log("Check-in:", newCheckin);
     console.log("Check-out:", newCheckout);
     console.log("Total:", newTotal);
     console.log("Tax:", newTax);
   };
+
   return (
     <div className="pagina-anuncio">
       <div className="header-anuncio">
@@ -328,6 +328,11 @@ const Anuncio = ({ accommodation }) => {
               </p>
             </aside>
             <div className="caixa-avaliacao">
+              <input
+                type="text"
+                placeholder="Deixe seu comentário..."
+                aria-label="Comentário sobre a avaliação"
+              />
               <span>Escolha sua avaliação</span>
               <ul className="avaliacao">
                 {[1, 2, 3, 4, 5].map((rating) => (
@@ -335,8 +340,9 @@ const Anuncio = ({ accommodation }) => {
                     key={rating}
                     className="star-icon"
                     onClick={() => handleClick(rating)}
+                    role="button"
+                    aria-label={`Avaliar com ${rating} estrelas`}
                   >
-                    {/* Usando FaStar para estrelas cheias e FaRegStar para estrelas vazias */}
                     {avaliacao >= rating ? (
                       <IoStarSharp className="ativo" />
                     ) : (

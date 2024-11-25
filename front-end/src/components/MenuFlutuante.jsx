@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { FaUser } from "react-icons/fa";
 import "./MenuFlutuante.css";
 
 const MenuFlutuante = ({
@@ -37,23 +38,27 @@ const MenuFlutuante = ({
         ) : (
           <>
             <div className="dropdown-header">
-              <img
-                src={profilePicture}
-                alt="Avatar do Usuário"
-                className="avatar-large"
-              />
+              {profilePicture ? (
+                <img
+                  src={profilePicture}
+                  alt="Avatar do Usuário"
+                  className="avatar-large"
+                />
+              ) : (
+                <FaUser className="avatar-large" />
+              )}
               <span>{name || "Nome de Usuário"}</span>
             </div>
             <Link to="/reservas">
               <button className="dropdown-item">Reservas</button>
             </Link>
-            <Link to="/hospedar/anuncio">
+            <Link to="/hospedar">
               <button className="dropdown-item">Hospedar</button>
             </Link>
             <Link to="/favoritos">
               <button className="dropdown-item">Favoritos</button>
             </Link>
-            <Link to="/mensagens">
+            <Link to="/">
               <button className="dropdown-item">Mensagens</button>
             </Link>
             <Link to="/configuracoes">

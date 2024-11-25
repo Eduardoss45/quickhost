@@ -1,44 +1,72 @@
-#description-form {
-  display: flex;
-  width: auto;
-  justify-content: space-between;
-  margin: 8vw 4vh;
-}
-
-.description-bar {
+.description-form {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  margin: 0 2rem;
+  padding: 3rem;
 }
 
-.description-bar > a > button {
-  background-color: transparent;
-  font-size: 1.25rem;
-  color: var(--paleta-dois);
-  border-radius: 10px;
-  padding: 0.1rem 0.7rem;
-}
-
-.description-bar > button {
-  margin: 0 0 0 1rem;
-  background-color: transparent;
-  border: none;
-  font-size: 2rem;
-  color: var(--paleta-dois);
-}
-
-.box-button {
-  padding-top: 0.5rem;
+.description-form > div > div:nth-child(3) {
   display: flex;
-  justify-content: flex-end;
+  margin: 1rem;
+  justify-content: end;
 }
 
-.btn-painel {
+.componente-renderizado {
+  display: flex;
+  justify-content: center;
+}
+
+.voltar-button {
+  padding: 1rem 3rem;
+  background: transparent;
+  color: var(--paleta-dois);
+  border: 1px solid var(--paleta-dois);
+  font-size: 1.2rem;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.avancar-button {
+  padding: 1rem 3rem;
+  background: var(--paleta-um);
+  color: var(--paleta-seis);
   border: none;
-  outline: none;
-  background-color: var(--paleta-um);
-  padding: 0.25rem 2rem;
-  color: white;
-  border-radius: 1.5rem;
+  font-size: 1.2rem;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.finalizar-button {
+  padding: 1rem 3rem;
+  background: var(--paleta-um);
+  color: var(--paleta-seis);
+  border: none;
+  font-size: 1.2rem;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.barra-navegacao-cadastro-acomodacao,
+.barra-navegacao-cadastro-acomodacao-end {
+  display: flex;
+  padding: 2rem;
+  background-color: var(--paleta-seis);
+  color: var(--paleta-quatro);
+  flex-direction: column;
+  bottom: 0;
+  position: fixed;
+  width: 100%;
+  text-align: center;
+  gap: 1rem;
+  border-top: 1px solid var(--paleta-dois);
+  z-index: 2;
+}
+
+.barra-navegacao-cadastro-acomodacao > div {
+  display: flex;
+  justify-content: space-between;
+}
+
+.barra-navegacao-cadastro-acomodacao-end > div {
+  display: flex;
+  justify-content: end;
 }

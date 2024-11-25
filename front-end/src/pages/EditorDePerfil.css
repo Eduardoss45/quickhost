@@ -160,7 +160,7 @@
 }
 
 .dropzone {
-  border: 2px dashed #ddd;
+  border: 2px solid var(--paleta-quatro);
   padding: 20px;
   text-align: center;
   border-radius: 4px;

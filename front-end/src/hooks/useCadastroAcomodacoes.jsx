@@ -8,17 +8,6 @@ const useCadastroAcomodacoes = () => {
   const id_user = localStorage.getItem("id_user");
   const token = localStorage.getItem("token");
 
-  // const transformInternalImages = async (images) => {
-  //   return Promise.all(
-  //     images.map(async (image) => {
-  //       const response = await fetch(image[1]);
-  //       console.log(`Blob para ${image[0]}:`, response);
-  //       const blob = await response.blob();
-  //       return new File([blob], image[0], { type: blob.type });
-  //     })
-  //   );
-  // };
-
   const handleChange = (e, setFormData) => {
     console.log("Evento recebido:", e);
 
@@ -76,13 +65,6 @@ const useCadastroAcomodacoes = () => {
         }
       });
 
-      const apiUrl = `${
-        import.meta.env.VITE_BASE_URL
-      }${import.meta.env.VITE_ACCOMMODATION_CREATE_URL.replace(
-        "{id_user}",
-        id_user
-      )}`;
-
       console.log(`Enviando dados para: ${updatedFormData}`);
 
       const response = await axios.post(
@@ -99,15 +81,13 @@ const useCadastroAcomodacoes = () => {
           },
         }
       );
-      console.log("Resposta do servidor:", response.data);
       setSuccess(true);
     } catch (error) {
       console.error("Erro ao enviar os dados:", error);
       if (error.response) {
-        console.error("Detalhes do erro:", error.response.data);
         setError(error.response.data.detail);
       } else {
-        setError(error.message);
+        setError(false);
       }
     } finally {
       setLoading(false);

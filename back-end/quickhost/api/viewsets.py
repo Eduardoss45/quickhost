@@ -140,7 +140,6 @@ class AccommodationViewSet(viewsets.ModelViewSet):
     queryset = models.PropertyListing.objects.all()
 
     def get_permissions(self):
-
         permission_classes = (
             [IsAuthenticated]
             if self.action in ["create", "update", "partial_update", "destroy"]
@@ -150,6 +149,12 @@ class AccommodationViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         """Cria uma nova acomodação (protegido)."""
+        # Verifica se os dados estão vazios
+        if not request.data:
+            raise exceptions.ValidationError(
+                {"detail": "Os dados não podem estar vazios."}
+            )
+
         id_received = self.kwargs.get("id_user")
 
         try:
@@ -198,7 +203,6 @@ class AccommodationViewSet(viewsets.ModelViewSet):
 
         if id_accommodation:
             try:
-
                 uuid_id = uuid.UUID(id_accommodation)
                 accommodation = self.queryset.filter(id_accommodation=uuid_id).first()
                 if accommodation is None:

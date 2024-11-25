@@ -11,7 +11,7 @@ const Reservas = () => {
       <h2>Minhas Reservas</h2>
       {reservas && reservas.length > 0 ? (
         reservas.map((reserva, index) => (
-          <CardReservas key={index} reserva={reserva} />
+          <CardReservas key={index} userName={userData?.username} reserva={reserva} />
         ))
       ) : (
         <div className="reservas-texto-alternativo">

@@ -5,29 +5,24 @@ import useDetalhes from "../hooks/useDetalhes.jsx";
 
 import "./CardHospedagens.css";
 
-const CardHospedagens = ({
-  image,
-  title,
-  creator,
-  price_per_night,
-  city,
-  onClick,
-}) => {
-  const creatorData = creator ? useDetalhes(creator) : null;
-  const { userData: name } = creatorData || {};
-
-  const imageUrl = image
-    ? `${import.meta.env.VITE_BASE_URL}${image}`
-    : "url-to-default-image.jpg";
+const CardHospedagens = ({ accommodationData }) => {
+  console.log(accommodationData);
+  const { userData } = useDetalhes(accommodationData?.creator);
+  console.log(userData);
 
   return (
-    <div className="card-hospedagem" onClick={onClick}>
-      <img src={imageUrl} alt={title || "Imagem da acomodação"} />
+    <div className="card-hospedagem" id={accommodationData?.id_accommodation}>
+      <img
+        src={`${import.meta.env.VITE_BASE_URL}${
+          accommodationData?.internal_images[0]
+        }`}
+        alt={accommodationData?.title || "Imagem da acomodação"}
+      />
       <div className="card-hospedagem-content">
-        <h2>{title}</h2>
-        <p>{name?.username || "Nome do Criador Indisponível"}</p>
+        <h2>{accommodationData?.title}</h2>
+        <p>{userData?.username || "Nome do Criador Indisponível"}</p>
         <p>
-          <strong>R$ {price_per_night}</strong> por noite
+          <strong>R$ {accommodationData?.price_per_night}</strong> por noite
         </p>
       </div>
       <div className="card-hospedagem-linha"></div>
@@ -35,7 +30,7 @@ const CardHospedagens = ({
         <span>
           <CiLocationOn />
         </span>
-        <span>{city || "Cidade Indisponível"}</span>
+        <span>{accommodationData?.city || "Cidade Indisponível"}</span>
       </div>
       <div className="card-hospedagem-linha"></div>
       <div className="card-hospedagem-ver">

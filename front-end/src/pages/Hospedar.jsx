@@ -1,10 +1,13 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { IoAdd } from "react-icons/io5";
-import "./Hospedar.css";
 import CardHospedagens from "../components/CardHospedagens";
+import useAccommodation from "../hooks/useAccommodation";
+import "./Hospedar.css";
 
-const Hospedar = () => {
+const Hospedar = ({ accommodationData }) => {
+  const listItems = accommodationData?.map((item) => useAccommodation(item));
+  console.log(accommodationData);
   return (
     <div className="pagina-hospedar">
       <div className="menu-hospedar">
@@ -20,15 +23,22 @@ const Hospedar = () => {
           </Link>
         </div>
       </div>
-      <div className="hospedar-texto-alternativo">
-        <p>
-          Parece que você não tem nenhum anúncio ativo... Clique em “Criar
-          Hospedagem” para anunciar
-        </p>
-      </div>
-      <div>
-        <CardHospedagens />
-      </div>
+      {listItems?.length > 0 ? (
+        <div className="hospedar-items">
+          {listItems.map((item) => (
+            <CardHospedagens
+              accommodationData={item?.accommodationData || null}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="hospedar-texto-alternativo">
+          <p>
+            Parece que você não tem nenhum anúncio ativo... Clique em “Criar
+            Hospedagem” para anunciar
+          </p>
+        </div>
+      )}
     </div>
   );
 };

@@ -25,7 +25,6 @@ function Login({ setIsAuthenticated }) {
     e.preventDefault();
     setLoading(true);
     const success = await handleLogin(email, password);
-    console.log(`Status do login: ${success}`);
     if (success) {
       setTimeout(() => {
         navigate("/");

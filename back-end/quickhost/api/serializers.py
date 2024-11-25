@@ -58,6 +58,7 @@ from .validation import (
     validate_check_out_date,
     validate_total_price,
     validate_is_active,
+    validate_discount,
 )
 
 
@@ -330,6 +331,12 @@ class AccommodationSerializer(serializers.ModelSerializer):
         fields = [
             "id_accommodation",
             "creator",
+            "discount",
+            "final_price",
+            "registered_bookings",
+            "registered_user_bookings",
+            "cleaning_fee",
+            "consecutive_days_limit",
             "main_cover_image",
             "internal_images",
             "category",
@@ -342,7 +349,7 @@ class AccommodationSerializer(serializers.ModelSerializer):
             "city",
             "neighborhood",
             "postal_code",
-            "complement",
+            "uf",
             "wifi",
             "tv",
             "kitchen",
@@ -373,36 +380,27 @@ class AccommodationSerializer(serializers.ModelSerializer):
         try:
             bank_account_data = validated_data.pop("bank_account", None)
             internal_images = validated_data.pop("internal_images", [])
+            main_cover_image = validated_data.pop("main_cover_image", None)
             user = validated_data.get("creator")
 
-            # Obtém o preço inicial
+            consecutive_days_limit = validated_data.get("consecutive_days_limit", 0)
+            if consecutive_days_limit <= 0:
+                validated_data["consecutive_days_limit"] = -1
+
+            # Ajusta o preço por noite
             price_per_night = validated_data.get("price_per_night", 0)
-
-            # Converte price_per_night para Decimal, se não for
             price_per_night = Decimal(price_per_night)
-
-            # Calcula a taxa linear com base no preço
-            # A taxa vai de 3% até 16%, com base no preço da acomodação
             if price_per_night > 0:
-                # Calcula a taxa linear. Ajuste os valores conforme necessário.
                 min_rate = Decimal("0.03")  # 3%
                 max_rate = Decimal("0.16")  # 16%
-                max_price_for_max_rate = Decimal(
-                    "1000"
-                )  # Preço máximo para atingir 16%
-
-                # Calcula a taxa proporcional (linear) de acordo com o preço
+                max_price_for_max_rate = Decimal("1000")
                 if price_per_night <= max_price_for_max_rate:
                     rate = min_rate + (max_rate - min_rate) * (
                         price_per_night / max_price_for_max_rate
                     )
                 else:
-                    rate = max_rate  # A taxa máxima de 16% é aplicada se o preço for maior que o limite
-
-                # Aplica a taxa ao preço
+                    rate = max_rate
                 price_per_night *= 1 + rate
-
-            # Atualiza o preço final no validated_data
             validated_data["price_per_night"] = round(price_per_night, 2)
 
             with transaction.atomic():  # Usar transações para garantir consistência
@@ -423,6 +421,27 @@ class AccommodationSerializer(serializers.ModelSerializer):
                         logger.info(f"Salvando imagem {image.name} em {file_path}")
                         if default_storage.save(file_path, image):
                             image_paths.append("media/" + file_path)
+
+                # Atualiza o campo main_cover_image usando a função definida anteriormente
+                def set_main_cover_image(main_cover_image, image_paths, accommodation):
+                    try:
+                        main_cover_image = int(main_cover_image)
+                    except (ValueError, TypeError):
+                        logger.info(
+                            "main_cover_image não foi definido ou não é um número."
+                        )
+                        return
+                    if 0 <= main_cover_image < len(image_paths):
+                        accommodation.main_cover_image = image_paths[main_cover_image]
+                        logger.info(
+                            f"Imagem de capa principal definida como: {image_paths[main_cover_image]}"
+                        )
+                    else:
+                        logger.info(
+                            f"Índice inválido ({main_cover_image}) para main_cover_image. Deixando vazio."
+                        )
+
+                set_main_cover_image(main_cover_image, image_paths, accommodation)
 
                 accommodation.internal_images = list(map(str, image_paths))
                 accommodation.is_active = True
@@ -448,10 +467,9 @@ class AccommodationSerializer(serializers.ModelSerializer):
                     )
 
                 return accommodation
-
         except Exception as e:
-            logger.error(f"Ocorreu um erro ao criar acomodação: {str(e)}.")
-            raise serializers.ValidationError("Erro ao criar acomodação.")
+            logger.error(f"Erro ao criar acomodação: {e}")
+            raise
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -535,7 +553,6 @@ class ReviewSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(f"Erro de validação: {str(ve)}")
         except Exception as e:
             raise serializers.ValidationError(f"Erro ao criar review: {str(e)}")
-     
 
     def update(self, instance, validated_data):
         """Atualiza os dados de uma review existente."""
@@ -587,6 +604,30 @@ class BookingSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         check_in_date = attrs.get("check_in_date")
         check_out_date = attrs.get("check_out_date")
+        user_booking = attrs.get("user_booking")
+        accommodation = attrs.get("accommodation")
+        price = attrs.get("price")
+
+        # Verificar se o usuário existe
+        try:
+            user = User.objects.get(id_user=user_booking)
+        except ObjectDoesNotExist:
+            raise serializers.ValidationError(
+                {"user_booking": "Usuário não encontrado."}
+            )
+
+        # Validação de reservas anteriores do usuário
+        user_bookings = user.registered_accommodations_bookings or []
+        if str(accommodation) in user_bookings:
+            # Se o usuário já reservou esta acomodação, aplica preço sem desconto
+            logger.info("Usuário já reservou esta acomodação antes.")
+        else:
+            # Caso contrário, aplica um desconto de 20%
+            price = price * Decimal("0.80")
+            logger.info("Desconto de 20% aplicado para novo cliente.")
+
+        # Atualiza o preço no objeto de validação
+        attrs["price"] = price
 
         # Validação do check-in
         check_in_error = validate_check_in_date(check_in_date)

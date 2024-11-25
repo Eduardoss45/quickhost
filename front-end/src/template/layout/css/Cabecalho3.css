@@ -1,0 +1,9 @@
+.cabecalho-3 > h2 {
+  font-size: 1.8rem;
+  color: var(--paleta-um);
+}
+
+.cabecalho-3 > p {
+  color: var(--paleta-dois);
+  font-size: 1.6rem;
+}

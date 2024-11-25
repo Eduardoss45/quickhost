@@ -33,7 +33,6 @@ const useUserData = () => {
           }
         );
         setUserData(response.data);
-        // console.log(response.data);
       } catch (error) {
         console.error("Erro ao buscar dados:", error);
         setError(

@@ -17,8 +17,6 @@ const useLogin = (handleAuthenticated) => {
         { email, password }
       );
 
-      console.log(response);
-
       storeTokens(response.data.tokens, password, email);
 
       const msg = response.data.message;

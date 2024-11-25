@@ -1,0 +1,25 @@
+.step-four {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  margin: 4rem 0;
+}
+
+.step-four > div {
+  display: flex;
+  margin: 2rem 0;
+  flex-direction: column;
+  gap: 2rem;
+  width: 45vw;
+}
+
+.step-four > div > div > input {
+  padding: 1rem 1rem 1rem;
+  background-color: transparent;
+  color: var(--paleta-dois);
+  border: 1px solid var(--paleta-dois);
+  border-radius: 1rem;
+  flex: 1;
+  font-size: 1.5rem;
+  width: 100%;
+}

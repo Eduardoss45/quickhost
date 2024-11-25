@@ -65,7 +65,7 @@ const Navbar = ({ onSearch }) => {
             <img id="logo" src={logo} alt="logo da quickhost" />
           </Link>
           <nav id="nav-btn">
-            <Link to={isAuthenticated ? "reservas" : "/entrar"}>
+            <Link to={isAuthenticated ? "/reservas" : "/entrar"}>
               <button className="btn navegacao">
                 <span>
                   <IoBedOutline />

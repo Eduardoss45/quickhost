@@ -16,21 +16,26 @@ const useDetalhes = (uuid) => {
       try {
         const response = await axios.post(
           `${import.meta.env.VITE_BASE_URL}${import.meta.env.VITE_DETAILS_URL}`,
-          {
-            uuid: uuid,
-          }
+          { uuid }
         );
-        setUserData(response.data);
+
+        if (response && response.data) {
+          setUserData(response.data);
+        } else {
+          setError("No data found.");
+        }
       } catch (error) {
         console.error("Erro ao buscar dados:", error);
+        // Garantir que o erro seja tratado corretamente
         setError(
-          error.response?.data.detail ||
-            "An error occurred while fetching user data"
+          error.response?.data?.detail ||
+            "An error occurred while fetching data."
         );
       } finally {
         setLoading(false);
       }
     };
+
     fetchUserData();
   }, [uuid]);
 

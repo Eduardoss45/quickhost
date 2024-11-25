@@ -34,7 +34,6 @@ const useEdit = (id_user, token) => {
         }
       );
 
-      // Define cada campo individualmente
       const userData = response.data;
       setFormData((prevData) => ({
         ...prevData,
@@ -65,16 +64,12 @@ const useEdit = (id_user, token) => {
         ? prepareFormData(updatedData)
         : updatedData;
 
-      // Configure para exibir os dados enviados para o servidor
-      console.log("Dados enviados para o servidor:");
-
       if (dataToSend instanceof FormData) {
-        // Itera sobre as entradas do FormData e exibe no console
         for (const [key, value] of dataToSend.entries()) {
           console.log(`${key}: ${value}`);
         }
       } else {
-        console.log(dataToSend); // Caso não seja FormData
+        console.log(dataToSend);
       }
 
       const response = await axios.put(

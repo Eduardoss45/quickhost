@@ -1,18 +1,29 @@
-import { FaArrowLeftLong, FaArrowRightLong } from "react-icons/fa6";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useForm } from "../hooks/useForm";
 import useCadastroAcomodacoes from "../hooks/useCadastroAcomodacoes";
-import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
 
-import Step1 from "../components/Step1";
-import Step2 from "../components/Step2";
-import Step3 from "../components/Step3";
-import Step4 from "../components/Step4";
-import Step5 from "../components/Step5";
-import Step6 from "../components/Step6";
-import Step7 from "../components/Step7";
-import Step8 from "../components/Step8";
-import Step9 from "../components/Step9";
+import Step1 from "../template/components/Step1";
+import Step2 from "../template/components/Step2";
+import Step3 from "../template/components/Step3";
+import Step4 from "../template/components/Step4";
+import Step5 from "../template/components/Step5";
+import Step6 from "../template/components/Step6";
+import Step7 from "../template/components/Step7";
+import Step8 from "../template/components/Step8";
+import Step9 from "../template/components/Step9";
+import Step10 from "../template/components/Step10";
+
+import Cabecalho1 from "../template/layout/Cabecalho1";
+import Cabecalho2 from "../template/layout/Cabecalho2";
+import Cabecalho3 from "../template/layout/Cabecalho3";
+import Cabecalho4 from "../template/layout/Cabecalho4";
+import Cabecalho5 from "../template/layout/Cabecalho5";
+import Cabecalho6 from "../template/layout/Cabecalho6";
+import Cabecalho7 from "../template/layout/Cabecalho7";
+import Cabecalho8 from "../template/layout/Cabecalho8";
+import Cabecalho9 from "../template/layout/Cabecalho9";
+import Cabecalho10 from "../template/layout/Cabecalho10";
 
 import "./CadastroAcomodacoes.css";
 
@@ -21,6 +32,9 @@ const formTemplate = {};
 function CadastroAcomodacoes() {
   const [formData, setFormData] = useState(formTemplate);
   const { loading, error, success, handleSubmit } = useCadastroAcomodacoes();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const isNovaAcomodacao = location.pathname === "/acomodacoes/nova";
 
   useEffect(() => {
     console.log("FormData atualizado:", formData);
@@ -48,8 +62,21 @@ function CadastroAcomodacoes() {
     }
   };
 
+  const formCabecalhos = [
+    <Cabecalho1 />,
+    <Cabecalho2 />,
+    <Cabecalho3 />,
+    <Cabecalho4 />,
+    <Cabecalho5 />,
+    <Cabecalho6 />,
+    <Cabecalho7 />,
+    <Cabecalho8 />,
+    <Cabecalho9 />,
+    <Cabecalho10 />,
+  ];
+
   const formComponents = [
-    <Step1 data={formData} updateFieldHandler={updateFieldHandler} />,
+    <Step1 />,
     <Step2 data={formData} updateFieldHandler={updateFieldHandler} />,
     <Step3 data={formData} updateFieldHandler={updateFieldHandler} />,
     <Step4 data={formData} updateFieldHandler={updateFieldHandler} />,
@@ -58,10 +85,17 @@ function CadastroAcomodacoes() {
     <Step7 data={formData} updateFieldHandler={updateFieldHandler} />,
     <Step8 data={formData} updateFieldHandler={updateFieldHandler} />,
     <Step9 data={formData} updateFieldHandler={updateFieldHandler} />,
+    <Step10 loading={loading} success={success} error={error} />,
   ];
 
-  const { currentStep, currentComponent, changeStep, isLastStep, isFirstStep } =
-    useForm(formComponents);
+  const {
+    currentStep,
+    currentCabecalho,
+    currentComponent,
+    changeStep,
+    isLastStep,
+    isConfirm,
+  } = useForm(formCabecalhos, formComponents);
 
   const validateForm = () => {
     const requiredFields = [];
@@ -74,6 +108,16 @@ function CadastroAcomodacoes() {
       }
     }
     return true;
+  };
+
+  const formRef = useRef();
+
+  const handleExternalSubmit = () => {
+    if (validateForm()) {
+      formRef.current.requestSubmit(); // Garante validações nativas do formulário
+    } else {
+      alert("Por favor, preencha todos os campos obrigatórios.");
+    }
   };
 
   const handleFormSubmit = (e) => {
@@ -91,48 +135,75 @@ function CadastroAcomodacoes() {
   };
 
   return (
-    <form
-      id="description-form"
-      onSubmit={handleFormSubmit}
-      encType="multipart/form-data"
-      onKeyDown={handleKeyDown}
-    >
-      <div className="description-bar">
-        <Link to="/hospedar">
-          <div className="box-button">
-            <button className="btn-painel">sair</button>
+    <>
+      <form
+        ref={formRef}
+        className="description-form"
+        onSubmit={handleFormSubmit}
+        encType="multipart/form-data"
+        onKeyDown={handleKeyDown}
+      >
+        <div>
+          <>{currentCabecalho}</>
+          <>{currentComponent}</>
+          <div>
+            {currentStep === 0 && (
+              <button
+                className="avancar-button"
+                onClick={() => {
+                  changeStep(currentStep + 1);
+                  navigate("/acomodacoes/nova");
+                }}
+              >
+                Vamos lá!
+              </button>
+            )}
           </div>
-        </Link>
-      </div>
-      <>{currentComponent}</>
-      <div className="description-bar">
-        {!isFirstStep && (
-          <button type="button" onClick={() => changeStep(currentStep - 1)}>
-            <span>
-              <FaArrowLeftLong />
-            </span>
-          </button>
-        )}
-        {!isLastStep ? (
-          <button type="submit">
-            <span>
-              <FaArrowRightLong />
-            </span>
-          </button>
-        ) : (
-          <div className="box-button">
-            <button className="btn-painel" type="submit">
-              finalizar
-            </button>
+        </div>
+      </form>
+      {isNovaAcomodacao && (
+        <div
+          className={` ${
+            currentStep >= 2
+              ? "barra-navegacao-cadastro-acomodacao"
+              : "barra-navegacao-cadastro-acomodacao-end"
+          }`}
+        >
+          <div>
+            {currentStep >= 2 && (
+              <div>
+                <button
+                  className="voltar-button"
+                  onClick={() => changeStep(currentStep - 1)}
+                >
+                  Retornar
+                </button>
+              </div>
+            )}
+            {currentStep !== 9 && (
+              <div>
+                <button
+                  className="avancar-button"
+                  onClick={() => changeStep(currentStep + 1)}
+                >
+                  Próximo
+                </button>
+              </div>
+            )}
+            {isLastStep && (
+              <div>
+                <button
+                  className="finalizar-button"
+                  onClick={handleExternalSubmit}
+                >
+                  Finalizar
+                </button>
+              </div>
+            )}
           </div>
-        )}
-      </div>
-      {loading && <p>Aguarde...</p>}
-      {error && <p className="error message">Erro: {error}</p>}
-      {success && (
-        <p className="success message">Acomodação cadastrada com sucesso!</p>
+        </div>
       )}
-    </form>
+    </>
   );
 }
 

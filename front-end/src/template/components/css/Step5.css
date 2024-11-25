@@ -1,0 +1,18 @@
+#step-five {
+  display: flex;
+  flex-direction: column;
+}
+
+#step-five h2 {
+  font-size: 1.8rem;
+  font-weight: bold;
+  padding: 3rem 0 1rem;
+}
+
+.step-five-opt {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  justify-content: start;
+  gap: 1rem;
+}

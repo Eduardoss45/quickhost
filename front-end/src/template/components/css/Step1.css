@@ -1,0 +1,54 @@
+.quick-host-container > div {
+  display: flex;
+  gap: 0.1rem;
+}
+
+.quick-host-container > div > svg {
+  color: var(--paleta-dois);
+  font-size: 4.5rem;
+}
+
+.step-1-linha {
+  display: flex;
+  flex: 1;
+  align-items: center;
+}
+
+.step-1-linha > div {
+  height: 1px;
+  background-color: var(--paleta-dois);
+  display: flex;
+  flex: 1;
+}
+
+.steps-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.step {
+  text-align: center;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  margin: 1rem;
+}
+
+.step-image {
+  height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  gap: 1rem;
+}
+
+.step h2 {
+  font-size: 18px;
+  margin: 10px 0;
+}
+
+.step p {
+  color: #666;
+  font-size: 14px;
+}

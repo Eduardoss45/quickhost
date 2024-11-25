@@ -49,6 +49,8 @@ input {
 
 .App {
   padding-bottom: 20rem;
+  display: flex;
+  flex-direction: column;
 }
 
 .no-overflow {

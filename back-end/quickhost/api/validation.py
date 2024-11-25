@@ -346,3 +346,9 @@ def validate_is_active(is_active):
     if not isinstance(is_active, bool):
         return "O campo 'is_active' deve ser True ou False."
     return None
+
+
+def validate_discount(discount):
+    if not isinstance(discount, bool):
+        return "O campo 'discount' deve ser True ou False."
+    return None
