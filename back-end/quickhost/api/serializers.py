@@ -568,10 +568,10 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 class BookingSerializer(serializers.ModelSerializer):
     user_booking = serializers.PrimaryKeyRelatedField(
-        queryset=models.UserAccount.objects.all()  # Usa diretamente o queryset para buscar o usuário
+        queryset=models.UserAccount.objects.all()
     )
     accommodation = serializers.PrimaryKeyRelatedField(
-        queryset=models.PropertyListing.objects.all()  # Usa diretamente o queryset para buscar a acomodação
+        queryset=models.PropertyListing.objects.all()
     )
 
     class Meta:
@@ -588,7 +588,6 @@ class BookingSerializer(serializers.ModelSerializer):
         ]
 
     def _validate_date(self, value):
-        """Valida e converte a data para o formato dd-mm-yyyy."""
         if isinstance(value, (datetime, date)):
             return value.date() if isinstance(value, datetime) else value
         try:
@@ -611,7 +610,6 @@ class BookingSerializer(serializers.ModelSerializer):
         accommodation = attrs.get("accommodation")
         price = attrs.get("price")
 
-        # Verificar se o usuário existe
         try:
             user = User.objects.get(id_user=user_booking)
         except ObjectDoesNotExist:
@@ -619,45 +617,33 @@ class BookingSerializer(serializers.ModelSerializer):
                 {"user_booking": "Usuário não encontrado."}
             )
 
-        # Validação de reservas anteriores do usuário
         user_bookings = user.registered_accommodations_bookings or []
         if str(accommodation) in user_bookings:
-            # Se o usuário já reservou esta acomodação, aplica preço sem desconto
             logger.info("Usuário já reservou esta acomodação antes.")
         else:
-            # Caso contrário, aplica um desconto de 20%
             price = price * Decimal("0.80")
             logger.info("Desconto de 20% aplicado para novo cliente.")
 
-        # Atualiza o preço no objeto de validação
         attrs["price"] = price
 
-        # Validação do check-in
         check_in_error = validate_check_in_date(check_in_date)
         if check_in_error:
             raise serializers.ValidationError({"check_in_date": check_in_error})
 
-        # Validação do check-out
         check_out_error = validate_check_out_date(check_out_date, check_in_date)
         if check_out_error:
             raise serializers.ValidationError({"check_out_date": check_out_error})
 
-        # Calcular o preço total
         price = attrs.get("price")
         if price and check_in_date and check_out_date:
             total_price = self.calculate_total_price(
                 check_in_date, check_out_date, price
             )
-            attrs["price"] = total_price  # Aplica o preço total calculado
+            attrs["price"] = total_price
 
         return attrs
 
     def calculate_total_price(self, check_in_date, check_out_date, price):
-        """
-        Calcula o preço total considerando a quantidade de dias e uma taxa variável.
-        - A quantidade de dias é obtida pela diferença entre a data de check-out e check-in.
-        - A taxa varia entre 5% e 15% dependendo da quantidade de dias.
-        """
         if isinstance(check_in_date, str):
             check_in_date_obj = datetime.strptime(check_in_date, "%d-%m-%Y").date()
         else:
@@ -673,7 +659,6 @@ class BookingSerializer(serializers.ModelSerializer):
                 "A data de check-out deve ser após a data de check-in."
             )
 
-        # Calcula a quantidade de dias
         days_difference = (check_out_date_obj - check_in_date_obj).days
 
         if days_difference < 1:
@@ -681,14 +666,13 @@ class BookingSerializer(serializers.ModelSerializer):
                 "A quantidade de dias deve ser pelo menos 1."
             )
 
-        # Define a taxa baseada na quantidade de dias
         if days_difference <= 3:
-            tax_rate = Decimal("1.05")  # 5% de taxa
+            tax_rate = Decimal("1.05")
         elif 4 <= days_difference <= 7:
-            tax_rate = Decimal("1.10")  # 10% de taxa
+            tax_rate = Decimal("1.10")
         else:
-            tax_rate = Decimal("1.15")  # 15% de taxa
-        # Converte o preço para Decimal e aplica a taxa
+            tax_rate = Decimal("1.15")
+
         price_decimal = Decimal(price)
         total_price = price_decimal * days_difference * tax_rate
         logger.info(f"Entrada: {check_in_date_obj}.")
@@ -701,14 +685,11 @@ class BookingSerializer(serializers.ModelSerializer):
         return total_price
 
     def create(self, validated_data):
-        """Cria e salva uma nova reserva no banco de dados."""
         user = validated_data.get("user_booking")
 
         try:
-            # Cria a reserva primeiro
             instance = super().create(validated_data)
 
-            # Adiciona o ID da reserva ao campo registered_bookings
             if user.registered_bookings is None:
                 user.registered_bookings = []
             user.registered_bookings.append(str(instance.id_booking))
@@ -723,7 +704,6 @@ class BookingSerializer(serializers.ModelSerializer):
             )
 
     def update(self, instance, validated_data):
-        """Atualiza os dados de uma reserva existente."""
         try:
             return super().update(instance, validated_data)
         except Exception as e:
