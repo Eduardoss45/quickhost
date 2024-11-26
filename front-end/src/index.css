@@ -8,6 +8,8 @@
   --paleta-cinco: #ffa366;
   --paleta-seis: #ffffff;
   --paleta-sete: #000000;
+  --paleta-oito: #ff0000;
+  --paleta-nove: #00aa00;
 }
 
 * {
@@ -49,6 +51,9 @@ input {
 
 .App {
   padding-bottom: 20rem;
+}
+
+.App-flex {
   display: flex;
   flex-direction: column;
 }

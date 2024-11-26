@@ -9,18 +9,19 @@
   padding: 1rem;
 }
 
+
 .card > div:nth-child(2) {
   display: flex;
   flex-direction: column;
   flex: 1;
 }
 
-.image-container {
+.card .image-container {
   max-width: 35vw;
   flex: 1;
 }
 
-.image {
+.card .image {
   width: 100%;
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;

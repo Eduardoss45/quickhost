@@ -62,13 +62,13 @@
   font-size: 1.2rem;
 }
 
-.card-hospedagem-ver {
+.card-hospedagem-ver > a {
   display: flex;
   justify-content: center;
   padding: 1rem;
 }
 
-.card-hospedagem-ver > button {
+.card-hospedagem-ver > a > button {
   color: var(--paleta-seis);
   background-color: var(--paleta-um);
   border: 3px solid var(--paleta-um);
@@ -81,7 +81,7 @@
   flex: 1;
 }
 
-.card-hospedagem-ver > button span {
+.card-hospedagem-ver > a > button span {
   display: flex;
   font-size: 2rem;
 }

@@ -1,38 +1,47 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { IoEyeOutline, IoEyeOffOutline } from "react-icons/io5";
-import useCadastro from "../hooks/useCadastro"; // Usando o hook de cadastro
+import useCadastro from "../hooks/useCadastro";
 import bg from "../image/login.png";
 import "./Cadastro.css";
 
 function Cadastro() {
   const { formData, loading, error, success, handleChange, handleSubmit } =
     useCadastro();
-
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [errorPassword, setErrorPassword] = useState(false);
   const navigate = useNavigate();
+
+  const handleFormSubmit = (event) => {
+    event.preventDefault(); // Previne o comportamento padrão do formulário
+    if (formData.password === formData.confirmPassword) {
+      setErrorPassword(false);
+      handleSubmit(event); // Passa o evento para `handleSubmit`, caso ele precise
+    } else {
+      setErrorPassword(true);
+    }
+  };
 
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
   const toggleConfirmPasswordVisibility = () =>
     setShowConfirmPassword(!showConfirmPassword);
 
-  // Resetando os campos após o sucesso do cadastro
   useEffect(() => {
     if (success) {
-      // Reset form or navigate to a different page
-      navigate("/"); // Assuming resetPage is passed as prop to close the component
+      navigate("/");
     }
-  }, [success]);
+  }, [success, navigate]);
 
-  // Função para validar CPF
-  const validateCPF = (cpf) => {
-    const regex = /^\d{11}$/;
-    if (!regex.test(cpf)) {
-      return "CPF inválido. Deve ter 11 dígitos.";
-    }
-    return null;
-  };
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (errorPassword) {
+        console.log("Por favor, confirme a senha antes de prosseguir.");
+      }
+    }, 10000);
+
+    return () => clearInterval(interval); // Limpa o intervalo ao desmontar o componente
+  }, [errorPassword]);
 
   return (
     <div className="registration-container">
@@ -42,7 +51,8 @@ function Cadastro() {
           Já tem uma conta? <Link to="/entrar">Faça Login</Link>
         </p>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleFormSubmit}>
+          {error?.username && <p className="error">{error?.username}</p>}
           <label htmlFor="username">Nome de Usuário</label>
           <input
             type="text"
@@ -54,6 +64,7 @@ function Cadastro() {
             required
           />
 
+          {error?.email && <p className="error">{error?.email}</p>}
           <label htmlFor="email">Email</label>
           <input
             type="email"
@@ -65,6 +76,7 @@ function Cadastro() {
             required
           />
 
+          {error?.cpf && <p className="error">{error?.cpf}</p>}
           <label htmlFor="cpf">CPF</label>
           <input
             type="text"
@@ -76,6 +88,7 @@ function Cadastro() {
             required
           />
 
+          {error?.birth_date && <p className="error">{error?.birth_date}</p>}
           <label htmlFor="birthDate">Data de Nascimento</label>
           <div className="input-container">
             <input
@@ -88,6 +101,7 @@ function Cadastro() {
             />
           </div>
 
+          {error?.password && <p className="error">{error?.password}</p>}
           <label htmlFor="password">Senha</label>
           <div className="input-container">
             <input
@@ -108,6 +122,11 @@ function Cadastro() {
             </button>
           </div>
 
+          {errorPassword && (
+            <p className="error">
+              Por favor, confirme a senha antes de prosseguir.
+            </p>
+          )}
           <label htmlFor="confirmPassword">Confirme sua senha</label>
           <div className="input-container">
             <input
@@ -136,8 +155,6 @@ function Cadastro() {
           <button type="submit" className="register-button" disabled={loading}>
             {loading ? "Aguarde..." : "Cadastrar"}
           </button>
-
-          {error && <p className="error">{`Erro: ${error.message}`}</p>}
           {success && (
             <p className="success">Usuário cadastrado com sucesso!</p>
           )}

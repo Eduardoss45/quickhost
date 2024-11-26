@@ -1,20 +1,24 @@
 import React from "react";
-import { Link } from "react-router-dom";
 import { IoAdd } from "react-icons/io5";
+import { useNavigate, Link } from "react-router-dom";
 import CardHospedagens from "../components/CardHospedagens";
 import useAccommodation from "../hooks/useAccommodation";
 import "./Hospedar.css";
 
 const Hospedar = ({ accommodationData }) => {
   const listItems = accommodationData?.map((item) => useAccommodation(item));
-  console.log(accommodationData);
+  const navigate = useNavigate();
+  const handleClick = () => {
+    const dadoEspecifico = accommodationData.id_accommodation;
+    navigate("/hospedar/", { state: { dadoEspecifico } });
+  };
   return (
     <div className="pagina-hospedar">
       <div className="menu-hospedar">
         <h2>Hospedar</h2>
         <div>
           <Link to="/acomodacoes">
-            <button>
+            <button onClick={handleClick}>
               <span>
                 <IoAdd />
               </span>

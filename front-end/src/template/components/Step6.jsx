@@ -120,6 +120,7 @@ const Step6 = ({ updateFieldHandler }) => {
         <div className="image-gallery">
           {photos.map((photo, index) => (
             <div key={index} className="image-container">
+              <FiImage size={24} color="#f97316" className="image-icon" />
               <img
                 src={photo.preview}
                 alt={`Preview ${index + 1}`}
@@ -131,7 +132,6 @@ const Step6 = ({ updateFieldHandler }) => {
                       : "none", // Destaca a imagem selecionada
                 }}
               />
-              <FiImage size={24} color="#f97316" className="image-icon" />
             </div>
           ))}
         </div>

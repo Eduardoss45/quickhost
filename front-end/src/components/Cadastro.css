@@ -88,6 +88,13 @@
   font-size: 1.2em;
 }
 
+.registration-container form > .error {
+  font-size: 1rem;
+  color: var(--paleta-oito);
+  margin: .1rem 0;
+  line-height: 1.5;
+}
+
 .terms {
   font-size: 12px;
   color: var(--paleta-quatro);

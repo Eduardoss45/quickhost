@@ -41,8 +41,8 @@ const useCadastro = () => {
       console.log(response);
       setSuccess(true);
     } catch (error) {
-      console.error("Erro ao cadastrar o usuário:", error);
-      setError(error);
+      console.error(error.response.data);
+      setError(error.response.data);
     } finally {
       setLoading(false);
     }

@@ -1,31 +1,38 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import axios from "axios";
 
-const useBooking = (id_accommodation) => {
-  const [loading, setLoading] = useState(true);
+const useBooking = () => {
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
+  const token = localStorage.getItem("token");
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const response = await axios.post(
-          `${import.meta.env.VITE_BASE_URL}${import.meta.env.VITE_BOOKINGS_URL}`
-        );
-      } catch (error) {
-        console.error("Erro ao enviar os dados:", error);
-        setError(error.response ? error.response.data : error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const bookAccommodation = async (bookingData) => {
+    setLoading(true);
+    setError(null);
+    setSuccess(false);
 
-    if (id_accommodation) {
-      fetchData();
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}${import.meta.env.VITE_BOOKINGS_URL}`,
+        bookingData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log("Reserva enviada com sucesso:", response.data);
+      setSuccess(true);
+    } catch (error) {
+      console.error("Erro ao enviar os dados:", error);
+      setError(error.response ? error.response.data : error.message);
+    } finally {
+      setLoading(false);
     }
-  });
+  };
 
-  return { comentarios, loading, error };
+  return { bookAccommodation, loading, error, success };
 };
 
 export default useBooking;

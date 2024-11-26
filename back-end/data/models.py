@@ -19,6 +19,7 @@ from .converters import (
     update_registered_bookings,
     update_registered_favorite_property,
     update_registered_reviews,
+    update_registered_user_bookings,
 )
 
 
@@ -196,14 +197,21 @@ class PropertyListing(models.Model):
 # ---------------------
 class Booking(models.Model):
     id_booking = models.UUIDField(primary_key=True, default=uuid4, editable=False)
-    user_booking = models.ForeignKey("UserAccount", on_delete=models.CASCADE)
-    accommodation = models.ForeignKey("PropertyListing", on_delete=models.CASCADE)
+    user_booking = models.ForeignKey(
+        "UserAccount",
+        on_delete=models.CASCADE,
+        related_name="user_bookings",  # Nome customizado para acessar as reservas do usuário
+    )
+    accommodation = models.ForeignKey(
+        "PropertyListing",
+        on_delete=models.CASCADE,
+        related_name="accommodation_bookings",  # Nome customizado para acessar as reservas da acomodação
+    )
     check_in_date = models.DateField()
     check_out_date = models.DateField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
-
     def __str__(self):
         return (
             f"Reserva de {self.user_booking.username} para {self.accommodation.title}"
@@ -216,7 +224,7 @@ def add_to_registered_bookings(sender, instance, created, **kwargs):
     Adiciona a reserva ao campo 'registered_bookings e registered_accommodations_bookings' do usuário quando criada.
     """
     if created:
-        update_registered_bookings(instance.user_booking, instance, instance.id_booking)
+        update_registered_bookings(instance.user_booking, instance.accommodation)
         update_registered_user_bookings(instance.user_booking, instance.id_booking)
         update_registered_accommodations_bookings(
             instance.user_booking, instance.id_accommodation

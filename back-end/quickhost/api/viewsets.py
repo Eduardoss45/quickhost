@@ -485,8 +485,8 @@ class BookingViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         """Cria uma nova reserva para uma acomodação."""
-        logger.info(f"Tentativa de criar reserva por usuário {request.user}")
-
+        logger.info(f"Tentativa de criar reserva por usuário {request.user.username}")
+        logger.info(f"Dados recebidos {request.data}")
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)

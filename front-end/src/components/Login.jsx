@@ -43,7 +43,7 @@ function Login({ setIsAuthenticated }) {
         </p>
 
         {(errorMessage || successMessage) && (
-          <p className={errorMessage ? "error message" : "success message"}>
+          <p className={errorMessage ? "error" : "success"}>
             {errorMessage || successMessage}
           </p>
         )}

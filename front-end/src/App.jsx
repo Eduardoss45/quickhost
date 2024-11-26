@@ -16,6 +16,7 @@ import Step1 from "./template/components/Step1";
 
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useState } from "react";
+import InformacoesAcomodacao from "./pages/InformacoesAcomodacao";
 
 function App() {
   const { data, loading, error } = useData();
@@ -33,7 +34,11 @@ function App() {
 
   return (
     <div
-      className={`App ${location.pathname === "/entrar" ? "no-overflow" : ""}`}
+      className={`App ${
+        location.pathname === "/cadastro" || location.pathname === "/entrar"
+          ? "no-overflow"
+          : "App-flex"
+      }`}
     >
       <BrowserRouter>
         <InnerApp
@@ -89,6 +94,7 @@ function InnerApp({ accommodations, loading, error, onSearch }) {
               />
             }
           />
+          <Route path="/hospedar/:id" element={<InformacoesAcomodacao />} />
           <Route path="/acomodacoes" element={<CadastroAcomodacoes />}>
             <Route path="nova" element={<Step1 />} />
           </Route>

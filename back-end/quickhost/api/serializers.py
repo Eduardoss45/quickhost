@@ -164,7 +164,10 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             "profile_picture",
             "cpf",
             "registered_accommodations",
+            "registered_reviews",
             "registered_bookings",
+            "registered_accommodations_bookings",
+            "registered_favorite_property",
             "created_at",
             "password",
         ]

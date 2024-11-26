@@ -113,3 +113,17 @@
   opacity: 0.8;
   justify-content: flex-end;
 }
+
+.login-container > .login-form > .error {
+  font-size: 1.2rem;
+  color: var(--paleta-oito);
+  margin: 0 0 1rem 0;
+  line-height: 1.5;
+}
+
+.login-container > .login-form > .success {
+  font-size: 1.2rem;
+  color: var(--paleta-nove);
+  margin: 0 0 1rem 0;
+  line-height: 1.5;
+}

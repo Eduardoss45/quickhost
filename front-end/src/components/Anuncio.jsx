@@ -15,14 +15,50 @@ import SeletorData from "./SeletorData.jsx";
 import Avaliacao from "./Avaliacao.jsx";
 import useComents from "../hooks/useComents.jsx";
 import useUserData from "../hooks/useUserData.jsx";
+import useBooking from "../hooks/useBooking.jsx";
 
 import "./Anuncio.css";
 
 const Anuncio = ({ accommodation }) => {
+  const {
+    bookAccommodation,
+    loading: bookingLoading,
+    error: bookingError,
+    success,
+  } = useBooking();
+  const formData = {
+    user_booking: "",
+    accommodation: "",
+    check_in_date: "",
+    check_out_date: "",
+    price: "",
+  };
   const [avaliacao, setAvaliacao] = useState(null);
   const [total, setTotal] = useState(0);
   const { userData: dados } = useUserData();
   const [tax, setTax] = useState(0);
+  const [checkIn, setCheckIn] = useState(0);
+  const [checkOut, setCheckOut] = useState(0);
+
+  const formattedDateCheckIn = checkIn
+    ? (() => {
+        const date = new Date(checkIn);
+        const day = String(date.getDate()).padStart(2, "0");
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const year = String(date.getFullYear());
+        return `${year}-${month}-${day}`;
+      })()
+    : "2024-01-01";
+
+  const formattedDateCheckOut = checkOut
+    ? (() => {
+        const date = new Date(checkOut);
+        const day = String(date.getDate()).padStart(2, "0");
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const year = String(date.getFullYear());
+        return `${year}-${month}-${day}`;
+      })()
+    : "2024-01-02";
 
   const creatorData = accommodation.creator
     ? useDetalhes(accommodation.creator)
@@ -44,10 +80,29 @@ const Anuncio = ({ accommodation }) => {
   const handleDataChange = (newCheckin, newCheckout, newTotal, newTax) => {
     setTotal(newTotal);
     setTax(newTax);
-    console.log("Check-in:", newCheckin);
-    console.log("Check-out:", newCheckout);
-    console.log("Total:", newTotal);
-    console.log("Tax:", newTax);
+    setCheckIn(newCheckin);
+    setCheckOut(newCheckout);
+  };
+
+  const handleFormSubmit = (event) => {
+    event.preventDefault();
+
+    if (
+      formattedDateCheckIn !== "2024-01-01" &&
+      formattedDateCheckOut !== "2024-01-02"
+    ) {
+      const formData = {
+        user_booking: dados.id_user,
+        accommodation: accommodation.id_accommodation,
+        check_in_date: formattedDateCheckIn,
+        check_out_date: formattedDateCheckOut,
+        price: accommodation.final_price,
+      };
+      console.log(formData)
+      bookAccommodation(formData);
+    } else {
+      console.log("Escolha a data!");
+    }
   };
 
   return (
@@ -327,44 +382,58 @@ const Anuncio = ({ accommodation }) => {
                 </span>
               </p>
             </aside>
-            <div className="caixa-avaliacao">
-              <input
-                type="text"
-                placeholder="Deixe seu comentário..."
-                aria-label="Comentário sobre a avaliação"
-              />
-              <span>Escolha sua avaliação</span>
-              <ul className="avaliacao">
-                {[1, 2, 3, 4, 5].map((rating) => (
-                  <li
-                    key={rating}
-                    className="star-icon"
-                    onClick={() => handleClick(rating)}
-                    role="button"
-                    aria-label={`Avaliar com ${rating} estrelas`}
-                  >
-                    {avaliacao >= rating ? (
-                      <IoStarSharp className="ativo" />
-                    ) : (
-                      <IoStarSharp className="desativado" />
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </div>
+            {dados?.registered_accommodations_bookings?.length > 0 ? (
+              dados.registered_accommodations_bookings.map((item) =>
+                item.id === accommodation?.id_accommodation ? (
+                  <div key={item.id} className="caixa-avaliacao">
+                    <input
+                      type="text"
+                      placeholder="Deixe seu comentário..."
+                      aria-label="Comentário sobre a avaliação"
+                    />
+                    <ul className="avaliacao">
+                      {[1, 2, 3, 4, 5].map((rating) => (
+                        <li
+                          key={rating}
+                          className="star-icon"
+                          onClick={() => handleClick(rating)}
+                          role="button"
+                          aria-label={`Avaliar com ${rating} estrelas`}
+                        >
+                          {avaliacao >= rating ? (
+                            <IoStarSharp className="ativo" />
+                          ) : (
+                            <IoStarSharp className="desativado" />
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : (
+                  <div key={item.id} className="caixa-avaliacao">
+                    <span>Você não se hospedou neste local.</span>
+                  </div>
+                )
+              )
+            ) : (
+              <div className="caixa-avaliacao">
+                <span>Nenhuma acomodação registrada.</span>
+              </div>
+            )}
+
             <div>
               <Avaliacao comentarios={comentarios} />
             </div>
           </div>
           <div className="acomodacao-painel-reservas">
-            <div>
+            <form onSubmit={handleFormSubmit}>
               <SeletorData
-                pricePerDay={accommodation.price_per_night}
+                pricePerDay={accommodation.final_price}
                 onDateChange={handleDataChange}
               />
               <div className="acomodacao-painel-hospedagem">
                 <p>Acomodação</p>
-                <span>{`R$ ${accommodation.price_per_night || "0,00"}`}</span>
+                <span>{`R$ ${accommodation.final_price || "0,00"}`}</span>
               </div>
               <div className="linha-acomodacao-descricao"></div>
               <div className="acomodacao-painel-hospedagem">
@@ -377,10 +446,10 @@ const Anuncio = ({ accommodation }) => {
                 <span>{`R$ ${total || "0,00"}`}</span>
               </div>
               <div className="acomodacao-painel-botoes">
-                <button>Reservar para a Temporada</button>
-                <button>Enviar Mensagem</button>
+                <button type="submit">Reservar para a Temporada</button>
+                <button type="button">Enviar Mensagem</button>
               </div>
-            </div>
+            </form>
           </div>
         </div>
       </div>

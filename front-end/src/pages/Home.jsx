@@ -96,7 +96,7 @@ const Home = ({ accommodations }) => {
                 }
                 title={item.title}
                 creator={item.creator}
-                price_per_night={item.price_per_night}
+                price_per_night={item.final_price}
                 city={item.city}
                 onClick={() => handleDetalhesClick(item)}
               />

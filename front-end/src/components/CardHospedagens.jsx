@@ -1,6 +1,7 @@
 import { CiLocationOn } from "react-icons/ci";
 import { IoEyeOutline } from "react-icons/io5";
 import { LiaPenSolid } from "react-icons/lia";
+import { Link } from "react-router-dom";
 import useDetalhes from "../hooks/useDetalhes.jsx";
 
 import "./CardHospedagens.css";
@@ -34,12 +35,14 @@ const CardHospedagens = ({ accommodationData }) => {
       </div>
       <div className="card-hospedagem-linha"></div>
       <div className="card-hospedagem-ver">
-        <button>
-          <span>
-            <IoEyeOutline />
-          </span>
-          Ver informações
-        </button>
+        <Link to={`/hospedar/${accommodationData?.id_accommodation}`}>
+          <button>
+            <span>
+              <IoEyeOutline />
+            </span>
+            Ver informações
+          </button>
+        </Link>
       </div>
       <div className="card-hospedagem-editar">
         <button>

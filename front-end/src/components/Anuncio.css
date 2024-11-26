@@ -270,7 +270,7 @@
   justify-content: center;
 }
 
-.acomodacao-painel-reservas > div {
+.acomodacao-painel-reservas > form {
   background-color: var(--paleta-seis);
   border-radius: 8px;
   padding: 1rem;
