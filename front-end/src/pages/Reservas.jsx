@@ -1,5 +1,4 @@
 import CardReservas from "../components/CardReservas";
-import CardCancelarReservas from "../components/CardCancelarReservas";
 import useUserData from "../hooks/useUserData";
 import "./Reservas.css";
 
@@ -11,7 +10,11 @@ const Reservas = () => {
       <h2>Minhas Reservas</h2>
       {reservas && reservas.length > 0 ? (
         reservas.map((reserva, index) => (
-          <CardReservas key={index} userName={userData?.username} reserva={reserva} />
+          <CardReservas
+            key={index}
+            userName={userData?.username}
+            reserva={reserva}
+          />
         ))
       ) : (
         <div className="reservas-texto-alternativo">
@@ -21,7 +24,6 @@ const Reservas = () => {
           </p>
         </div>
       )}
-      <CardCancelarReservas />
     </div>
   );
 };

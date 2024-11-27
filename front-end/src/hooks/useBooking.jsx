@@ -22,11 +22,13 @@ const useBooking = () => {
           },
         }
       );
-      console.log("Reserva enviada com sucesso:", response.data);
+      console.log("Reserva enviada com sucesso:", response);
       setSuccess(true);
+      setError(false);
     } catch (error) {
       console.error("Erro ao enviar os dados:", error);
-      setError(error.response ? error.response.data : error.message);
+      setError(true);
+      setSuccess(false);
     } finally {
       setLoading(false);
     }

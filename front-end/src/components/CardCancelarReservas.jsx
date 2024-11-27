@@ -1,18 +1,18 @@
 import { PiPhoneThin, PiArrowCircleLeftThin } from "react-icons/pi";
 import { BiDish } from "react-icons/bi";
-import { Link } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { CiLocationOn, CiUser } from "react-icons/ci";
 
 import "./CardCancelarReservas.css";
 
 const CardCancelarReservas = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
   return (
     <div className="card-cancelar">
       <div className="card-cancelar-menu">
         <div className="header-btn-sair">
-          <Link to="/">
-            <PiArrowCircleLeftThin />
-          </Link>
+          <PiArrowCircleLeftThin onClick={() => navigate("/reservas")} />
         </div>
         <div>
           <h1>Cancelar hospedagem</h1>

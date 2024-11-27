@@ -13,14 +13,6 @@ from .validators import (
     validate_bathroom_count,
     validate_guest_capacity,
 )
-from .converters import (
-    update_registered_accommodations,
-    update_registered_accommodations_bookings,
-    update_registered_bookings,
-    update_registered_favorite_property,
-    update_registered_reviews,
-    update_registered_user_bookings,
-)
 
 
 # ---------------------
@@ -71,12 +63,11 @@ class UserAccount(AbstractUser):
     profile_picture = models.ImageField(
         upload_to="profile_pictures/", blank=True, null=True
     )
-    cpf = models.CharField(max_length=11, null=True)
-    registered_accommodations = models.JSONField(default=list, blank=True)
-    registered_reviews = models.JSONField(default=list, blank=True)
-    registered_bookings = models.JSONField(default=list, blank=True)
-    registered_accommodations_bookings = models.JSONField(default=list, blank=True)
-    registered_favorite_property = models.JSONField(default=list, blank=True)
+    cpf = models.CharField(max_length=11, blank=True, null=True)
+    registered_accommodations = models.ManyToManyField(
+        "PropertyListing", blank=True, related_name="users_registered"
+    )  # Atualize o related_name
+    registered_accommodation_bookings = models.ManyToManyField("Booking", blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     USERNAME_FIELD = "email"
@@ -93,10 +84,14 @@ class UserAccount(AbstractUser):
 class PropertyListing(models.Model):
     id_accommodation = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     creator = models.ForeignKey(
-        UserAccount, on_delete=models.CASCADE, related_name="accommodations"
+        "UserAccount", on_delete=models.CASCADE, related_name="accommodations"
     )
     consecutive_days_limit = models.IntegerField(
-        blank=True, null=True, help_text="Número de dias consecutivos permitido."
+        blank=True,
+        null=True,
+        help_text=_(
+            "Número de dias consecutivos permitido. Deixe em branco para ilimitado."
+        ),
     )
     main_cover_image = models.CharField(max_length=255, blank=True, null=True)
     is_active = models.BooleanField(default=True)
@@ -105,8 +100,12 @@ class PropertyListing(models.Model):
     average_rating = models.DecimalField(
         max_digits=3, decimal_places=2, default=0.00, blank=True
     )
-    registered_user_bookings = models.JSONField(default=list, blank=True)
-    registered_bookings = models.JSONField(default=list, blank=True)
+    registered_user_bookings = models.ManyToManyField(
+        "Booking", related_name="registered_accommodations", blank=True
+    )  # Relacionamento correto com UserAccount
+    registered_accommodation_bookings = models.ManyToManyField(
+        "PropertyListing", blank=True
+    )
     discount = models.BooleanField(default=False)
     cleaning_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     price_per_night = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
@@ -121,7 +120,6 @@ class PropertyListing(models.Model):
         ("room", _("Room")),
     ]
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, default="inn")
-
     room_count = models.IntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(20)], default=1
     )
@@ -134,7 +132,6 @@ class PropertyListing(models.Model):
     guest_capacity = models.IntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(20)], default=1
     )
-
     SPACE_TYPE_CHOICES = [
         ("full_space", _("Full Space")),
         ("limited_space", _("Limited Space")),
@@ -142,12 +139,11 @@ class PropertyListing(models.Model):
     space_type = models.CharField(
         max_length=50, choices=SPACE_TYPE_CHOICES, default="full_space"
     )
-
-    address = models.CharField(max_length=255, default="Not informed")
-    city = models.CharField(max_length=100, default="Not informed")
-    neighborhood = models.CharField(max_length=100, default="Not informed")
-    postal_code = models.CharField(max_length=10, default="Not informed")
-    uf = models.CharField(max_length=10, default="Not informed", blank=True)
+    address = models.CharField(max_length=255, default=_("Not informed"))
+    city = models.CharField(max_length=100, default=_("Not informed"))
+    neighborhood = models.CharField(max_length=100, default=_("Not informed"))
+    postal_code = models.CharField(max_length=10, default=_("Not informed"))
+    uf = models.CharField(max_length=10, default=_("Not informed"), blank=True)
     wifi = models.BooleanField(default=False)
     tv = models.BooleanField(default=False)
     kitchen = models.BooleanField(default=False)
@@ -165,7 +161,6 @@ class PropertyListing(models.Model):
     outdoor_camera = models.BooleanField(default=False)
     title = models.CharField(max_length=255)
     description = models.TextField()
-
     bank_account = models.OneToOneField(
         BankDetails, on_delete=models.CASCADE, null=True, blank=True
     )
@@ -216,19 +211,6 @@ class Booking(models.Model):
     def __str__(self):
         return (
             f"Reserva de {self.user_booking.username} para {self.accommodation.title}"
-        )
-
-
-@receiver(post_save, sender=Booking)
-def add_to_registered_bookings(sender, instance, created, **kwargs):
-    """
-    Adiciona a reserva ao campo 'registered_bookings e registered_accommodations_bookings' do usuário quando criada.
-    """
-    if created:
-        update_registered_bookings(instance.user_booking, instance.accommodation)
-        update_registered_user_bookings(instance.user_booking, instance.id_booking)
-        update_registered_accommodations_bookings(
-            instance.user_booking, instance.id_accommodation
         )
 
 

@@ -2,6 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { PiArrowCircleLeftThin } from "react-icons/pi";
 import useAccommodation from "../hooks/useAccommodation";
 import useDetalhes from "../hooks/useDetalhes";
+import "./InformacoesAcomodacao.css";
 
 const InformacoesAcomodacao = () => {
   const { id } = useParams();
@@ -13,11 +14,11 @@ const InformacoesAcomodacao = () => {
       )
     : null;
   return (
-    <div>
+    <div className="info-acomodacao">
       <div>
         <PiArrowCircleLeftThin onClick={() => navigate("/hospedar")} />
         <div>
-          <h2>Informações da Acomodação</h2>
+          <h2>Ver informações</h2>
           <p>{accommodationData?.title || "Título não disponível"}</p>
         </div>
       </div>

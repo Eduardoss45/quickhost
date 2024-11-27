@@ -8,7 +8,7 @@ import { TbAirConditioning, TbBeach } from "react-icons/tb";
 import { MdHotTub, MdOutdoorGrill, MdFitnessCenter } from "react-icons/md";
 import { WiSmoke } from "react-icons/wi";
 import { PiFireExtinguisherBold, PiSecurityCameraThin } from "react-icons/pi";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { IoStarSharp } from "react-icons/io5";
 import useDetalhes from "../hooks/useDetalhes";
 import SeletorData from "./SeletorData.jsx";
@@ -16,15 +16,17 @@ import Avaliacao from "./Avaliacao.jsx";
 import useComents from "../hooks/useComents.jsx";
 import useUserData from "../hooks/useUserData.jsx";
 import useBooking from "../hooks/useBooking.jsx";
-
 import "./Anuncio.css";
+import useAccommodation from "../hooks/useAccommodation.jsx";
 
-const Anuncio = ({ accommodation }) => {
+const Anuncio = () => {
+  const { data } = useParams();
+  const { accommodationData } = useAccommodation(data);
   const {
     bookAccommodation,
     loading: bookingLoading,
     error: bookingError,
-    success,
+    success: bookingSuccess,
   } = useBooking();
   const formData = {
     user_booking: "",
@@ -60,12 +62,10 @@ const Anuncio = ({ accommodation }) => {
       })()
     : "2024-01-02";
 
-  const creatorData = accommodation.creator
-    ? useDetalhes(accommodation.creator)
-    : null;
+  const creatorData = useDetalhes(accommodationData?.creator);
   const { userData: creator } = creatorData;
   const { comentarios, loading, error } = useComents(
-    accommodation?.id_accommodation
+    accommodationData?.id_accommodation
   );
 
   const handleReload = () => {
@@ -75,6 +75,10 @@ const Anuncio = ({ accommodation }) => {
   const handleClick = (rating) => {
     setAvaliacao(rating);
     console.log(rating);
+  };
+
+  const handleClickFavorite = (e) => {
+    const { IsFavorite } = useFavorite(favorite);
   };
 
   const handleDataChange = (newCheckin, newCheckout, newTotal, newTax) => {
@@ -93,12 +97,12 @@ const Anuncio = ({ accommodation }) => {
     ) {
       const formData = {
         user_booking: dados.id_user,
-        accommodation: accommodation.id_accommodation,
+        accommodation: accommodationData.id_accommodation,
         check_in_date: formattedDateCheckIn,
         check_out_date: formattedDateCheckOut,
-        price: accommodation.final_price,
+        price: accommodationData.final_price,
       };
-      console.log(formData)
+      console.log(formData);
       bookAccommodation(formData);
     } else {
       console.log("Escolha a data!");
@@ -115,33 +119,33 @@ const Anuncio = ({ accommodation }) => {
             </Link>
           </div>
           <aside className="header-title-acomodacao">
-            {accommodation?.title ? (
-              <h1>{accommodation.title}</h1>
+            {accommodationData?.title ? (
+              <h1>{accommodationData.title}</h1>
             ) : (
               <h1>Título Indisponível</h1>
             )}
-            <p>{accommodation?.address || "Endereço Indisponível"}</p>
+            <p>{accommodationData?.address || "Endereço Indisponível"}</p>
           </aside>
         </div>
-        <div className="header-btn-favoritar">
+        <div onClick={handleClickFavorite} className="header-btn-favoritar">
           <IoStarSharp /> Favoritar
         </div>
       </div>
       <div className="conteudo-anuncio">
         <div className="wrapper">
-          {accommodation?.internal_images &&
-          accommodation.internal_images.length >= 4 ? (
+          {accommodationData?.internal_images &&
+          accommodationData.internal_images.length >= 4 ? (
             <>
               <div className="box1">
                 <img
                   src={`${import.meta.env.VITE_BASE_URL}${
-                    accommodation.internal_images[1]
+                    accommodationData.internal_images[1]
                   }`}
                   alt="Imagem 1"
                 />
                 <div className="conteudo-acomodacao-status">
                   <span>
-                    {accommodation.is_active ? (
+                    {accommodationData.is_active ? (
                       <p>Aberto para pedidos</p>
                     ) : (
                       <p>Fechado para pedidos</p>
@@ -152,7 +156,7 @@ const Anuncio = ({ accommodation }) => {
               <div className="box2">
                 <img
                   src={`${import.meta.env.VITE_BASE_URL}${
-                    accommodation.internal_images[2]
+                    accommodationData.internal_images[2]
                   }`}
                   alt="Imagem 2"
                 />
@@ -160,7 +164,7 @@ const Anuncio = ({ accommodation }) => {
               <div className="box3">
                 <img
                   src={`${import.meta.env.VITE_BASE_URL}${
-                    accommodation.internal_images[3]
+                    accommodationData.internal_images[3]
                   }`}
                   alt="Imagem 3"
                 />
@@ -168,7 +172,7 @@ const Anuncio = ({ accommodation }) => {
               <div className="box4">
                 <img
                   src={`${import.meta.env.VITE_BASE_URL}${
-                    accommodation.internal_images[4]
+                    accommodationData.internal_images[4]
                   }`}
                   alt="Imagem 4"
                 />
@@ -182,7 +186,9 @@ const Anuncio = ({ accommodation }) => {
           <div>
             <aside className="conteudo-acomodacao-descricao">
               <h2>Descrição da Acomodação</h2>
-              <p>{accommodation?.description || "Descrição Indisponível"}</p>
+              <p>
+                {accommodationData?.description || "Descrição Indisponível"}
+              </p>
             </aside>
             <div className="linha-acomodacao-descricao"></div>
             <div className="conteudo-acomodacao-criador">
@@ -207,7 +213,11 @@ const Anuncio = ({ accommodation }) => {
             </aside>
             <div className="conteudo-acomodacao-recursos">
               <div>
-                <div className={`${accommodation.wifi ? "visible" : "hidden"}`}>
+                <div
+                  className={`${
+                    accommodationData?.wifi ? "visible" : "hidden"
+                  }`}
+                >
                   <span>
                     <FaWifi />
                   </span>
@@ -215,7 +225,7 @@ const Anuncio = ({ accommodation }) => {
                 </div>
                 <div
                   className={`${
-                    accommodation.parking_included ? "visible" : "hidden"
+                    accommodationData?.parking_included ? "visible" : "hidden"
                   }`}
                 >
                   <span>
@@ -223,14 +233,20 @@ const Anuncio = ({ accommodation }) => {
                   </span>
                   <span>Estacionamento</span>
                 </div>
-                <div className={`${accommodation.pool ? "visible" : "hidden"}`}>
+                <div
+                  className={`${
+                    accommodationData?.pool ? "visible" : "hidden"
+                  }`}
+                >
                   <span>
                     <FaSwimmingPool />
                   </span>
                   <span>Piscina</span>
                 </div>
                 <div
-                  className={`${accommodation.jacuzzi ? "visible" : "hidden"}`}
+                  className={`${
+                    accommodationData?.jacuzzi ? "visible" : "hidden"
+                  }`}
                 >
                   <span>
                     <MdHotTub />
@@ -239,7 +255,7 @@ const Anuncio = ({ accommodation }) => {
                 </div>
                 <div
                   className={`${
-                    accommodation.air_conditioning ? "visible" : "hidden"
+                    accommodationData?.air_conditioning ? "visible" : "hidden"
                   }`}
                 >
                   <span>
@@ -249,7 +265,7 @@ const Anuncio = ({ accommodation }) => {
                 </div>
                 <div
                   className={`${
-                    accommodation.washing_machine ? "visible" : "hidden"
+                    accommodationData?.washing_machine ? "visible" : "hidden"
                   }`}
                 >
                   <span>
@@ -258,7 +274,9 @@ const Anuncio = ({ accommodation }) => {
                   <span>Lavadora</span>
                 </div>
                 <div
-                  className={`${accommodation.grill ? "visible" : "hidden"}`}
+                  className={`${
+                    accommodationData?.grill ? "visible" : "hidden"
+                  }`}
                 >
                   <span>
                     <MdOutdoorGrill />
@@ -269,7 +287,7 @@ const Anuncio = ({ accommodation }) => {
               <div>
                 <div
                   className={`${
-                    accommodation.first_aid_kit ? "visible" : "hidden"
+                    accommodationData?.first_aid_kit ? "visible" : "hidden"
                   }`}
                 >
                   <span>
@@ -279,7 +297,7 @@ const Anuncio = ({ accommodation }) => {
                 </div>
                 <div
                   className={`${
-                    accommodation.fire_extinguisher ? "visible" : "hidden"
+                    accommodationData?.fire_extinguisher ? "visible" : "hidden"
                   }`}
                 >
                   <span>
@@ -289,7 +307,7 @@ const Anuncio = ({ accommodation }) => {
                 </div>
                 <div
                   className={`${
-                    accommodation.smoke_detector ? "visible" : "hidden"
+                    accommodationData?.smoke_detector ? "visible" : "hidden"
                   }`}
                 >
                   <span>
@@ -299,7 +317,7 @@ const Anuncio = ({ accommodation }) => {
                 </div>
                 <div
                   className={`${
-                    accommodation.outdoor_camera ? "visible" : "hidden"
+                    accommodationData?.outdoor_camera ? "visible" : "hidden"
                   }`}
                 >
                   <span>
@@ -308,14 +326,18 @@ const Anuncio = ({ accommodation }) => {
                   <span>Câmera Externa</span>
                 </div>
                 <div
-                  className={`${accommodation.kitchen ? "visible" : "hidden"}`}
+                  className={`${
+                    accommodationData?.kitchen ? "visible" : "hidden"
+                  }`}
                 >
                   <span>
                     <GrRestaurant />
                   </span>
                   <span>Cozinha</span>
                 </div>
-                <div className={`${accommodation.tv ? "visible" : "hidden"}`}>
+                <div
+                  className={`${accommodationData?.tv ? "visible" : "hidden"}`}
+                >
                   <span>
                     <LuMonitor />
                   </span>
@@ -323,7 +345,7 @@ const Anuncio = ({ accommodation }) => {
                 </div>
                 <div
                   className={`${
-                    accommodation.private_gym ? "visible" : "hidden"
+                    accommodationData?.private_gym ? "visible" : "hidden"
                   }`}
                 >
                   <span>
@@ -333,7 +355,7 @@ const Anuncio = ({ accommodation }) => {
                 </div>
                 <div
                   className={`${
-                    accommodation.beach_access ? "visible" : "hidden"
+                    accommodationData?.beach_access ? "visible" : "hidden"
                   }`}
                 >
                   <span>
@@ -360,7 +382,7 @@ const Anuncio = ({ accommodation }) => {
               <div>
                 <h3>Câmera de Segurança</h3>
                 <p>{`${
-                  accommodation.kitchen
+                  accommodationData?.kitchen
                     ? "Possui câmera de segurança na área externa"
                     : "Não possui câmera de segurança"
                 }`}</p>
@@ -377,47 +399,49 @@ const Anuncio = ({ accommodation }) => {
               <p>
                 <IoStarSharp />{" "}
                 <span>
-                  {accommodation?.average_rating ||
+                  {accommodationData?.average_rating ||
                     "Nenhuma avaliação disponível"}
                 </span>
               </p>
             </aside>
-            {dados?.registered_accommodations_bookings?.length > 0 ? (
-              dados.registered_accommodations_bookings.map((item) =>
-                item.id === accommodation?.id_accommodation ? (
-                  <div key={item.id} className="caixa-avaliacao">
-                    <input
-                      type="text"
-                      placeholder="Deixe seu comentário..."
-                      aria-label="Comentário sobre a avaliação"
-                    />
-                    <ul className="avaliacao">
-                      {[1, 2, 3, 4, 5].map((rating) => (
-                        <li
-                          key={rating}
-                          className="star-icon"
-                          onClick={() => handleClick(rating)}
-                          role="button"
-                          aria-label={`Avaliar com ${rating} estrelas`}
-                        >
-                          {avaliacao >= rating ? (
-                            <IoStarSharp className="ativo" />
-                          ) : (
-                            <IoStarSharp className="desativado" />
-                          )}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ) : (
-                  <div key={item.id} className="caixa-avaliacao">
-                    <span>Você não se hospedou neste local.</span>
-                  </div>
-                )
+            {dados?.registered_bookings?.length > 0 ? (
+              !accommodationData?.registered_bookings.some(
+                (item) => item === dados?.registered_accommodation_bookings
+              ) ? (
+                <div className="caixa-avaliacao">
+                  <input
+                    type="text"
+                    placeholder="Deixe seu comentário..."
+                    aria-label="Comentário sobre a avaliação"
+                  />
+                  <ul className="avaliacao">
+                    {[1, 2, 3, 4, 5].map((rating) => (
+                      <li
+                        key={rating}
+                        className="star-icon"
+                        onClick={() => handleClick(rating)}
+                        role="button"
+                        aria-label={`Avaliar com ${rating} estrelas`}
+                      >
+                        {avaliacao >= rating ? (
+                          <IoStarSharp className="ativo" />
+                        ) : (
+                          <IoStarSharp className="desativado" />
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : (
+                <div className="caixa-avaliacao">
+                  <span>Você não se hospedou neste local.</span>
+                </div>
               )
             ) : (
               <div className="caixa-avaliacao">
-                <span>Nenhuma acomodação registrada.</span>
+                <span>
+                  Você não tem autorização para comentar nesta acomodação.
+                </span>
               </div>
             )}
 
@@ -428,12 +452,12 @@ const Anuncio = ({ accommodation }) => {
           <div className="acomodacao-painel-reservas">
             <form onSubmit={handleFormSubmit}>
               <SeletorData
-                pricePerDay={accommodation.final_price}
+                pricePerDay={accommodationData?.final_price}
                 onDateChange={handleDataChange}
               />
               <div className="acomodacao-painel-hospedagem">
                 <p>Acomodação</p>
-                <span>{`R$ ${accommodation.final_price || "0,00"}`}</span>
+                <span>{`R$ ${accommodationData?.final_price || "0,00"}`}</span>
               </div>
               <div className="linha-acomodacao-descricao"></div>
               <div className="acomodacao-painel-hospedagem">
@@ -445,8 +469,31 @@ const Anuncio = ({ accommodation }) => {
                 <p>Total</p>
                 <span>{`R$ ${total || "0,00"}`}</span>
               </div>
+              {bookingError ? (
+                <div className="acomodacao-painel-hospedagem">
+                  <p>Erro</p>
+                  <span>Não foi possível fazer sua reserva!</span>
+                </div>
+              ) : bookingSuccess ? (
+                <div className="acomodacao-painel-hospedagem">
+                  <p>Sucesso</p>
+                  <span>Sua reserva foi aprovada!</span>
+                </div>
+              ) : (
+                <></>
+              )}
               <div className="acomodacao-painel-botoes">
-                <button type="submit">Reservar para a Temporada</button>
+                <button
+                  disabled={accommodationData?.registered_user_bookings.some(
+                    (bookingId) =>
+                      dados?.registered_accommodation_bookings.includes(
+                        bookingId
+                      )
+                  )}
+                  type="submit"
+                >
+                  Reservar Reservar para a Temporada
+                </button>
                 <button type="button">Enviar Mensagem</button>
               </div>
             </form>

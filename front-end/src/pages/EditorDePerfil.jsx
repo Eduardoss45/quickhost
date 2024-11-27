@@ -20,6 +20,7 @@ const EditorDePerfil = () => {
     editUser,
     handleChange,
   } = useEdit(id_user, token);
+  console.log(error);
 
   const [showPassword, setShowPassword] = useState(false);
   const [image, setImage] = useState(null);
@@ -134,6 +135,7 @@ const EditorDePerfil = () => {
     return (
       <div>
         <label htmlFor={id}>{label}</label>
+        {error && error[id] && <p className="error">{error[id]}</p>}
         <input
           type="text"
           id={id}
@@ -151,6 +153,7 @@ const EditorDePerfil = () => {
     return (
       <div className="password-field">
         <label>{label}</label>
+        {error && error[id] && <p className="error">{error[id]}</p>}
         <input
           type={showPassword ? "text" : "password"}
           id={id}
@@ -169,6 +172,8 @@ const EditorDePerfil = () => {
     return (
       <div className="file-upload">
         <label>{label}</label>
+        {error && error[id] && <p className="error">{error[id]}</p>}
+
         <div {...getRootProps({ className: "dropzone" })}>
           <input {...getInputProps()} />
           {isDragActive ? (

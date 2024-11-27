@@ -9,7 +9,6 @@
   padding: 1rem;
 }
 
-
 .card > div:nth-child(2) {
   display: flex;
   flex-direction: column;

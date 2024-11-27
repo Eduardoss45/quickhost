@@ -4,10 +4,12 @@ import { PiPhoneThin, PiTrashSimple } from "react-icons/pi";
 import { CiLocationOn, CiUser } from "react-icons/ci";
 import useDetalhes from "../hooks/useDetalhes";
 import useAccommodation from "../hooks/useAccommodation";
+import { Link } from "react-router-dom";
 import "./CardReservas.css";
 
 const CardReservas = ({ userName, reserva }) => {
   const { userData } = useDetalhes(reserva);
+
   const { accommodationData } = useAccommodation(userData?.accommodation);
   const { userData: dados } = useDetalhes(accommodationData?.creator);
   if (!accommodationData) return <p>Carregando dados da acomodação...</p>;
@@ -74,17 +76,20 @@ const CardReservas = ({ userName, reserva }) => {
         </div>
         <div className="action-container">
           <div className="button-group">
-            <button className="primary-button">
+            <Link
+              to={`/anuncio/${accommodationData?.id_accommodation}`}
+              className="primary-button"
+            >
               <IoEyeOutline /> Ver anúncio
-            </button>
+            </Link>
             <button className="primary-button">
               <IoChatbubbleOutline />
               Mandar mensagem
             </button>
-            <button className="secondary-button">
+            <Link to={`/reservas/${reserva}`} className="secondary-button">
               <PiTrashSimple />
               Cancelar hospedagem
-            </button>
+            </Link>
           </div>
         </div>
       </div>

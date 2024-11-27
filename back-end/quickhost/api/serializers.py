@@ -589,6 +589,9 @@ class BookingSerializer(serializers.ModelSerializer):
     accommodation = serializers.PrimaryKeyRelatedField(
         queryset=models.PropertyListing.objects.all()
     )
+    # registered_user_bookings = serializers.PrimaryKeyRelatedField(
+    #     queryset=models.UserAccount.objects.all(), many=True, required=False
+    # )
 
     class Meta:
         model = models.Booking
@@ -601,7 +604,6 @@ class BookingSerializer(serializers.ModelSerializer):
             "price",
             "is_active",
             "created_at",
-            "updated_at",
         ]
 
     def calculate_total_price(self, check_in_date, check_out_date, price):
@@ -629,14 +631,15 @@ class BookingSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         try:
-            with transaction.atomic():  # Garante consistência em caso de falha
+            with transaction.atomic():
+                # Extração de dados validados
                 user_booking = validated_data["user_booking"]
                 accommodation = validated_data["accommodation"]
                 check_in_date = validated_data["check_in_date"]
                 check_out_date = validated_data["check_out_date"]
                 price = validated_data["price"]
 
-                # Calcular o preço total
+                # Calcular preço total
                 total_price = self.calculate_total_price(
                     check_in_date, check_out_date, price
                 )
@@ -651,20 +654,16 @@ class BookingSerializer(serializers.ModelSerializer):
                     is_active=validated_data.get("is_active", True),
                 )
 
-                # Atualizar `registered_user_bookings` no modelo de acomodação
-                accommodation.registered_user_bookings.add(user_booking)
-                accommodation.registered_bookings.add(booking)
-                accommodation.save()
+                # Atualizar `registered_user_bookings` com a reserva
+                accommodation.registered_user_bookings.add(booking)
 
-                # Atualizar `registered_accommodation_bookings` no modelo de usuário
+                # Atualizar `registered_accommodation_bookings` com a reserva
                 user_booking.registered_accommodation_bookings.add(booking)
 
-                # Atualizar `registered_accommodations` no modelo de usuário (já existente)
+                # Atualizar `registered_accommodations` com a acomodação
                 user_booking.registered_accommodations.add(accommodation)
 
                 # Salvar alterações
-                user_booking.save()
-
                 return booking
 
         except Exception as e:
@@ -686,43 +685,45 @@ class BookingSerializer(serializers.ModelSerializer):
                 instance.price = validated_data.get("price", instance.price)
                 instance.is_active = validated_data.get("is_active", instance.is_active)
 
-                # Verifica se a acomodação ou usuário mudou (caso permitido)
-                accommodation = validated_data.get(
+                # Verifica se a acomodação ou o usuário mudou
+                new_accommodation = validated_data.get(
                     "accommodation", instance.accommodation
                 )
-                user_booking = validated_data.get("user_booking", instance.user_booking)
+                new_user_booking = validated_data.get(
+                    "user_booking", instance.user_booking
+                )
 
                 # Atualiza as associações caso necessário
-                if accommodation != instance.accommodation:
+                if new_accommodation != instance.accommodation:
                     # Remove a reserva da acomodação anterior
                     instance.accommodation.registered_bookings.remove(instance)
-                    instance.accommodation.registered_user_bookings.remove(
-                        instance.user_booking
-                    )
+                    instance.accommodation.registered_user_bookings.remove(instance)
 
                     # Adiciona a reserva à nova acomodação
-                    accommodation.registered_bookings.add(instance)
-                    accommodation.registered_user_bookings.add(user_booking)
+                    new_accommodation.registered_bookings.add(instance)
+                    new_accommodation.registered_user_bookings.add(instance)
 
-                    # Atualiza o campo de acomodação no booking
-                    instance.accommodation = accommodation
+                    # Atualiza o campo de acomodação na reserva
+                    instance.accommodation = new_accommodation
 
-                if user_booking != instance.user_booking:
+                if new_user_booking != instance.user_booking:
                     # Remove a reserva do usuário anterior
                     instance.user_booking.registered_accommodation_bookings.remove(
                         instance
                     )
 
                     # Adiciona a reserva ao novo usuário
-                    user_booking.registered_accommodation_bookings.add(instance)
+                    new_user_booking.registered_accommodation_bookings.add(instance)
 
-                    # Atualiza o campo de usuário no booking
-                    instance.user_booking = user_booking
+                    # Atualiza o campo de usuário na reserva
+                    instance.user_booking = new_user_booking
 
-                # Salva as alterações
+                # Salva as alterações na instância
                 instance.save()
-                accommodation.save()
-                user_booking.save()
+
+                # Salva as alterações nos modelos relacionados
+                new_accommodation.save()
+                new_user_booking.save()
 
                 return instance
 
