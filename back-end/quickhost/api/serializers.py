@@ -2,7 +2,10 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.core.files.uploadedfile import TemporaryUploadedFile
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.storage import default_storage
+from rest_framework.exceptions import ValidationError
+from rest_framework.response import Response
 from django.contrib.auth import get_user_model
+from rest_framework import status
 from rest_framework import serializers
 from django.db import transaction
 from urllib.parse import urlparse
@@ -164,10 +167,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             "profile_picture",
             "cpf",
             "registered_accommodations",
-            "registered_reviews",
-            "registered_bookings",
-            "registered_accommodations_bookings",
-            "registered_favorite_property",
+            "registered_accommodation_bookings",
             "created_at",
             "password",
         ]
@@ -226,17 +226,12 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             if field in validated_data:
                 setattr(instance, field, validated_data[field])
 
-        # Verificar e atualizar a imagem de perfil apenas se não for URL
         if "profile_picture" in validated_data:
             profile_picture = validated_data["profile_picture"]
 
-            # Verificar se é uma URL
             if isinstance(profile_picture, str) and urlparse(profile_picture).scheme:
-                # Caso seja uma URL, você pode ignorar a atualização ou fazer algo específico
                 instance.profile_picture = profile_picture
-            elif isinstance(
-                profile_picture, TemporaryUploadedFile
-            ):  # Caso seja um arquivo
+            elif isinstance(profile_picture, TemporaryUploadedFile):
                 new_filename = generate_new_filename(profile_picture.name)
                 instance.profile_picture.save(
                     os.path.join(str(instance.id_user), new_filename),
@@ -263,6 +258,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
         logger.info(f"Usuário '{instance.username}' atualizado com sucesso.")
 
+        # Retornando um feedback detalhado, com sucesso ou erro.
         return {
             "message": "Os dados do usuário foram alterados com sucesso.",
             "data": {
@@ -276,6 +272,13 @@ class UserUpdateSerializer(serializers.ModelSerializer):
                 "password": instance.password,
             },
         }
+
+    def handle_exception(self, exc):
+        """Tratamento de exceções para retornar feedback adequado."""
+        if isinstance(exc, serializers.ValidationError):
+            return {"message": "Erro de validação", "errors": exc.detail}
+        else:
+            return {"message": "Erro desconhecido", "errors": str(exc)}
 
 
 class TokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -336,7 +339,6 @@ class AccommodationSerializer(serializers.ModelSerializer):
             "creator",
             "discount",
             "final_price",
-            "registered_bookings",
             "registered_user_bookings",
             "cleaning_fee",
             "consecutive_days_limit",
@@ -406,15 +408,31 @@ class AccommodationSerializer(serializers.ModelSerializer):
                 price_per_night *= 1 + rate
             validated_data["price_per_night"] = round(price_per_night, 2)
 
-            with transaction.atomic():  # Usar transações para garantir consistência
-                # Criação da acomodação
+            with transaction.atomic():  # Garante consistência em caso de falha
+                # Remove dados relacionados a ManyToMany ou outros não necessários
+                registered_user_bookings_data = validated_data.pop(
+                    "registered_user_bookings", None
+                )
+
+                # Cria a acomodação
                 accommodation = models.PropertyListing.objects.create(**validated_data)
-                accommodation_uuid = accommodation.id_accommodation
-                logger.info(f"Acomodação criada: {accommodation_uuid}.")
+                accommodation_uuid = (
+                    accommodation.id_accommodation
+                )  # Define corretamente o UUID
+                logger.info(f"Acomodação criada: {accommodation_uuid}")
 
+                # Configura ManyToMany, se aplicável
+                if registered_user_bookings_data:
+                    accommodation.registered_user_bookings.set(
+                        registered_user_bookings_data
+                    )
+
+                logger.info(
+                    f"Usuários relacionados adicionados à acomodação {accommodation.id_accommodation}."
+                )
+
+                # Salvar imagens internas
                 image_paths = []
-
-                # Renomeia e salva as imagens internas
                 for image in internal_images:
                     if isinstance(image, TemporaryUploadedFile):
                         new_filename = f"{uuid.uuid4()}.jpg"
@@ -425,19 +443,17 @@ class AccommodationSerializer(serializers.ModelSerializer):
                         if default_storage.save(file_path, image):
                             image_paths.append("media/" + file_path)
 
-                # Atualiza o campo main_cover_image usando a função definida anteriormente
+                # Definir imagem de capa
                 def set_main_cover_image(main_cover_image, image_paths, accommodation):
                     try:
                         main_cover_image = int(main_cover_image)
                     except (ValueError, TypeError):
-                        logger.info(
-                            "main_cover_image não foi definido ou não é um número."
-                        )
+                        logger.info("main_cover_image não definido ou inválido.")
                         return
                     if 0 <= main_cover_image < len(image_paths):
                         accommodation.main_cover_image = image_paths[main_cover_image]
                         logger.info(
-                            f"Imagem de capa principal definida como: {image_paths[main_cover_image]}"
+                            f"Imagem de capa principal definida: {image_paths[main_cover_image]}"
                         )
                     else:
                         logger.info(
@@ -451,14 +467,14 @@ class AccommodationSerializer(serializers.ModelSerializer):
                 accommodation.save()
                 logger.info(f"URLs das imagens armazenadas: {image_paths}.")
 
-                # Adiciona o UUID da acomodação à lista registered_accommodations do usuário
-                user.registered_accommodations.append(str(accommodation_uuid))
+                # Atualizar `registered_accommodations` para o usuário
+                user.registered_accommodations.add(accommodation_uuid)
                 user.save()
                 logger.info(
                     f"Acomodação {accommodation_uuid} adicionada ao usuário {user.id_user}."
                 )
 
-                # Criação da conta bancária, se houver.
+                # Criar conta bancária associada, se houver
                 if bank_account_data:
                     bank_account = models.BankDetails.objects.create(
                         **bank_account_data
@@ -585,126 +601,133 @@ class BookingSerializer(serializers.ModelSerializer):
             "price",
             "is_active",
             "created_at",
+            "updated_at",
         ]
-
-    def _validate_date(self, value):
-        if isinstance(value, (datetime, date)):
-            return value.date() if isinstance(value, datetime) else value
-        try:
-            return datetime.strptime(value, "%d-%m-%Y").date()
-        except ValueError:
-            raise serializers.ValidationError(
-                "A data deve estar no formato correto. Use o formato dd-mm-yyyy."
-            )
-
-    def validate_check_in_date(self, value):
-        return self._validate_date(value)
-
-    def validate_check_out_date(self, value):
-        return self._validate_date(value)
-
-    def validate(self, attrs):
-        check_in_date = attrs.get("check_in_date")
-        check_out_date = attrs.get("check_out_date")
-        user_booking = attrs.get("user_booking")
-        accommodation = attrs.get("accommodation")
-        price = attrs.get("price")
-
-        try:
-            user = User.objects.get(id_user=user_booking)
-        except ObjectDoesNotExist:
-            raise serializers.ValidationError(
-                {"user_booking": "Usuário não encontrado."}
-            )
-
-        user_bookings = user.registered_accommodations_bookings or []
-        if str(accommodation) in user_bookings:
-            logger.info("Usuário já reservou esta acomodação antes.")
-        else:
-            price = price * Decimal("0.80")
-            logger.info("Desconto de 20% aplicado para novo cliente.")
-
-        attrs["price"] = price
-
-        check_in_error = validate_check_in_date(check_in_date)
-        if check_in_error:
-            raise serializers.ValidationError({"check_in_date": check_in_error})
-
-        check_out_error = validate_check_out_date(check_out_date, check_in_date)
-        if check_out_error:
-            raise serializers.ValidationError({"check_out_date": check_out_error})
-
-        price = attrs.get("price")
-        if price and check_in_date and check_out_date:
-            total_price = self.calculate_total_price(
-                check_in_date, check_out_date, price
-            )
-            attrs["price"] = total_price
-
-        return attrs
 
     def calculate_total_price(self, check_in_date, check_out_date, price):
         if isinstance(check_in_date, str):
-            check_in_date_obj = datetime.strptime(check_in_date, "%d-%m-%Y").date()
-        else:
-            check_in_date_obj = check_in_date
-
+            check_in_date = datetime.strptime(check_in_date, "%Y-%m-%d").date()
         if isinstance(check_out_date, str):
-            check_out_date_obj = datetime.strptime(check_out_date, "%d-%m-%Y").date()
-        else:
-            check_out_date_obj = check_out_date
-
-        if check_out_date_obj <= check_in_date_obj:
+            check_out_date = datetime.strptime(check_out_date, "%Y-%m-%d").date()
+        if check_out_date <= check_in_date:
             raise serializers.ValidationError(
                 "A data de check-out deve ser após a data de check-in."
             )
-
-        days_difference = (check_out_date_obj - check_in_date_obj).days
-
+        days_difference = (check_out_date - check_in_date).days
         if days_difference < 1:
             raise serializers.ValidationError(
                 "A quantidade de dias deve ser pelo menos 1."
             )
-
         if days_difference <= 3:
             tax_rate = Decimal("1.05")
         elif 4 <= days_difference <= 7:
             tax_rate = Decimal("1.10")
         else:
             tax_rate = Decimal("1.15")
-
-        price_decimal = Decimal(price)
-        total_price = price_decimal * days_difference * tax_rate
-        logger.info(f"Entrada: {check_in_date_obj}.")
-        logger.info(f"Saida: {check_out_date_obj}.")
-        logger.info(f"Dias: {days_difference}.")
-        logger.info(f"Taxa: {tax_rate}.")
-        logger.info(f"Preço: {price_decimal}.")
-        logger.info(f"Total: {total_price}.")
-
+        total_price = Decimal(price) * days_difference * tax_rate
         return total_price
 
     def create(self, validated_data):
-        user = validated_data.get("user_booking")
-
         try:
-            instance = super().create(validated_data)
+            with transaction.atomic():  # Garante consistência em caso de falha
+                user_booking = validated_data["user_booking"]
+                accommodation = validated_data["accommodation"]
+                check_in_date = validated_data["check_in_date"]
+                check_out_date = validated_data["check_out_date"]
+                price = validated_data["price"]
 
-            if user.registered_bookings is None:
-                user.registered_bookings = []
-            user.registered_bookings.append(str(instance.id_booking))
-            user.save()
+                # Calcular o preço total
+                total_price = self.calculate_total_price(
+                    check_in_date, check_out_date, price
+                )
 
-            return instance
-        except ValueError as ve:
-            raise serializers.ValidationError(f"Erro ao validar dados: {str(ve)}")
+                # Criar a reserva
+                booking = models.Booking.objects.create(
+                    user_booking=user_booking,
+                    accommodation=accommodation,
+                    check_in_date=check_in_date,
+                    check_out_date=check_out_date,
+                    price=total_price,
+                    is_active=validated_data.get("is_active", True),
+                )
+
+                # Atualizar `registered_user_bookings` no modelo de acomodação
+                accommodation.registered_user_bookings.add(user_booking)
+                accommodation.registered_bookings.add(booking)
+                accommodation.save()
+
+                # Atualizar `registered_accommodation_bookings` no modelo de usuário
+                user_booking.registered_accommodation_bookings.add(booking)
+
+                # Atualizar `registered_accommodations` no modelo de usuário (já existente)
+                user_booking.registered_accommodations.add(accommodation)
+
+                # Salvar alterações
+                user_booking.save()
+
+                return booking
+
         except Exception as e:
+            logger.error(f"Erro ao criar reserva: {e}")
             raise serializers.ValidationError(
-                f"Erro inesperado ao criar reserva: {str(e)}"
+                {"detail": f"Erro ao criar reserva: {str(e)}"}
             )
 
     def update(self, instance, validated_data):
         try:
-            return super().update(instance, validated_data)
+            with transaction.atomic():  # Garante consistência em caso de falha
+                # Atualiza os campos permitidos
+                instance.check_in_date = validated_data.get(
+                    "check_in_date", instance.check_in_date
+                )
+                instance.check_out_date = validated_data.get(
+                    "check_out_date", instance.check_out_date
+                )
+                instance.price = validated_data.get("price", instance.price)
+                instance.is_active = validated_data.get("is_active", instance.is_active)
+
+                # Verifica se a acomodação ou usuário mudou (caso permitido)
+                accommodation = validated_data.get(
+                    "accommodation", instance.accommodation
+                )
+                user_booking = validated_data.get("user_booking", instance.user_booking)
+
+                # Atualiza as associações caso necessário
+                if accommodation != instance.accommodation:
+                    # Remove a reserva da acomodação anterior
+                    instance.accommodation.registered_bookings.remove(instance)
+                    instance.accommodation.registered_user_bookings.remove(
+                        instance.user_booking
+                    )
+
+                    # Adiciona a reserva à nova acomodação
+                    accommodation.registered_bookings.add(instance)
+                    accommodation.registered_user_bookings.add(user_booking)
+
+                    # Atualiza o campo de acomodação no booking
+                    instance.accommodation = accommodation
+
+                if user_booking != instance.user_booking:
+                    # Remove a reserva do usuário anterior
+                    instance.user_booking.registered_accommodation_bookings.remove(
+                        instance
+                    )
+
+                    # Adiciona a reserva ao novo usuário
+                    user_booking.registered_accommodation_bookings.add(instance)
+
+                    # Atualiza o campo de usuário no booking
+                    instance.user_booking = user_booking
+
+                # Salva as alterações
+                instance.save()
+                accommodation.save()
+                user_booking.save()
+
+                return instance
+
         except Exception as e:
-            raise serializers.ValidationError(f"Erro ao atualizar reserva: {str(e)}")
+            logger.error(f"Erro ao atualizar reserva: {e}")
+            raise serializers.ValidationError(
+                {"detail": f"Erro ao atualizar reserva: {str(e)}"}
+            )

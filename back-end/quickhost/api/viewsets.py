@@ -4,6 +4,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from django.http import HttpResponse
+from rest_framework.pagination import PageNumberPagination
 from rest_framework import status
 from rest_framework.views import APIView
 from pprint import pprint
@@ -470,10 +471,28 @@ class ReviewViewSet(viewsets.ModelViewSet):
         accommodation.save()
 
 
+class BookingPagination(PageNumberPagination):
+    page_size = 10
+
+
 class BookingViewSet(viewsets.ModelViewSet):
     queryset = models.Booking.objects.all()
     serializer_class = BookingSerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = BookingPagination
+
+    def list(self, request, *args, **kwargs):
+        """Lista todas as reservas do usuário autenticado."""
+        queryset = self.get_queryset()
+        page = self.paginate_queryset(queryset)
+
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        logger.info(f"Listando reservas para o usuário {request.user}")
+        return Response(serializer.data)
 
     def get_queryset(self):
         """Filtra as reservas pelo usuário autenticado."""
@@ -486,13 +505,20 @@ class BookingViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         """Cria uma nova reserva para uma acomodação."""
         logger.info(f"Tentativa de criar reserva por usuário {request.user.username}")
-        logger.info(f"Dados recebidos {request.data}")
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
 
-        logger.info(f"Reserva criada com sucesso: {serializer.data}")
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        try:
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+
+            logger.info(f"Reserva criada com sucesso: {serializer.data}")
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            logger.error(f"Erro ao criar reserva: {e}")
+            return Response(
+                {"detail": "Erro interno ao tentar criar a reserva."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
     def list(self, request, *args, **kwargs):
         """Lista todas as reservas do usuário autenticado."""
