@@ -15,6 +15,7 @@
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   margin: 2rem 0;
+  padding: 1rem;
 }
 
 .card-cancelar > .card-cancelar > div:nth-child(2) {
@@ -23,12 +24,14 @@
   flex: 1;
 }
 
-.card-cancelar > .image-container {
+.card-cancelar .image-container {
   flex: 1;
-  height: 100%;
+  height: auto;
 }
 
-.card-cancelar > .image {
+.card-cancelar .image {
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -119,13 +122,17 @@
   color: var(--paleta-quatro);
 }
 
-.card-cancelar > .button-group {
+.card-cancelar .button-group {
   display: flex;
   flex-direction: row;
   gap: 0.5rem;
 }
 
-.card-cancelar > .primary-button {
+.card-cancelar .button-group > a {
+  flex: 1;
+}
+
+.card-cancelar .button-group > a > .primary-button {
   display: flex;
   flex: 1;
   flex-direction: row;
@@ -139,6 +146,7 @@
   padding: 10px;
   cursor: pointer;
   font-weight: bold;
+  width: 100%;
 }
 
 .primary-button > svg,
@@ -167,7 +175,7 @@
   color: var(--paleta-seis);
 }
 
-.card-cancelar > .card-cancelar-reservas-line {
+.card-cancelar .card-cancelar-reservas-line {
   border-bottom: 1px solid var(--paleta-quatro);
   margin: 1rem 0;
 }

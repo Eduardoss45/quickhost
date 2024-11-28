@@ -11,4 +11,4 @@
 ### Criar telas de check-in/check-out [X]
 ### Criar o chat se possivel [ ]
 ### Definir um parametro para permissão de comentarios nas acomodações [X]
-### Aplicar o filtro com base na avaliação [ ]
+### Aplicar o filtro com base na avaliação [X]

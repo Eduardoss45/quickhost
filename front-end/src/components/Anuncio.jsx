@@ -45,10 +45,6 @@ const Anuncio = () => {
     accommodationData?.id_accommodation
   );
 
-  const handleReload = () => {
-    window.location.reload();
-  };
-
   const handleClick = (rating) => {
     setAvaliacao(rating);
     console.log(rating);
@@ -96,7 +92,7 @@ const Anuncio = () => {
     <div className="pagina-anuncio">
       <div className="header-anuncio">
         <div className="header-anuncio-separador">
-          <div onClick={handleReload} className="header-btn-sair">
+          <div className="header-btn-sair">
             <Link to="/">
               <PiArrowCircleLeftThin />
             </Link>

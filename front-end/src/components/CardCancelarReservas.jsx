@@ -1,13 +1,40 @@
 import { PiPhoneThin, PiArrowCircleLeftThin } from "react-icons/pi";
 import { BiDish } from "react-icons/bi";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import { CiLocationOn, CiUser } from "react-icons/ci";
-
+import useCancelarReservas from "../hooks/useCancelarReservas";
+import useAccommodation from "../hooks/useAccommodation";
+import useDetalhes from "../hooks/useDetalhes";
 import "./CardCancelarReservas.css";
 
 const CardCancelarReservas = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+
+  // Dados do usuário, hóspede e criador
+  const { userData } = useDetalhes(id);
+  const { userData: hospede } = useDetalhes(userData?.user);
+  const { accommodationData } = useAccommodation(userData?.accommodation);
+  const { userData: creator } = useDetalhes(accommodationData?.creator);
+  console.log();
+  // Hook para cancelar reservas
+  const { handleDeleteReserva, loading, success, error } = useCancelarReservas(
+    userData?.booking
+  );
+
+  const handleCancelarReserva = async () => {
+    await handleDeleteReserva();
+
+    if (success) {
+      alert("Reserva cancelada com sucesso!");
+      navigate("/");
+      location.reload();
+    } else if (error) {
+      alert("Erro ao cancelar a reserva. Por favor, tente novamente.");
+      location.reload();
+    }
+  };
+
   return (
     <div className="card-cancelar">
       <div className="card-cancelar-menu">
@@ -16,14 +43,16 @@ const CardCancelarReservas = () => {
         </div>
         <div>
           <h1>Cancelar hospedagem</h1>
-          <p>Nome da Acomodação</p>
+          <p>{accommodationData?.title || "Não informado"}</p>
         </div>
       </div>
       <h2>Você deseja cancelar a seguinte reserva?</h2>
       <div className="card-cancelar-details">
         <div className="image-container">
           <img
-            src="path/to/your/image.jpg"
+            src={`${import.meta.env.VITE_BASE_URL}${
+              accommodationData?.main_cover_image
+            }`}
             alt="Vista da acomodação"
             className="image"
           />
@@ -32,17 +61,19 @@ const CardCancelarReservas = () => {
         <div className="details-container">
           <div>
             <div className="title-container">
-              <h2 className="title">Nome da Acomodação</h2>
-              <p className="host">Nome do Anfitrião</p>
+              <h2 className="title">
+                {accommodationData?.title || "Não informado"}
+              </h2>
+              <p className="host">{creator?.username || "Não informado"}</p>
             </div>
             <div className="dates-container">
               <div className="date-item">
                 <span>Check-in</span>
-                <p>13/09/2024</p>
+                <p>{userData?.check_in_date || "Não informado"}</p>
               </div>
               <div className="date-item">
                 <span>Check-out</span>
-                <p>16/09/2024</p>
+                <p>{userData?.check_out_date || "Não informado"}</p>
               </div>
             </div>
           </div>
@@ -53,34 +84,42 @@ const CardCancelarReservas = () => {
                 <CiLocationOn className="icon" />
               </span>
               <p className="info">
-                Endereço: Rua das Ruas, 123 - Centro • Cidade, UF • 12345-678
+                Endereço: {accommodationData?.address || "Não informado"}
               </p>
             </div>
             <div>
               <span>
                 <PiPhoneThin className="icon" />
               </span>
-              <p className="info">Telefone: +55 24 3371 1413</p>
+              <p className="info">Telefone: {creator?.phone_number}</p>
             </div>
             <div>
               <span>
                 <CiUser className="icon" />
               </span>
-              <p className="info">Hóspede: Fátima Silva Santos</p>
+              <p className="info">Hóspede: {hospede?.username}</p>
             </div>
             <div>
               <span>
                 <BiDish className="icon" />
               </span>
-              <p className="info">Refeições: Nenhuma</p>
+              <p className="info">Refeições: 3</p>
             </div>
           </div>
         </div>
       </div>
       <div className="action-container">
         <div className="button-group">
-          <button className="primary-button">Não</button>
-          <button className="secondary-button">Sim, desejo cancelar</button>
+          <Link to="/reservas">
+            <button className="primary-button">Não</button>
+          </Link>
+          <button
+            onClick={handleCancelarReserva}
+            className="secondary-button"
+            disabled={loading} // Desabilita o botão durante o carregamento
+          >
+            {loading ? "Cancelando..." : "Sim, desejo cancelar"}
+          </button>
         </div>
       </div>
     </div>

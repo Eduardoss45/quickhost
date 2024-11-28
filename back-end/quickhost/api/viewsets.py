@@ -282,6 +282,7 @@ class GetByUuidView(APIView):
         if booking:
             return Response(
                 {
+                    "booking": str(booking.id_booking),
                     "accommodation": str(booking.accommodation.id_accommodation),
                     "user": str(booking.user_booking),
                     "check_in_date": str(booking.check_in_date),
@@ -486,19 +487,6 @@ class BookingViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     pagination_class = BookingPagination
 
-    def list(self, request, *args, **kwargs):
-        """Lista todas as reservas do usuário autenticado."""
-        queryset = self.get_queryset()
-        page = self.paginate_queryset(queryset)
-
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        serializer = self.get_serializer(queryset, many=True)
-        logger.info(f"Listando reservas para o usuário {request.user}")
-        return Response(serializer.data)
-
     def get_queryset(self):
         """Filtra as reservas pelo usuário autenticado."""
         return self.queryset.filter(user_booking=self.request.user)
@@ -507,30 +495,22 @@ class BookingViewSet(viewsets.ModelViewSet):
         """Define o usuário autenticado como `user_booking` ao salvar a reserva."""
         serializer.save(user_booking=self.request.user)
 
-    def create(self, request, *args, **kwargs):
-        """Cria uma nova reserva para uma acomodação."""
-        logger.info(f"Tentativa de criar reserva por usuário {request.user.username}")
-
-        try:
-            serializer = self.get_serializer(data=request.data)
-            serializer.is_valid(raise_exception=True)
-            self.perform_create(serializer)
-
-            logger.info(f"Reserva criada com sucesso: {serializer.data}")
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        except Exception as e:
-            logger.error(f"Erro ao criar reserva: {e}")
-            return Response(
-                {"detail": "Erro interno ao tentar criar a reserva."},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
-
     def list(self, request, *args, **kwargs):
         """Lista todas as reservas do usuário autenticado."""
+        logger.info(
+            f"Usuário {request.user.username} solicitou a listagem de reservas."
+        )
         queryset = self.get_queryset()
-        serializer = self.get_serializer(queryset, many=True)
+        page = self.paginate_queryset(queryset)
 
-        logger.info(f"Listando reservas para o usuário {request.user}")
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        logger.info(
+            f"Retornando {len(serializer.data)} reservas para o usuário {request.user.username}."
+        )
         return Response(serializer.data)
 
     def retrieve(self, request, *args, **kwargs):
@@ -539,34 +519,102 @@ class BookingViewSet(viewsets.ModelViewSet):
             booking = self.get_queryset().get(pk=kwargs["pk"])
         except models.Booking.DoesNotExist:
             logger.warning(
-                f"Reserva {kwargs['pk']} não encontrada para o usuário {request.user}"
+                f"Reserva {kwargs['pk']} não encontrada para o usuário {request.user.username}."
             )
             return Response(
-                {"detail": "Reserva não encontrada."}, status=status.HTTP_404_NOT_FOUND
+                {"detail": "Reserva não encontrada. Verifique o ID fornecido."},
+                status=status.HTTP_404_NOT_FOUND,
             )
 
         serializer = self.get_serializer(booking)
         logger.info(
-            f"Detalhes da reserva {kwargs['pk']} retornados para {request.user}"
+            f"Detalhes da reserva {kwargs['pk']} retornados para o usuário {request.user.username}."
         )
         return Response(serializer.data)
+
+    def create(self, request, *args, **kwargs):
+        """Cria uma nova reserva para uma acomodação."""
+        logger.info(
+            f"Usuário {request.user.username} está tentando criar uma nova reserva."
+        )
+        serializer = self.get_serializer(data=request.data)
+        try:
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+
+            logger.info(
+                f"Reserva criada com sucesso para o usuário {request.user.username}."
+            )
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except serializers.ValidationError as e:
+            logger.warning(f"Erro de validação ao criar reserva: {e}")
+            return Response(
+                {
+                    "detail": "Erro de validação nos dados fornecidos.",
+                    "errors": e.detail,
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        except Exception as e:
+            logger.error(f"Erro interno ao criar reserva: {e}")
+            return Response(
+                {"detail": "Erro interno ao tentar criar a reserva."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
     def update(self, request, *args, **kwargs):
         """Atualiza os detalhes de uma reserva específica."""
         booking = self.get_object()
+        logger.info(
+            f"Usuário {request.user.username} está tentando atualizar a reserva {booking.id_booking}."
+        )
         serializer = self.get_serializer(booking, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
 
-        logger.info(f"Reserva {booking.id_booking} atualizada por {request.user}")
-        return Response(serializer.data)
+        try:
+            serializer.is_valid(raise_exception=True)
+            self.perform_update(serializer)
+
+            logger.info(f"Reserva {booking.id_booking} atualizada com sucesso.")
+            return Response(serializer.data)
+        except serializers.ValidationError as e:
+            logger.warning(
+                f"Erro de validação ao atualizar a reserva {booking.id_booking}: {e}"
+            )
+            return Response(
+                {
+                    "detail": "Erro de validação nos dados fornecidos.",
+                    "errors": e.detail,
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        except Exception as e:
+            logger.error(
+                f"Erro interno ao atualizar a reserva {booking.id_booking}: {e}"
+            )
+            return Response(
+                {"detail": "Erro interno ao tentar atualizar a reserva."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
     def destroy(self, request, *args, **kwargs):
         """Exclui uma reserva específica."""
         booking = self.get_object()
-        logger.info(f"Reserva {booking.id_booking} excluída por {request.user}")
-        booking.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        logger.info(
+            f"Usuário {request.user.username} está tentando excluir a reserva {booking.id_booking}."
+        )
+        try:
+            booking.delete()
+            logger.info(f"Reserva {booking.id_booking} excluída com sucesso.")
+            return Response(
+                {"detail": f"Reserva {booking.id_booking} excluída com sucesso."},
+                status=status.HTTP_204_NO_CONTENT,
+            )
+        except Exception as e:
+            logger.error(f"Erro ao excluir a reserva {booking.id_booking}: {e}")
+            return Response(
+                {"detail": "Erro interno ao tentar excluir a reserva."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
 
 class FavoritePropertyViewSet(viewsets.ModelViewSet):

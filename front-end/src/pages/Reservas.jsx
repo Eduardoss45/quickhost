@@ -3,7 +3,6 @@ import "./Reservas.css";
 
 const Reservas = ({userData}) => {
   const reservas = userData?.registered_accommodation_bookings;
-  console.log(reservas);
   return (
     <div className="pagina-reservas">
       <h2>Minhas Reservas</h2>
