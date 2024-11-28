@@ -4,8 +4,10 @@ import axios from "axios";
 const useFavorite = (accommodation) => {
   const [isFavorite, setIsFavorite] = useState(false); // Estado para verificar se é favorito
   const [favoriteId, setFavoriteId] = useState(null); // Para armazenar o id do favorito
+  const [allFavorites, setAllFavorites] = useState([]); // Para armazenar todos os favoritos
   const token = localStorage.token;
 
+  // Função para obter todos os favoritos
   const checkFavorite = async () => {
     try {
       const response = await axios.get(
@@ -15,11 +17,13 @@ const useFavorite = (accommodation) => {
         }
       );
       const data = response.data;
+      setAllFavorites(data); // Armazena todos os favoritos no estado
 
-      // Verifica se a acomodação está nos favoritos
+      // Verifica se a acomodação específica está nos favoritos
       const favorite = data.find(
         (item) => item.accommodation === accommodation
       );
+
       if (favorite) {
         setIsFavorite(true);
         setFavoriteId(favorite.id_favorite_property); // Captura o ID do favorito
@@ -60,7 +64,7 @@ const useFavorite = (accommodation) => {
       setIsFavorite(true); // Atualiza o estado após a adição do favorito
       setFavoriteId(response.data.id_favorite_property); // Atualiza o ID localmente
       console.log("Acomodação adicionada aos favoritos", response.data);
-      await checkFavorite(); // Opcional: Sincroniza a lista após a alteração
+      await checkFavorite(); // Sincroniza a lista após a alteração
     } catch (error) {
       console.error("Erro ao adicionar favorito", error);
     }
@@ -84,7 +88,7 @@ const useFavorite = (accommodation) => {
         setIsFavorite(false); // Atualiza o estado imediatamente após remover
         setFavoriteId(null); // Limpa o ID localmente
         console.log("Acomodação removida dos favoritos");
-        await checkFavorite(); // Opcional: Sincroniza a lista após a alteração
+        await checkFavorite(); // Sincroniza a lista após a alteração
       }
     } catch (error) {
       console.error("Erro ao remover favorito", error);
@@ -97,7 +101,8 @@ const useFavorite = (accommodation) => {
 
   return {
     isFavorite,
-    toggleFavorite, // Retorna a função que pode ser chamada pelo componente pai
+    toggleFavorite, // Função para alternar favorito
+    allFavorites, // Retorna todos os favoritos
   };
 };
 

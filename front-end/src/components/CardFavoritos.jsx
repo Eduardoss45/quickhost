@@ -1,32 +1,38 @@
 import { CiLocationOn } from "react-icons/ci";
 import useDetalhes from "../hooks/useDetalhes.jsx";
+import useAccommodation from "../hooks/useAccommodation.jsx";
+import useFavorite from "../hooks/useFavorite.jsx";
 import { PiTrashSimple } from "react-icons/pi";
 
 import "./CardFavoritos.css";
 
-const CardFavoritos = ({
-  image,
-  title,
-  creator,
-  price_per_night,
-  city,
-  onClick,
-}) => {
-  const creatorData = creator ? useDetalhes(creator) : null;
+const CardFavoritos = ({ dados }) => {
+  console.log(dados);
+  const { accommodationData } = useAccommodation(dados);
+  console.log(accommodationData);
+  const creatorData = useDetalhes(accommodationData?.creator) || null;
   const { userData: name } = creatorData || {};
+  const { isFavorite, toggleFavorite } = useFavorite(dados); // Remove local state for isFavorite
+  const handleFavoriteClick = () => {
+    toggleFavorite(); // Just toggle favorite via hook
+    window.location.reload();
+  };
 
-  const imageUrl = image
-    ? `${import.meta.env.VITE_BASE_URL}${image}`
-    : "url-to-default-image.jpg";
+  const imageUrl =
+    `${import.meta.env.VITE_BASE_URL}${accommodationData?.main_cover_image}` ||
+    null;
 
   return (
-    <div className="card-favoritos" onClick={onClick}>
-      <img src={imageUrl} alt={title || "Imagem da acomodação"} />
+    <div className="card-favoritos">
+      <img
+        src={imageUrl}
+        alt={accommodationData?.title || "Imagem da acomodação"}
+      />
       <div className="card-favoritos-content">
-        <h2>{title}</h2>
+        <h2>{accommodationData?.title}</h2>
         <p>{name?.username || "Nome do Criador Indisponível"}</p>
         <p>
-          <strong>R$ {price_per_night}</strong> por noite
+          <strong>R$ {accommodationData?.final_price}</strong> por noite
         </p>
       </div>
       <div className="card-favoritos-linha"></div>
@@ -34,11 +40,11 @@ const CardFavoritos = ({
         <span>
           <CiLocationOn />
         </span>
-        <span>{city || "Cidade Indisponível"}</span>
+        <span>{accommodationData?.city || "Cidade Indisponível"}</span>
       </div>
       <div className="card-favoritos-linha"></div>
       <div className="card-favoritos-remover">
-        <button>
+        <button onClick={handleFavoriteClick}>
           <span>
             <PiTrashSimple />
           </span>

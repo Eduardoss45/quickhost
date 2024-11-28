@@ -3,6 +3,7 @@
   max-width: 20vw;
   border-top-left-radius: 0.5rem;
   border-top-right-radius: 0.5rem;
+  background-color: var(--paleta-seis);
 }
 
 .card-favoritos img {
@@ -18,27 +19,27 @@
   padding: 0.5rem 1rem;
 }
 
-.card-favoritos div > div > h2 {
+.card-favoritos div > h2 {
   color: var(--paleta-sete);
   font-size: 1.8rem;
   text-transform: capitalize;
   font-weight: bold;
 }
 
-.card-favoritos div > div > p:nth-child(1) {
+.card-favoritos div > p:nth-child(1) {
   text-transform: capitalize;
 }
 
-.card-favoritos div > div > p:nth-child(3) {
+.card-favoritos div > p:nth-child(3) {
   font-size: 1.2rem;
 }
 
-.card-favoritos div > div > p {
+.card-favoritos div > p {
   padding: 0.4rem 0;
   color: var(--paleta-quatro);
 }
 
-.card-favoritos div > div > p > strong {
+.card-favoritos div > p > strong {
   color: var(--paleta-sete);
   font-size: 1.4rem;
 }

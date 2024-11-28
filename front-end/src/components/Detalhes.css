@@ -3,6 +3,7 @@
   max-width: 20vw;
   border-top-left-radius: 0.5rem;
   border-top-right-radius: 0.5rem;
+  background-color: var(--paleta-seis);
 }
 
 .anuncio img {
