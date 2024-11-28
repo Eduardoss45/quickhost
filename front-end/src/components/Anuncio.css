@@ -31,14 +31,19 @@
 
 .header-btn-favoritar {
   display: flex;
+  align-items: center;
   gap: 1rem;
-  border: 1px solid black;
+  border: 1px solid var(--paleta-dois);
   border-radius: 2rem;
-  padding: 0.8rem;
+  padding: 0.6rem 1rem;
 }
 
-.header-btn-favoritar {
-  font-size: 1.25rem;
+.header-btn-favoritar svg {
+  font-size: 1.8rem;
+}
+
+.header-btn-favoritar > span {
+  color: var(--paleta-dois);
 }
 
 .conteudo-anuncio {

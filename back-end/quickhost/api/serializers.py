@@ -732,3 +732,14 @@ class BookingSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 {"detail": f"Erro ao atualizar reserva: {str(e)}"}
             )
+
+class FavoritePropertySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.FavoriteProperty
+        fields = [
+            "id_favorite_property",
+            "user_favorite_property",
+            "accommodation",
+            "created_at",
+        ]
+        read_only_fields = ["id_favorite_property", "created_at"]

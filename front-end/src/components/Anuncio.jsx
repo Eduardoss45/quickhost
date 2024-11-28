@@ -16,6 +16,7 @@ import Avaliacao from "./Avaliacao.jsx";
 import useComents from "../hooks/useComents.jsx";
 import useUserData from "../hooks/useUserData.jsx";
 import useBooking from "../hooks/useBooking.jsx";
+import useFavorite from "../hooks/useFavorite.jsx";
 import "./Anuncio.css";
 import useAccommodation from "../hooks/useAccommodation.jsx";
 
@@ -28,40 +29,16 @@ const Anuncio = () => {
     error: bookingError,
     success: bookingSuccess,
   } = useBooking();
-  const formData = {
-    user_booking: "",
-    accommodation: "",
-    check_in_date: "",
-    check_out_date: "",
-    price: "",
-  };
+  const { isFavorite, toggleFavorite } = useFavorite(
+    accommodationData?.id_accommodation
+  ); // Remove local state for isFavorite
   const [avaliacao, setAvaliacao] = useState(null);
   const [total, setTotal] = useState(0);
-  const { userData: dados } = useUserData();
   const [tax, setTax] = useState(0);
-  const [checkIn, setCheckIn] = useState(0);
-  const [checkOut, setCheckOut] = useState(0);
+  const [checkIn, setCheckIn] = useState(null);
+  const [checkOut, setCheckOut] = useState(null);
 
-  const formattedDateCheckIn = checkIn
-    ? (() => {
-        const date = new Date(checkIn);
-        const day = String(date.getDate()).padStart(2, "0");
-        const month = String(date.getMonth() + 1).padStart(2, "0");
-        const year = String(date.getFullYear());
-        return `${year}-${month}-${day}`;
-      })()
-    : "2024-01-01";
-
-  const formattedDateCheckOut = checkOut
-    ? (() => {
-        const date = new Date(checkOut);
-        const day = String(date.getDate()).padStart(2, "0");
-        const month = String(date.getMonth() + 1).padStart(2, "0");
-        const year = String(date.getFullYear());
-        return `${year}-${month}-${day}`;
-      })()
-    : "2024-01-02";
-
+  const { userData: dados } = useUserData();
   const creatorData = useDetalhes(accommodationData?.creator);
   const { userData: creator } = creatorData;
   const { comentarios, loading, error } = useComents(
@@ -77,8 +54,8 @@ const Anuncio = () => {
     console.log(rating);
   };
 
-  const handleClickFavorite = (e) => {
-    const { IsFavorite } = useFavorite(favorite);
+  const handleFavoriteClick = () => {
+    toggleFavorite(); // Just toggle favorite via hook
   };
 
   const handleDataChange = (newCheckin, newCheckout, newTotal, newTax) => {
@@ -88,18 +65,24 @@ const Anuncio = () => {
     setCheckOut(newCheckout);
   };
 
+  const formatDate = (date) => {
+    if (!date) return null;
+    const formattedDate = new Date(date);
+    const day = String(formattedDate.getDate()).padStart(2, "0");
+    const month = String(formattedDate.getMonth() + 1).padStart(2, "0");
+    const year = formattedDate.getFullYear();
+    return `${year}-${month}-${day}`;
+  };
+
   const handleFormSubmit = (event) => {
     event.preventDefault();
 
-    if (
-      formattedDateCheckIn !== "2024-01-01" &&
-      formattedDateCheckOut !== "2024-01-02"
-    ) {
+    if (checkIn && checkOut) {
       const formData = {
         user_booking: dados.id_user,
         accommodation: accommodationData.id_accommodation,
-        check_in_date: formattedDateCheckIn,
-        check_out_date: formattedDateCheckOut,
+        check_in_date: formatDate(checkIn),
+        check_out_date: formatDate(checkOut),
         price: accommodationData.final_price,
       };
       console.log(formData);
@@ -127,8 +110,14 @@ const Anuncio = () => {
             <p>{accommodationData?.address || "Endereço Indisponível"}</p>
           </aside>
         </div>
-        <div onClick={handleClickFavorite} className="header-btn-favoritar">
-          <IoStarSharp /> Favoritar
+        <div onClick={handleFavoriteClick} className="header-btn-favoritar">
+          <IoStarSharp
+            style={{
+              color: isFavorite ? "#ff6f31" : "#001969", // Cor do ícone de acordo com o estado
+              cursor: "pointer",
+            }}
+          />
+          <span>{isFavorite ? "Remover" : "Favoritar"}</span>
         </div>
       </div>
       <div className="conteudo-anuncio">

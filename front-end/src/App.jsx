@@ -14,10 +14,10 @@ import useData from "./hooks/useData";
 import useUserData from "./hooks/useUserData";
 import Step1 from "./template/components/Step1";
 import CardCancelarReservas from "./components/CardCancelarReservas";
-
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useState } from "react";
 import InformacoesAcomodacao from "./pages/InformacoesAcomodacao";
+import useDetalhes from "./hooks/useDetalhes";
 
 function App() {
   const { data, loading, error } = useData();
@@ -87,7 +87,7 @@ function InnerApp({ accommodations, loading, error, onSearch }) {
           <Route path="/configuracoes" element={<Configuracoes />} />
           <Route path="/cadastro" element={<Cadastro />} />
           <Route path="/favoritos" element={<Favoritos />} />
-          <Route path="/reservas" element={<Reservas />} />
+          <Route path="/reservas" element={<Reservas userData={userData} />} />
           <Route path="/reservas/:id" element={<CardCancelarReservas />} />
           <Route
             path="/hospedar"

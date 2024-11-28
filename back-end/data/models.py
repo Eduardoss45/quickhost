@@ -237,17 +237,6 @@ class FavoriteProperty(models.Model):
         return f"{self.user_favorite_property.username} - {self.accommodation.title}"
 
 
-@receiver(post_save, sender=FavoriteProperty)
-def add_to_registered_favorite_property(sender, instance, created, **kwargs):
-    """
-    Adiciona a propriedade favorita ao campo 'registered_favorite_property' do usuário.
-    """
-    if created:
-        update_registered_favorite_property(
-            instance.user_favorite_property, instance.id_favorite_property
-        )
-
-
 # ---------------------
 # Modelo de Avaliações
 # ---------------------

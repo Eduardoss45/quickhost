@@ -9,7 +9,7 @@ from rest_framework import status
 from rest_framework.views import APIView
 from pprint import pprint
 from django.contrib.auth import get_user_model
-from data.models import PropertyListing, UserAccount, Booking
+from data.models import PropertyListing, UserAccount, Booking, FavoriteProperty
 from django.db.models import Avg
 
 from .serializers import (
@@ -19,6 +19,7 @@ from .serializers import (
     TokenObtainPairSerializer,
     ReviewSerializer,
     BookingSerializer,
+    FavoritePropertySerializer,
 )
 from data import models
 from uuid import UUID
@@ -251,6 +252,8 @@ class GetByUuidView(APIView):
         # Verificando se o UUID corresponde a um usuário
         user = User.objects.filter(id_user=uuid).first()
         if user:
+            favorites = FavoriteProperty.objects.filter(user_favorite_property=user)
+            favorite_data = FavoritePropertySerializer(favorites, many=True).data
             return Response(
                 {
                     "id_user": str(user.id_user),
@@ -259,7 +262,8 @@ class GetByUuidView(APIView):
                     "profile_picture": (
                         user.profile_picture.url if user.profile_picture else None
                     ),
-                    "phone_number": (user.phone_number),
+                    "phone_number": user.phone_number,
+                    "favorites": favorite_data,  # Incluindo os favoritos do usuário
                 }
             )
 
@@ -279,6 +283,7 @@ class GetByUuidView(APIView):
             return Response(
                 {
                     "accommodation": str(booking.accommodation.id_accommodation),
+                    "user": str(booking.user_booking),
                     "check_in_date": str(booking.check_in_date),
                     "check_out_date": str(booking.check_out_date),
                 }
@@ -562,3 +567,72 @@ class BookingViewSet(viewsets.ModelViewSet):
         logger.info(f"Reserva {booking.id_booking} excluída por {request.user}")
         booking.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class FavoritePropertyViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = FavoritePropertySerializer
+
+    # Definindo o queryset para retornar os favoritos do usuário
+    def get_queryset(self):
+        # Retorna todos os favoritos do usuário autenticado
+        return models.FavoriteProperty.objects.filter(
+            user_favorite_property=self.request.user
+        )
+
+    # Listar todos os favoritos (GET)
+    def list(self, request):
+        logger.info(f"User {request.user.username} is fetching their favorites.")
+        favorites = self.get_queryset()
+        serializer = self.serializer_class(favorites, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    # Obter um favorito específico (GET)
+    def retrieve(self, request, *args, **kwargs):
+        # Obter o UUID do favorito
+        favorite_uuid = kwargs.get("pk")  # 'pk' é o UUID fornecido na URL
+        try:
+            favorite = self.get_queryset().get(id_favorite_property=favorite_uuid)
+            serializer = self.serializer_class(favorite)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except models.FavoriteProperty.DoesNotExist:
+            return Response(
+                {"error": "Favorito não encontrado ou não pertence ao usuário"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+    # Adicionar novo favorito (POST)
+    def create(self, request):
+        # Verificar se o favorito já existe
+        accommodation = request.data.get("accommodation")
+        if models.FavoriteProperty.objects.filter(
+            user_favorite_property=request.user, accommodation=accommodation
+        ).exists():
+            return Response(
+                {"error": "Você já favoritou esta acomodação."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Caso contrário, cria um novo favorito
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            serializer.save(user_favorite_property=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    # Deletar favorito (DELETE)
+    def destroy(self, request, *args, **kwargs):
+        favorite_id = kwargs.get("pk")
+        try:
+            favorite = self.get_queryset().get(id_favorite_property=favorite_id)
+            favorite.delete()
+            return Response(
+                {"detail": "Favorito excluído com sucesso"},
+                status=status.HTTP_204_NO_CONTENT,
+            )
+        except models.FavoriteProperty.DoesNotExist:
+            return Response(
+                {"error": "Favorito não encontrado ou não pertence ao usuário"},
+                status=status.HTTP_404_NOT_FOUND,
+            )

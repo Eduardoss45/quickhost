@@ -1,10 +1,9 @@
 import CardReservas from "../components/CardReservas";
-import useUserData from "../hooks/useUserData";
 import "./Reservas.css";
 
-const Reservas = () => {
-  const { userData } = useUserData();
-  const reservas = userData?.registered_bookings;
+const Reservas = ({userData}) => {
+  const reservas = userData?.registered_accommodation_bookings;
+  console.log(reservas);
   return (
     <div className="pagina-reservas">
       <h2>Minhas Reservas</h2>

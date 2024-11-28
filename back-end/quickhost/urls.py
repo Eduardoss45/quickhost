@@ -11,6 +11,7 @@ from quickhost.api.viewsets import (
     GetByUuidView,
     ReviewViewSet,
     BookingViewSet,
+    FavoritePropertyViewSet,
 )
 
 router = routers.DefaultRouter()
@@ -18,6 +19,7 @@ router.register(r"accommodations", AccommodationViewSet, basename="accommodation
 router.register(r"users", UserViewSet, basename="users")
 router.register(r"reviews", ReviewViewSet, basename="reviews")
 router.register(r"bookings", BookingViewSet, basename="booking")
+router.register(r"favorites", FavoritePropertyViewSet, basename="favorites")
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -70,5 +72,17 @@ urlpatterns = [
             {"get": "retrieve", "put": "update", "delete": "destroy"}
         ),
         name="booking-detail",
+    ),
+    path(
+        "favorites/",
+        FavoritePropertyViewSet.as_view({"get": "retrieve", "post": "create"}),
+        name="favorites",
+    ),
+    path(
+        "favorites/<uuid:id_favorite_property>/",
+        FavoritePropertyViewSet.as_view(
+            {"get": "retrieve", "post": "create", "delete": "destroy"}
+        ),
+        name="favorite-detail",
     ),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

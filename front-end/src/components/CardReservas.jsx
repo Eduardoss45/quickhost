@@ -9,16 +9,16 @@ import "./CardReservas.css";
 
 const CardReservas = ({ userName, reserva }) => {
   const { userData } = useDetalhes(reserva);
-
+  const { userData: data, loading, error } = useDetalhes(userData?.accommodation);
+  console.log(userData)
   const { accommodationData } = useAccommodation(userData?.accommodation);
   const { userData: dados } = useDetalhes(accommodationData?.creator);
-  if (!accommodationData) return <p>Carregando dados da acomodação...</p>;
   return (
     <div className="card">
       <div className="image-container">
         <img
           src={`${import.meta.env.VITE_BASE_URL}${
-            accommodationData.internal_images[0]
+            accommodationData?.internal_images[0]
           }`}
           alt="Vista da acomodação"
           className="image"
@@ -28,7 +28,7 @@ const CardReservas = ({ userName, reserva }) => {
         <div className="details-container">
           <div>
             <div className="title-container">
-              <h2 className="title">{accommodationData.title}</h2>
+              <h2 className="title">{accommodationData?.title}</h2>
               <p className="host">
                 {dados?.username || "Anfitrião Desconhecido"}
               </p>
@@ -77,7 +77,7 @@ const CardReservas = ({ userName, reserva }) => {
         <div className="action-container">
           <div className="button-group">
             <Link
-              to={`/anuncio/${accommodationData?.id_accommodation}`}
+              to={`/acomodacao/${accommodationData?.id_accommodation}`}
               className="primary-button"
             >
               <IoEyeOutline /> Ver anúncio

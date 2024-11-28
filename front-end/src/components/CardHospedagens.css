@@ -1,13 +1,16 @@
 .card-hospedagem {
   box-shadow: 0px 3px 20px 0px #3d3d3d10;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
   max-width: 20vw;
   border-top-left-radius: 0.5rem;
   border-top-right-radius: 0.5rem;
 }
 
 .card-hospedagem img {
-  width: 20vw;
-  height: 15vw;
+  width: auto;
+  height: auto;
   object-fit: cover;
   border-top-left-radius: 0.5rem;
   border-top-right-radius: 0.5rem;
@@ -73,8 +76,9 @@
   background-color: var(--paleta-um);
   border: 3px solid var(--paleta-um);
   border-radius: 7px;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   display: flex;
+  gap: 1rem;
   align-items: center;
   justify-content: center;
   padding: 0.5rem 1rem;
@@ -96,8 +100,9 @@
   color: var(--paleta-dois);
   background-color: transparent;
   border: 3px solid var(--paleta-dois);
+  gap: 1rem;
   border-radius: 7px;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   display: flex;
   align-items: center;
   justify-content: center;
