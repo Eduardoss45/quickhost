@@ -1,12 +1,14 @@
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework import viewsets, status, response, exceptions
 from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.exceptions import ValidationError
+from django.core.files.storage import default_storage
 from rest_framework.response import Response
 from django.http import HttpResponse
-from rest_framework.pagination import PageNumberPagination
 from rest_framework import status
 from rest_framework.views import APIView
+from django.db import transaction
 from pprint import pprint
 from django.contrib.auth import get_user_model
 from data.models import PropertyListing, UserAccount, Booking, FavoriteProperty
@@ -139,7 +141,7 @@ class AccommodationViewSet(viewsets.ModelViewSet):
     """ViewSet para gerenciar acomodações."""
 
     serializer_class = AccommodationSerializer
-    queryset = models.PropertyListing.objects.all()
+    queryset = PropertyListing.objects.all()
 
     def get_permissions(self):
         permission_classes = (
@@ -151,30 +153,25 @@ class AccommodationViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         """Cria uma nova acomodação (protegido)."""
-        # Verifica se os dados estão vazios
         if not request.data:
             raise exceptions.ValidationError(
                 {"detail": "Os dados não podem estar vazios."}
             )
 
         id_received = self.kwargs.get("id_user")
-
         try:
             user_id = uuid.UUID(str(id_received))
             if not User.objects.filter(id_user=user_id).exists():
                 raise exceptions.ValidationError(
                     {"detail": "O ID do usuário não está registrado."}
                 )
-
             request.data["creator"] = user_id
-
         except ValueError:
             raise exceptions.ValidationError(
                 {"detail": "O ID do usuário deve estar no formato UUID."}
             )
 
-        print(f"Dados recebidos:{request.data}")
-
+        logger.info(f"Dados recebidos para criação: {request.data}")
         return super().create(request, *args, **kwargs)
 
     def list(self, request, *args, **kwargs):
@@ -184,7 +181,7 @@ class AccommodationViewSet(viewsets.ModelViewSet):
         if user_id:
             try:
                 user_id_uuid = uuid.UUID(user_id)
-                self.queryset = self.queryset.filter(property__id_user=user_id_uuid)
+                self.queryset = self.queryset.filter(creator__id_user=user_id_uuid)
             except ValueError:
                 return Response(
                     {"detail": "O ID do usuário deve estar no formato UUID."},
@@ -200,7 +197,7 @@ class AccommodationViewSet(viewsets.ModelViewSet):
         return Response(data)
 
     def retrieve(self, request, *args, **kwargs):
-        """Retorna uma acomodação específica ou todas as acomodações, de forma pública."""
+        """Retorna uma acomodação específica ou todas as acomodações."""
         id_accommodation = kwargs.get("pk")
 
         if id_accommodation:
@@ -215,7 +212,6 @@ class AccommodationViewSet(viewsets.ModelViewSet):
 
                 serializer = self.get_serializer(accommodation)
                 data = serializer.data
-
                 data["internal_images"] = accommodation.internal_images or []
                 return Response(data)
             except ValueError:
@@ -224,13 +220,63 @@ class AccommodationViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
         else:
-
             serializer = self.get_serializer(self.queryset, many=True)
             data = serializer.data
 
             for item, original in zip(data, self.queryset):
                 item["internal_images"] = original.internal_images or []
             return Response(data)
+
+    def destroy(self, request, *args, **kwargs):
+        """Exclui uma acomodação específica."""
+        id_accommodation = kwargs.get("pk")
+
+        try:
+            uuid_id = uuid.UUID(id_accommodation)
+            accommodation = self.queryset.filter(id_accommodation=uuid_id).first()
+            if accommodation is None:
+                return Response(
+                    {"detail": "Acomodação não encontrada."},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
+
+            # Verifica se o usuário logado é o criador da acomodação
+            if accommodation.creator != request.user:
+                return Response(
+                    {"detail": "Você não tem permissão para deletar esta acomodação."},
+                    status=status.HTTP_403_FORBIDDEN,
+                )
+
+            with transaction.atomic():
+                # Remove imagens internas
+                if accommodation.internal_images:
+                    for image_path in accommodation.internal_images:
+                        if default_storage.exists(image_path):
+                            default_storage.delete(image_path)
+
+                # Remove conta bancária associada, se houver
+                if accommodation.bank_account:
+                    accommodation.bank_account.delete()
+
+                # Exclui a acomodação
+                accommodation.delete()
+                logger.info(f"Acomodação {id_accommodation} deletada com sucesso.")
+
+            return Response(
+                {"detail": "Acomodação deletada com sucesso."},
+                status=status.HTTP_204_NO_CONTENT,
+            )
+        except ValueError:
+            return Response(
+                {"detail": "O ID da acomodação deve estar no formato UUID."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        except Exception as e:
+            logger.error(f"Erro ao deletar a acomodação {id_accommodation}: {e}")
+            return Response(
+                {"detail": "Ocorreu um erro ao tentar deletar a acomodação."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
 
 
 class GetByUuidView(APIView):

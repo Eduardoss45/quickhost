@@ -379,6 +379,44 @@ class AccommodationSerializer(serializers.ModelSerializer):
             "is_active",
         ]
 
+    def get_fields(self):
+        """
+        Modifica dinamicamente os campos obrigatórios dependendo do contexto.
+        """
+        fields = super().get_fields()
+
+        if self.instance:
+            fields["internal_images"].required = False
+            fields["main_cover_image"].required = False
+            fields["creator"].required = False
+            fields["registered_user_bookings"].required = False
+            fields["bank_account"].required = False
+            fields["created_at"].required = False
+            fields["id_accommodation"].required = False
+            fields["average_rating"].required = False
+            fields["final_price"].required = False
+        else:
+            fields["average_rating"].required = False
+            fields["final_price"].required = False
+            fields["internal_images"].required = True
+            fields["average_rating"].required = False
+            # fields["creator"].required = True
+
+        return fields
+
+    def validate(self, data):
+        """
+        Validações adicionais para garantir a consistência dos dados.
+        """
+        if self.instance is None:  # Validações específicas para criação
+            if "creator" not in data:
+                raise serializers.ValidationError(
+                    {"creator": "O campo 'creator' é obrigatório na criação."}
+                )
+
+        # Validações adicionais genéricas podem ser incluídas aqui
+        return data
+
     def create(self, validated_data):
         """Cria e salva uma nova acomodação no banco de dados."""
         logger.info("Iniciando a criação da acomodação.")
@@ -397,7 +435,7 @@ class AccommodationSerializer(serializers.ModelSerializer):
             price_per_night = Decimal(price_per_night)
             if price_per_night > 0:
                 min_rate = Decimal("0.03")  # 3%
-                max_rate = Decimal("0.16")  # 16%
+                max_rate = Decimal("0.15")  # 15%
                 max_price_for_max_rate = Decimal("1000")
                 if price_per_night <= max_price_for_max_rate:
                     rate = min_rate + (max_rate - min_rate) * (
@@ -405,7 +443,7 @@ class AccommodationSerializer(serializers.ModelSerializer):
                     )
                 else:
                     rate = max_rate
-                price_per_night *= 1 + rate
+                price_per_night *= 1 - rate
             validated_data["price_per_night"] = round(price_per_night, 2)
 
             with transaction.atomic():  # Garante consistência em caso de falha
@@ -488,6 +526,117 @@ class AccommodationSerializer(serializers.ModelSerializer):
                 return accommodation
         except Exception as e:
             logger.error(f"Erro ao criar acomodação: {e}")
+            raise
+
+    def update(self, instance, validated_data):
+        """
+        Atualiza uma acomodação existente no banco de dados.
+        O campo `internal_images` é opcional e, se ausente, os valores atuais serão mantidos.
+        """
+        logger.info(
+            f"Iniciando a atualização da acomodação {instance.id_accommodation}."
+        )
+        try:
+            # Verifica e processa internal_images apenas se estiver presente
+            if "internal_images" in validated_data:
+                internal_images = validated_data.get("internal_images")
+                if not isinstance(internal_images, list):
+                    logger.warning(
+                        "Campo 'internal_images' não é uma lista. Mantendo valores atuais."
+                    )
+                    validated_data["internal_images"] = instance.internal_images
+                else:
+                    invalid_images = [
+                        img
+                        for img in internal_images
+                        if not isinstance(
+                            img, (TemporaryUploadedFile, InMemoryUploadedFile)
+                        )
+                    ]
+                    if invalid_images:
+                        logger.warning(
+                            f"Imagens inválidas detectadas: {invalid_images}. Mantendo valores atuais."
+                        )
+                        validated_data["internal_images"] = instance.internal_images
+                    else:
+                        # Processa e salva novas imagens válidas
+                        image_paths = list(instance.internal_images or [])
+                        for image in internal_images:
+                            if isinstance(image, TemporaryUploadedFile):
+                                new_filename = f"{uuid.uuid4()}.jpg"
+                                image_folder = (
+                                    f"property_images/{instance.id_accommodation}/"
+                                )
+                                file_path = os.path.join(image_folder, new_filename)
+
+                                logger.info(
+                                    f"Salvando imagem {image.name} em {file_path}"
+                                )
+                                if default_storage.save(file_path, image):
+                                    image_paths.append("media/" + file_path)
+
+                        validated_data["internal_images"] = image_paths
+
+            main_cover_image = validated_data.pop("main_cover_image", None)
+
+            # Ajusta limite de dias consecutivos
+            consecutive_days_limit = validated_data.get("consecutive_days_limit", 0)
+            if consecutive_days_limit <= 0:
+                validated_data["consecutive_days_limit"] = -1
+
+            # Ajusta preço por noite
+            price_per_night = validated_data.get(
+                "price_per_night", instance.price_per_night
+            )
+            price_per_night = Decimal(price_per_night)
+            if price_per_night > 0:
+                min_rate = Decimal("0.03")  # 3%
+                max_rate = Decimal("0.15")  # 15%
+                max_price_for_max_rate = Decimal("1000")
+                if price_per_night <= max_price_for_max_rate:
+                    rate = min_rate + (max_rate - min_rate) * (
+                        price_per_night / max_price_for_max_rate
+                    )
+                else:
+                    rate = max_rate
+                price_per_night *= 1 - rate
+            validated_data["price_per_night"] = round(price_per_night, 2)
+
+            with transaction.atomic():
+                # Atualiza campos simples
+                for attr, value in validated_data.items():
+                    setattr(instance, attr, value)
+
+                # Atualizar imagem de capa
+                if main_cover_image is not None:
+                    try:
+                        main_cover_image = int(main_cover_image)
+                        if 0 <= main_cover_image < len(instance.internal_images or []):
+                            instance.main_cover_image = instance.internal_images[
+                                main_cover_image
+                            ]
+                            logger.info(
+                                f"Imagem de capa atualizada: {instance.main_cover_image}"
+                            )
+                        else:
+                            logger.warning(
+                                f"Índice inválido ({main_cover_image}) para imagem de capa. Mantendo existente."
+                            )
+                    except (ValueError, TypeError):
+                        logger.warning(
+                            "main_cover_image não é um índice válido. Mantendo existente."
+                        )
+
+                # Salva as alterações no banco de dados
+                instance.save()
+                logger.info(
+                    f"Acomodação {instance.id_accommodation} atualizada com sucesso."
+                )
+                return instance
+        except Exception as e:
+            logger.error(
+                f"Erro ao atualizar acomodação {instance.id_accommodation}: {e}"
+            )
             raise
 
 
@@ -732,6 +881,7 @@ class BookingSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 {"detail": f"Erro ao atualizar reserva: {str(e)}"}
             )
+
 
 class FavoritePropertySerializer(serializers.ModelSerializer):
     class Meta:

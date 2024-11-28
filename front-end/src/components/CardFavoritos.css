@@ -4,6 +4,7 @@
   border-top-left-radius: 0.5rem;
   border-top-right-radius: 0.5rem;
   background-color: var(--paleta-seis);
+  margin: 2rem 0;
 }
 
 .card-favoritos img {
