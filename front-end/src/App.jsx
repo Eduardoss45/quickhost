@@ -18,6 +18,7 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useState } from "react";
 import InformacoesAcomodacao from "./pages/InformacoesAcomodacao";
 import useDetalhes from "./hooks/useDetalhes";
+import EditorAcomodacoes from "./pages/EditorAcomodacoes";
 
 function App() {
   const { data, loading, error } = useData();
@@ -98,6 +99,7 @@ function InnerApp({ accommodations, loading, error, onSearch }) {
             }
           />
           <Route path="/hospedar/:id" element={<InformacoesAcomodacao />} />
+          <Route path="/editor/:id" element={<EditorAcomodacoes />} />
           <Route path="/acomodacoes" element={<CadastroAcomodacoes />}>
             <Route path="nova" element={<Step1 />} />
           </Route>

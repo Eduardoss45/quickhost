@@ -12,6 +12,8 @@
 .card-hospedagem img {
   width: auto;
   height: auto;
+  max-width: 20vw;
+  max-height: 22vh;
   object-fit: cover;
   border-top-left-radius: 0.5rem;
   border-top-right-radius: 0.5rem;
@@ -66,7 +68,8 @@
   font-size: 1.2rem;
 }
 
-.card-hospedagem-ver > a {
+.card-hospedagem-ver > a,
+.card-hospedagem-editar > a {
   display: flex;
   justify-content: center;
   padding: 0.5rem;
@@ -91,27 +94,21 @@
   font-size: 2rem;
 }
 
-.card-hospedagem-editar {
-  display: flex;
-  justify-content: center;
-  padding: 0.5rem;
-}
-
-.card-hospedagem-editar > button {
+.card-hospedagem-editar > a > button {
   color: var(--paleta-dois);
   background-color: transparent;
   border: 3px solid var(--paleta-dois);
-  gap: 1rem;
   border-radius: 7px;
   font-size: 1.25rem;
   display: flex;
+  gap: 1rem;
   align-items: center;
   justify-content: center;
   padding: 0.5rem 1rem;
   flex: 1;
 }
 
-.card-hospedagem-editar > button span {
+.card-hospedagem-editar > a > button span {
   display: flex;
   font-size: 2rem;
 }

@@ -142,6 +142,7 @@ class AccommodationViewSet(viewsets.ModelViewSet):
 
     serializer_class = AccommodationSerializer
     queryset = PropertyListing.objects.all()
+    # logger.info()
 
     def get_permissions(self):
         permission_classes = (
@@ -275,6 +276,61 @@ class AccommodationViewSet(viewsets.ModelViewSet):
             logger.error(f"Erro ao deletar a acomodação {id_accommodation}: {e}")
             return Response(
                 {"detail": "Ocorreu um erro ao tentar deletar a acomodação."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+    def update(self, request, *args, **kwargs):
+        """Atualiza uma acomodação existente."""
+        id_accommodation = kwargs.get("pk")
+
+        try:
+            uuid_id = uuid.UUID(id_accommodation)
+            accommodation = self.queryset.filter(id_accommodation=uuid_id).first()
+            if accommodation is None:
+                return Response(
+                    {"detail": "Acomodação não encontrada."},
+                    status=status.HTTP_404_NOT_FOUND,
+                )
+
+            # Verifica se o usuário logado é o criador da acomodação
+            if accommodation.creator != request.user:
+                return Response(
+                    {
+                        "detail": "Você não tem permissão para atualizar esta acomodação."
+                    },
+                    status=status.HTTP_403_FORBIDDEN,
+                )
+
+            # Valida e atualiza os dados usando o serializer
+            partial = kwargs.pop("partial", False)
+            serializer = self.get_serializer(
+                accommodation, data=request.data, partial=partial
+            )
+
+            serializer.is_valid(raise_exception=True)
+
+            # Tratar campos ManyToMany explicitamente, se necessário
+            validated_data = serializer.validated_data
+            if "registered_user_bookings" in validated_data:
+                accommodation.registered_user_bookings.set(
+                    validated_data.pop("registered_user_bookings")
+                )
+
+            # Atualiza outros campos
+            serializer.update(accommodation, validated_data)
+
+            logger.info(f"Acomodação {id_accommodation} atualizada com sucesso.")
+            return Response(serializer.data)
+
+        except ValueError:
+            return Response(
+                {"detail": "O ID da acomodação deve estar no formato UUID."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        except Exception as e:
+            logger.error(f"Erro ao atualizar a acomodação {id_accommodation}: {e}")
+            return Response(
+                {"detail": "Ocorreu um erro ao tentar atualizar a acomodação."},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
 

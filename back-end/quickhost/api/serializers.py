@@ -1,5 +1,6 @@
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.core.files.uploadedfile import TemporaryUploadedFile
+from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.storage import default_storage
 from rest_framework.exceptions import ValidationError
@@ -395,12 +396,14 @@ class AccommodationSerializer(serializers.ModelSerializer):
             fields["id_accommodation"].required = False
             fields["average_rating"].required = False
             fields["final_price"].required = False
+            fields["title"].required = False
+            fields["description"].required = False
         else:
             fields["average_rating"].required = False
             fields["final_price"].required = False
             fields["internal_images"].required = True
             fields["average_rating"].required = False
-            # fields["creator"].required = True
+            fields["creator"].required = False
 
         return fields
 
@@ -531,108 +534,127 @@ class AccommodationSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         """
         Atualiza uma acomodação existente no banco de dados.
-        O campo `internal_images` é opcional e, se ausente, os valores atuais serão mantidos.
+        Campos não fornecidos explicitamente no `validated_data` mantêm seus valores originais.
         """
         logger.info(
             f"Iniciando a atualização da acomodação {instance.id_accommodation}."
         )
         try:
-            # Verifica e processa internal_images apenas se estiver presente
+            # Processar o campo `internal_images` se estiver presente
             if "internal_images" in validated_data:
-                internal_images = validated_data.get("internal_images")
+                internal_images = validated_data.get("internal_images", [])
                 if not isinstance(internal_images, list):
                     logger.warning(
                         "Campo 'internal_images' não é uma lista. Mantendo valores atuais."
                     )
                     validated_data["internal_images"] = instance.internal_images
                 else:
-                    invalid_images = [
+                    valid_images = [
                         img
                         for img in internal_images
-                        if not isinstance(
+                        if isinstance(
                             img, (TemporaryUploadedFile, InMemoryUploadedFile)
                         )
                     ]
-                    if invalid_images:
+                    if not valid_images:
                         logger.warning(
-                            f"Imagens inválidas detectadas: {invalid_images}. Mantendo valores atuais."
+                            "Nenhuma imagem válida fornecida. Mantendo valores atuais."
                         )
                         validated_data["internal_images"] = instance.internal_images
                     else:
-                        # Processa e salva novas imagens válidas
                         image_paths = list(instance.internal_images or [])
-                        for image in internal_images:
-                            if isinstance(image, TemporaryUploadedFile):
-                                new_filename = f"{uuid.uuid4()}.jpg"
-                                image_folder = (
-                                    f"property_images/{instance.id_accommodation}/"
-                                )
-                                file_path = os.path.join(image_folder, new_filename)
+                        for image in valid_images:
+                            new_filename = f"{uuid.uuid4()}.jpg"
+                            image_folder = (
+                                f"property_images/{instance.id_accommodation}/"
+                            )
+                            file_path = os.path.join(image_folder, new_filename)
 
-                                logger.info(
-                                    f"Salvando imagem {image.name} em {file_path}"
-                                )
-                                if default_storage.save(file_path, image):
-                                    image_paths.append("media/" + file_path)
+                            logger.info(f"Salvando imagem {image.name} em {file_path}")
+                            if default_storage.save(file_path, image):
+                                image_paths.append("media/" + file_path)
 
                         validated_data["internal_images"] = image_paths
 
+            # Atualizar imagem de capa, se fornecida
             main_cover_image = validated_data.pop("main_cover_image", None)
-
-            # Ajusta limite de dias consecutivos
-            consecutive_days_limit = validated_data.get("consecutive_days_limit", 0)
-            if consecutive_days_limit <= 0:
-                validated_data["consecutive_days_limit"] = -1
-
-            # Ajusta preço por noite
-            price_per_night = validated_data.get(
-                "price_per_night", instance.price_per_night
-            )
-            price_per_night = Decimal(price_per_night)
-            if price_per_night > 0:
-                min_rate = Decimal("0.03")  # 3%
-                max_rate = Decimal("0.15")  # 15%
-                max_price_for_max_rate = Decimal("1000")
-                if price_per_night <= max_price_for_max_rate:
-                    rate = min_rate + (max_rate - min_rate) * (
-                        price_per_night / max_price_for_max_rate
+            if main_cover_image is not None:
+                try:
+                    main_cover_image_index = int(main_cover_image)
+                    if (
+                        0
+                        <= main_cover_image_index
+                        < len(instance.internal_images or [])
+                    ):
+                        instance.main_cover_image = instance.internal_images[
+                            main_cover_image_index
+                        ]
+                        logger.info(
+                            f"Imagem de capa atualizada: {instance.main_cover_image}"
+                        )
+                    else:
+                        logger.warning(
+                            f"Índice inválido ({main_cover_image_index}) para imagem de capa. Mantendo existente."
+                        )
+                except (ValueError, TypeError):
+                    logger.warning(
+                        "main_cover_image não é um índice válido. Mantendo existente."
                     )
-                else:
-                    rate = max_rate
-                price_per_night *= 1 - rate
-            validated_data["price_per_night"] = round(price_per_night, 2)
 
-            with transaction.atomic():
-                # Atualiza campos simples
-                for attr, value in validated_data.items():
+            # Ajustar preço por noite, se fornecido
+            if "price_per_night" in validated_data:
+                price_per_night = Decimal(validated_data["price_per_night"])
+                if price_per_night > 0:
+                    min_rate = Decimal("0.03")  # 3%
+                    max_rate = Decimal("0.15")  # 15%
+                    max_price_for_max_rate = Decimal("1000")
+                    if price_per_night <= max_price_for_max_rate:
+                        rate = min_rate + (max_rate - min_rate) * (
+                            price_per_night / max_price_for_max_rate
+                        )
+                    else:
+                        rate = max_rate
+                    validated_data["price_per_night"] = round(
+                        price_per_night * (1 - rate), 2
+                    )
+
+            # Preservar valores para campos não fornecidos explicitamente
+            fields_to_preserve = [
+                "wifi",
+                "tv",
+                "kitchen",
+                "washing_machine",
+                "parking_included",
+                "air_conditioning",
+                "pool",
+                "jacuzzi",
+                "grill",
+                "private_gym",
+                "beach_access",
+                "smoke_detector",
+                "fire_extinguisher",
+                "first_aid_kit",
+                "outdoor_camera",
+                "discount",
+                "category",
+                "space_type",
+            ]
+            for field in fields_to_preserve:
+                if field not in validated_data:
+                    validated_data[field] = getattr(instance, field)
+
+            # Atualizar o restante dos campos
+            for attr, value in validated_data.items():
+                if getattr(instance, attr) != value:
                     setattr(instance, attr, value)
 
-                # Atualizar imagem de capa
-                if main_cover_image is not None:
-                    try:
-                        main_cover_image = int(main_cover_image)
-                        if 0 <= main_cover_image < len(instance.internal_images or []):
-                            instance.main_cover_image = instance.internal_images[
-                                main_cover_image
-                            ]
-                            logger.info(
-                                f"Imagem de capa atualizada: {instance.main_cover_image}"
-                            )
-                        else:
-                            logger.warning(
-                                f"Índice inválido ({main_cover_image}) para imagem de capa. Mantendo existente."
-                            )
-                    except (ValueError, TypeError):
-                        logger.warning(
-                            "main_cover_image não é um índice válido. Mantendo existente."
-                        )
+            # Salvar alterações no banco de dados
+            instance.save()
+            logger.info(
+                f"Acomodação {instance.id_accommodation} atualizada com sucesso."
+            )
+            return instance
 
-                # Salva as alterações no banco de dados
-                instance.save()
-                logger.info(
-                    f"Acomodação {instance.id_accommodation} atualizada com sucesso."
-                )
-                return instance
         except Exception as e:
             logger.error(
                 f"Erro ao atualizar acomodação {instance.id_accommodation}: {e}"

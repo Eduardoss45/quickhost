@@ -73,7 +73,7 @@
   gap: 10px;
 }
 
-.step-six .image-container > {
+.step-six .image-container {
   position: relative;
   width: 200px;
   height: 150px;
@@ -92,9 +92,9 @@
 
 .image-icon {
   position: absolute;
-  left: 60px;
+  left: 10px;
   background-color: rgba(0, 0, 0, 0.5);
-  margin-top: .5rem;
+  margin-top: 0.5rem;
   padding: 4px;
   border-radius: 50%;
 }

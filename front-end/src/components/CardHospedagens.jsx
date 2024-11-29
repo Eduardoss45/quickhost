@@ -45,12 +45,14 @@ const CardHospedagens = ({ accommodationData }) => {
         </Link>
       </div>
       <div className="card-hospedagem-editar">
-        <button>
-          <span>
-            <LiaPenSolid />
-          </span>
-          Editar Anúncio
-        </button>
+        <Link to={`/editor/${accommodationData?.id_accommodation}`}>
+          <button>
+            <span>
+              <LiaPenSolid />
+            </span>
+            Editar Anúncio
+          </button>
+        </Link>
       </div>
     </div>
   );
