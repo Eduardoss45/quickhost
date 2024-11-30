@@ -16,22 +16,6 @@ from .validators import (
 
 
 # ---------------------
-# Modelos de Conta Bancária
-# ---------------------
-class BankDetails(models.Model):
-    bank_name = models.CharField(max_length=255)
-    account_holder = models.CharField(max_length=255)
-    account_number = models.CharField(max_length=50)
-    agency_code = models.CharField(max_length=50)
-    account_type = models.CharField(max_length=50)
-    cpf = models.CharField(max_length=11)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"{self.bank_name} - {self.account_holder}"
-
-
-# ---------------------
 # Gerenciador de Usuário Personalizado
 # ---------------------
 class CustomUserManager(BaseUserManager):
@@ -66,7 +50,7 @@ class UserAccount(AbstractUser):
     cpf = models.CharField(max_length=11, blank=True, null=True)
     registered_accommodations = models.ManyToManyField(
         "PropertyListing", blank=True, related_name="users_registered"
-    )  # Atualize o related_name
+    )
     registered_accommodation_bookings = models.ManyToManyField("Booking", blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -102,7 +86,7 @@ class PropertyListing(models.Model):
     )
     registered_user_bookings = models.ManyToManyField(
         "Booking", related_name="registered_accommodations", blank=True
-    )  # Relacionamento correto com UserAccount
+    )
     registered_accommodation_bookings = models.ManyToManyField(
         "PropertyListing", blank=True
     )
@@ -161,9 +145,6 @@ class PropertyListing(models.Model):
     outdoor_camera = models.BooleanField(default=False)
     title = models.CharField(max_length=255)
     description = models.TextField()
-    bank_account = models.OneToOneField(
-        BankDetails, on_delete=models.CASCADE, null=True, blank=True
-    )
 
     def __str__(self):
         return self.title or _("Accommodation without title")
@@ -195,12 +176,12 @@ class Booking(models.Model):
     user_booking = models.ForeignKey(
         "UserAccount",
         on_delete=models.CASCADE,
-        related_name="user_bookings",  # Nome customizado para acessar as reservas do usuário
+        related_name="user_bookings",
     )
     accommodation = models.ForeignKey(
         "PropertyListing",
         on_delete=models.CASCADE,
-        related_name="accommodation_bookings",  # Nome customizado para acessar as reservas da acomodação
+        related_name="accommodation_bookings",
     )
     check_in_date = models.DateField()
     check_out_date = models.DateField()
@@ -254,13 +235,3 @@ class Review(models.Model):
 
     def __str__(self):
         return f"Review {self.id_review} for accommodation {self.accommodation.id_accommodation}"
-
-
-@receiver(post_save, sender=Review)
-def add_to_registered_reviews(sender, instance, created, **kwargs):
-    """
-    Adiciona a avaliação ao campo 'registered_reviews' do usuário e atualiza a média de avaliações.
-    """
-    if created:
-        update_registered_reviews(instance.user_comment, instance.id_review)
-        instance.accommodation.update_average_rating()

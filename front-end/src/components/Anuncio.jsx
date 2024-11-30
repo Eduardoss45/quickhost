@@ -8,59 +8,57 @@ import { TbAirConditioning, TbBeach } from "react-icons/tb";
 import { MdHotTub, MdOutdoorGrill, MdFitnessCenter } from "react-icons/md";
 import { WiSmoke } from "react-icons/wi";
 import { PiFireExtinguisherBold, PiSecurityCameraThin } from "react-icons/pi";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, Navigate, useNavigate } from "react-router-dom";
 import { IoStarSharp } from "react-icons/io5";
 import useDetalhes from "../hooks/useDetalhes";
 import SeletorData from "./SeletorData.jsx";
 import Avaliacao from "./Avaliacao.jsx";
 import useComents from "../hooks/useComents.jsx";
 import useUserData from "../hooks/useUserData.jsx";
-import useBooking from "../hooks/useBooking.jsx";
 import useFavorite from "../hooks/useFavorite.jsx";
 import "./Anuncio.css";
 import useAccommodation from "../hooks/useAccommodation.jsx";
 
 const Anuncio = () => {
   const { data } = useParams();
+  const navigate = useNavigate();
   const { accommodationData } = useAccommodation(data);
-  const {
-    bookAccommodation,
-    loading: bookingLoading,
-    error: bookingError,
-    success: bookingSuccess,
-  } = useBooking();
   const { isFavorite, toggleFavorite } = useFavorite(
     accommodationData?.id_accommodation
-  ); // Remove local state for isFavorite
+  );
   const [avaliacao, setAvaliacao] = useState(null);
   const [total, setTotal] = useState(0);
   const [tax, setTax] = useState(0);
   const [checkIn, setCheckIn] = useState(null);
   const [checkOut, setCheckOut] = useState(null);
-
+  const [comment, setComment] = useState("");
+  const [error, setError] = useState(false);
   const { userData: dados } = useUserData();
   const creatorData = useDetalhes(accommodationData?.creator);
   const { userData: creator } = creatorData;
-  const { comentarios, loading, error } = useComents(
+  const { comentarios, postComment } = useComents(
     accommodationData?.id_accommodation
   );
-
   const handleClick = (rating) => {
     setAvaliacao(rating);
-    console.log(rating);
   };
-
   const handleFavoriteClick = () => {
-    toggleFavorite(); // Just toggle favorite via hook
+    toggleFavorite();
   };
-
+  const handleAddComment = () => {
+    postComment(
+      dados?.id_user || null,
+      accommodationData?.id_accommodation || null,
+      comment,
+      avaliacao
+    );
+  };
   const handleDataChange = (newCheckin, newCheckout, newTotal, newTax) => {
     setTotal(newTotal);
     setTax(newTax);
     setCheckIn(newCheckin);
     setCheckOut(newCheckout);
   };
-
   const formatDate = (date) => {
     if (!date) return null;
     const formattedDate = new Date(date);
@@ -70,9 +68,9 @@ const Anuncio = () => {
     return `${year}-${month}-${day}`;
   };
 
-  const handleFormSubmit = (event) => {
-    event.preventDefault();
-
+  const handleDataSubmit = (e) => {
+    e.preventDefault();
+    setError(false);
     if (checkIn && checkOut) {
       const formData = {
         user_booking: dados.id_user,
@@ -81,10 +79,11 @@ const Anuncio = () => {
         check_out_date: formatDate(checkOut),
         price: accommodationData.final_price,
       };
-      console.log(formData);
-      bookAccommodation(formData);
+      navigate(`/pagamento/${accommodationData?.id_accommodation}`, {
+        state: formData,
+      });
     } else {
-      console.log("Escolha a data!");
+      setError(true);
     }
   };
 
@@ -389,16 +388,22 @@ const Anuncio = () => {
                 </span>
               </p>
             </aside>
-            {dados?.registered_bookings?.length > 0 ? (
-              !accommodationData?.registered_bookings.some(
-                (item) => item === dados?.registered_accommodation_bookings
+            {dados?.registered_accommodation_bookings?.length > 0 ? (
+              accommodationData?.registered_user_bookings.some(
+                (item) => item == dados?.registered_accommodation_bookings
               ) ? (
-                <div className="caixa-avaliacao">
+                <div className="caixa-avaliacao-input">
                   <input
                     type="text"
-                    placeholder="Deixe seu comentário..."
+                    value={comment}
+                    placeholder="Deixe seu comentário...(pelo menos 100 caracteres!)"
+                    onChange={(e) => setComment(e.target.value)}
                     aria-label="Comentário sobre a avaliação"
                   />
+                  {comment !== "" && avaliacao > 0 && (
+                    <button onClick={handleAddComment}>Enviar</button>
+                  )}
+
                   <ul className="avaliacao">
                     {[1, 2, 3, 4, 5].map((rating) => (
                       <li
@@ -435,7 +440,7 @@ const Anuncio = () => {
             </div>
           </div>
           <div className="acomodacao-painel-reservas">
-            <form onSubmit={handleFormSubmit}>
+            <div>
               <SeletorData
                 pricePerDay={accommodationData?.final_price}
                 onDateChange={handleDataChange}
@@ -454,18 +459,10 @@ const Anuncio = () => {
                 <p>Total</p>
                 <span>{`R$ ${total || "0,00"}`}</span>
               </div>
-              {bookingError ? (
+              {error && (
                 <div className="acomodacao-painel-hospedagem">
-                  <p>Erro</p>
-                  <span>Não foi possível fazer sua reserva!</span>
+                  <span>Selecione o check in e check out!</span>
                 </div>
-              ) : bookingSuccess ? (
-                <div className="acomodacao-painel-hospedagem">
-                  <p>Sucesso</p>
-                  <span>Sua reserva foi aprovada!</span>
-                </div>
-              ) : (
-                <></>
               )}
               <div className="acomodacao-painel-botoes">
                 <button
@@ -475,13 +472,13 @@ const Anuncio = () => {
                         bookingId
                       )
                   )}
-                  type="submit"
+                  onClick={handleDataSubmit}
                 >
                   Reservar Reservar para a Temporada
                 </button>
                 <button type="button">Enviar Mensagem</button>
               </div>
-            </form>
+            </div>
           </div>
         </div>
       </div>

@@ -1,19 +1,11 @@
 from django.contrib import admin
 from .models import (
-    BankDetails,
     UserAccount,
     PropertyListing,
     Booking,
     FavoriteProperty,
     Review,
 )
-
-
-@admin.register(BankDetails)
-class BankDetailsAdmin(admin.ModelAdmin):
-    list_display = ("bank_name", "account_holder", "account_type", "cpf", "created_at")
-    search_fields = ("bank_name", "account_holder", "cpf")
-    list_filter = ("account_type", "created_at")
 
 
 @admin.register(UserAccount)

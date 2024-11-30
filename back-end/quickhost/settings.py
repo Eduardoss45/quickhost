@@ -97,9 +97,9 @@ SIMPLE_JWT = {
 
 AUTH_USER_MODEL = "data.UserAccount"
 
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = "pt-br"
 
-TIME_ZONE = "America/Sao_Paulo"
+LANGUAGE_CODE = "pt-br"
 
 USE_I18N = True
 

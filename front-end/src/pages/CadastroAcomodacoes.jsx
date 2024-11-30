@@ -1,6 +1,6 @@
+import useCadastroAcomodacoes from "../hooks/useCadastroAcomodacoes";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useForm } from "../hooks/useForm";
-import useCadastroAcomodacoes from "../hooks/useCadastroAcomodacoes";
 import { useState, useEffect, useRef } from "react";
 
 import Step1 from "../template/components/Step1";
@@ -28,9 +28,11 @@ import Cabecalho10 from "../template/layout/Cabecalho10";
 import "./CadastroAcomodacoes.css";
 
 const formTemplate = {};
+const formBankTemplate = {};
 
 function CadastroAcomodacoes() {
   const [formData, setFormData] = useState(formTemplate);
+  const [formBank, setFormBank] = useState(formBankTemplate);
   const { loading, error, success, handleSubmit } = useCadastroAcomodacoes();
   const navigate = useNavigate();
   const location = useLocation();
@@ -38,6 +40,7 @@ function CadastroAcomodacoes() {
 
   useEffect(() => {
     console.log("FormData atualizado:", formData);
+    console.log("FormBank atualizado:", formBank);
   }, [formData]);
 
   const handleKeyDown = (e) => {
@@ -56,6 +59,21 @@ function CadastroAcomodacoes() {
       }));
     } else {
       setFormData((prevData) => ({
+        ...prevData,
+        [name]: value,
+      }));
+    }
+  };
+
+  const updateFieldBankHandler = (e) => {
+    const { name, value, type, checked } = e.target;
+    if (type === "checkbox") {
+      setFormBank((prevData) => ({
+        ...prevData,
+        [name]: checked,
+      }));
+    } else {
+      setFormBank((prevData) => ({
         ...prevData,
         [name]: value,
       }));
@@ -84,7 +102,12 @@ function CadastroAcomodacoes() {
     <Step6 data={formData} updateFieldHandler={updateFieldHandler} />,
     <Step7 data={formData} updateFieldHandler={updateFieldHandler} />,
     <Step8 data={formData} updateFieldHandler={updateFieldHandler} />,
-    <Step9 data={formData} updateFieldHandler={updateFieldHandler} />,
+    <Step9
+      data={formData}
+      bank={formBank}
+      updateFieldHandler={updateFieldHandler}
+      updateFieldBankHandler={updateFieldBankHandler}
+    />,
     <Step10 loading={loading} success={success} error={error} />,
   ];
 

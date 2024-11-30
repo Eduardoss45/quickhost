@@ -42,6 +42,19 @@
 .step-nine-inputs > input:nth-child(1) {
   border-radius: 0.6rem 0rem 0rem 0.6rem;
 }
+
 .step-nine-inputs > input:nth-child(2) {
   border-radius: 0rem 0.6rem 0.6rem 0rem;
+}
+
+.check-box {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-start;
+  gap: 2rem;
+  width: 20vw;
+}
+
+.check-box > input {
+  scale: 2;
 }

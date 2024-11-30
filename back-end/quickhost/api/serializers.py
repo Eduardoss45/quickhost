@@ -169,8 +169,8 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             "cpf",
             "registered_accommodations",
             "registered_accommodation_bookings",
-            "created_at",
             "password",
+            "created_at",
         ]
         extra_kwargs = {field: {"required": False} for field in fields}
 
@@ -311,21 +311,6 @@ class TokenObtainPairSerializer(TokenObtainPairSerializer):
         user.save()
 
 
-class BankAccountSerializer(serializers.ModelSerializer):
-    """Serializer para gerenciar dados de contas bancárias."""
-
-    class Meta:
-        model = models.BankDetails
-        fields = [
-            "bank_name",
-            "account_holder",
-            "account_number",
-            "agency_code",
-            "account_type",
-            "cpf",
-        ]
-
-
 class AccommodationSerializer(serializers.ModelSerializer):
     """Serializer para gerenciar dados de acomodações."""
 
@@ -375,7 +360,6 @@ class AccommodationSerializer(serializers.ModelSerializer):
             "description",
             "price_per_night",
             "average_rating",
-            "bank_account",
             "created_at",
             "is_active",
         ]
@@ -391,7 +375,6 @@ class AccommodationSerializer(serializers.ModelSerializer):
             fields["main_cover_image"].required = False
             fields["creator"].required = False
             fields["registered_user_bookings"].required = False
-            fields["bank_account"].required = False
             fields["created_at"].required = False
             fields["id_accommodation"].required = False
             fields["average_rating"].required = False
@@ -725,19 +708,7 @@ class ReviewSerializer(serializers.ModelSerializer):
         """Cria e salva uma nova review no banco de dados."""
         user = validated_data.get("user_comment")
         try:
-            # Cria a instância da review
             review = super().create(validated_data)
-
-            # Atualiza o campo registered_bookings, se necessário (apenas como exemplo)
-            if user.registered_bookings is None:
-                user.registered_bookings = []
-
-            # Verifica se o ID da acomodação está relacionado a uma reserva
-            accommodation_id = str(review.accommodation.id_accommodation)
-            if accommodation_id not in user.registered_bookings:
-                user.registered_bookings.append(accommodation_id)
-
-            user.save()
             return review
         except ValueError as ve:
             raise serializers.ValidationError(f"Erro de validação: {str(ve)}")

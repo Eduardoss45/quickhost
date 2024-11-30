@@ -17,8 +17,10 @@ import CardCancelarReservas from "./components/CardCancelarReservas";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useState } from "react";
 import InformacoesAcomodacao from "./pages/InformacoesAcomodacao";
-import useDetalhes from "./hooks/useDetalhes";
 import EditorAcomodacoes from "./pages/EditorAcomodacoes";
+import Pagamento from "./pages/Pagamento";
+import FormPagamento from "./components/FormPagamento";
+import FinalizacaoReservas from "./pages/FinalizacaoReservas";
 
 function App() {
   const { data, loading, error } = useData();
@@ -90,6 +92,9 @@ function InnerApp({ accommodations, loading, error, onSearch }) {
           <Route path="/favoritos" element={<Favoritos />} />
           <Route path="/reservas" element={<Reservas userData={userData} />} />
           <Route path="/reservas/:id" element={<CardCancelarReservas />} />
+          <Route path="/pagamento/:id" element={<Pagamento />} />
+          <Route path="/form/:id" element={<FormPagamento />} />
+          <Route path="/finalizacao/:id" element={<FinalizacaoReservas />} />
           <Route
             path="/hospedar"
             element={

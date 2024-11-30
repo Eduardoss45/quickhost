@@ -1,7 +1,26 @@
-import React from "react";
 import "./css/Step9.css";
 
-const Step9 = ({ data, updateFieldHandler }) => {
+const Step9 = ({ data, bank, updateFieldHandler, updateFieldBankHandler }) => {
+  const handleInputChange = (e) => {
+    // Verifica e chama as funções de atualização
+    if (updateFieldHandler) updateFieldHandler(e);
+    if (updateFieldBankHandler) {
+      updateFieldBankHandler({
+        target: { name: e.target.name, value: e.target.value },
+      });
+    }
+  };
+
+  const handleCheckboxChange = (e) => {
+    // Lida especificamente com o checkbox
+    if (updateFieldHandler) updateFieldHandler(e);
+    if (updateFieldBankHandler) {
+      updateFieldBankHandler({
+        target: { name: e.target.name, value: e.target.checked },
+      });
+    }
+  };
+
   return (
     <div className="step-nine">
       <h2>Informe seus dados bancários para recebimento.</h2>
@@ -11,8 +30,8 @@ const Step9 = ({ data, updateFieldHandler }) => {
           type="text"
           name="bank_name"
           placeholder="Digite o nome do banco"
-          value={data.bank_name || ""}
-          onChange={updateFieldHandler}
+          value={bank.bank_name || data.bank_name || ""}
+          onChange={handleInputChange}
         />
 
         <h3>Titular da conta</h3>
@@ -20,33 +39,33 @@ const Step9 = ({ data, updateFieldHandler }) => {
           type="text"
           name="account_holder"
           placeholder="Digite o nome do titular da conta"
-          value={data.account_holder || ""}
-          onChange={updateFieldHandler}
+          value={bank.account_holder || data.account_holder || ""}
+          onChange={handleInputChange}
         />
 
         <h3>Número da conta</h3>
         <input
-          type="text"
+          type="number"
           name="account_number"
           placeholder="Digite o número da sua conta"
-          value={data.account_number || ""}
-          onChange={updateFieldHandler}
+          value={bank.account_number || data.account_number || ""}
+          onChange={handleInputChange}
         />
 
         <h3>Código da agência</h3>
         <input
-          type="text"
+          type="number"
           name="agency_code"
           placeholder="Digite o código da agência"
-          value={data.agency_code || ""}
-          onChange={updateFieldHandler}
+          value={bank.agency_code || data.agency_code || ""}
+          onChange={handleInputChange}
         />
 
         <h3>Tipo de conta</h3>
         <select
           name="account_type"
-          value={data.account_type || ""}
-          onChange={updateFieldHandler}
+          value={bank.account_type || data.account_type || ""}
+          onChange={handleInputChange}
         >
           <option value="">Selecione</option>
           <option value="corrente">Corrente</option>
@@ -59,9 +78,30 @@ const Step9 = ({ data, updateFieldHandler }) => {
           type="text"
           name="cpf"
           placeholder="000.000.000-00"
-          value={data.cpf || ""}
-          onChange={updateFieldHandler}
+          value={bank.cpf || data.cpf || ""}
+          onChange={handleInputChange}
         />
+
+        <h3>CVV</h3>
+        <input
+          type="text"
+          name="validity"
+          placeholder="1/24"
+          value={bank.validity || data.validity || ""}
+          onChange={handleInputChange}
+        />
+
+        <div className="check-box">
+          <h3>Conta Empresarial</h3>
+          <input
+            type="checkbox"
+            name="is_company_account"
+            checked={
+              bank.is_company_account || data.is_company_account || false
+            }
+            onChange={handleCheckboxChange}
+          />
+        </div>
       </div>
     </div>
   );

@@ -1,17 +1,23 @@
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework import viewsets, status, response, exceptions
+from rest_framework import viewsets, status, response, exceptions, generics
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.exceptions import ValidationError
 from django.core.files.storage import default_storage
 from rest_framework.response import Response
 from django.http import HttpResponse
-from rest_framework import status
 from rest_framework.views import APIView
 from django.db import transaction
 from pprint import pprint
 from django.contrib.auth import get_user_model
-from data.models import PropertyListing, UserAccount, Booking, FavoriteProperty
+from rest_framework.generics import get_object_or_404
+
+from data.models import (
+    PropertyListing,
+    UserAccount,
+    Booking,
+    FavoriteProperty,
+)
 from django.db.models import Avg
 
 from .serializers import (
@@ -172,7 +178,7 @@ class AccommodationViewSet(viewsets.ModelViewSet):
                 {"detail": "O ID do usuário deve estar no formato UUID."}
             )
 
-        logger.info(f"Dados recebidos para criação: {request.data}")
+        # logger.info(f"Dados recebidos para criação: {request.data}")
         return super().create(request, *args, **kwargs)
 
     def list(self, request, *args, **kwargs):
@@ -477,28 +483,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
             reviews = self.queryset.filter(accommodation=accommodation)
             serializer = self.get_serializer(reviews, many=True)
             logger.info(f"Acomodações encontradas para o id {identifier}.")
-
-            # Modificando o campo 'user_comment' nos dados
             new_data = serializer.data
-            for review in new_data:
-                user_comment = review.get("user_comment")
-
-                # Extraímos o e-mail da string entre parênteses
-                match = re.search(r"\((.*?)\)", user_comment)
-                if match:
-                    user_email = match.group(1)  # E-mail extraído
-                    try:
-                        # Buscar o usuário baseado no e-mail (chave única)
-                        user = models.UserAccount.objects.get(email=user_email)
-                        review["user_comment"] = str(
-                            user.id_user
-                        )  # Substitui pelo UUID
-                    except models.UserAccount.DoesNotExist:
-                        # Caso o usuário não seja encontrado, deixar como estava
-                        review["user_comment"] = "Usuário não encontrado"
-                else:
-                    review["user_comment"] = "Formato de e-mail inválido"
-
             return response.Response(new_data)
         except models.PropertyListing.DoesNotExist:
             logger.error(f"Acomodação {identifier} não encontrada.")
@@ -553,6 +538,10 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
         accommodation = review.accommodation
         review.delete()
+        return Response(
+            {"detail": "Comentario deletado com sucesso."},
+            status=status.HTTP_204_NO_CONTENT,
+        )
 
         # Atualizar a média da acomodação após excluir a avaliação
         self.update_average_rating(accommodation)

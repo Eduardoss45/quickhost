@@ -189,11 +189,11 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  background: #ccc;
   border: 1px solid black;
   border-radius: 10px;
   padding: 0.5rem 1rem;
   font-size: 1.2rem;
-  background-color: transparent;
 }
 
 .avaliacao {
@@ -276,7 +276,7 @@
   justify-content: center;
 }
 
-.acomodacao-painel-reservas > form {
+.acomodacao-painel-reservas > div {
   background-color: var(--paleta-seis);
   border-radius: 8px;
   padding: 1rem;
@@ -343,4 +343,31 @@
 
 .acomodacao-date-item p {
   color: var(--paleta-dois);
+}
+
+.caixa-avaliacao-input {
+  display: flex;
+  justify-content: space-between;
+  border: 1px solid var(--paleta-sete);
+  border-radius: 8px;
+  padding: 0.5rem;
+  align-items: center;
+}
+
+.caixa-avaliacao-input > button {
+  display: flex;
+  justify-content: space-between;
+  border: 1px solid var(--paleta-sete);
+  border-radius: 8px;
+  padding: .5rem 2rem;
+  background-color: var(--paleta-um);
+  color: var(--paleta-seis);
+  margin: 0 2rem ;
+  border: none;
+}
+
+.caixa-avaliacao-input > input {
+  flex: 1;
+  border: none;
+  background-color: transparent;
 }

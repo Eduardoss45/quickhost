@@ -4,7 +4,7 @@ import { IoStarSharp } from "react-icons/io5";
 import "./Avaliacao.css";
 
 const Avaliacao = ({ comentario }) => {
-  const { userData } = useDetalhes(comentario.user_comment);
+  const { userData } = useDetalhes(comentario?.user_comment || null);
 
   return (
     <div className="review-card">

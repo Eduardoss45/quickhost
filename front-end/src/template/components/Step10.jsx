@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import "./css/Step10.css";
 
 const Step10 = ({ loading, success, error }) => {
-  console.log(loading, success, error);
 
   return (
     <div className="step-ten">

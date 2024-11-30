@@ -1,0 +1,79 @@
+.form-pagamento-final {
+  margin-top: 4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  flex: 1;
+}
+
+.form-pagamento-final > div {
+  flex: 1;
+}
+
+.pagamento-card > div > button {
+  background: var(--paleta-um);
+  padding: 0.8rem 2rem;
+  font-size: 1rem;
+  color: var(--paleta-seis);
+  border: none;
+  border-radius: 8px;
+  margin-top: 1rem;
+}
+
+.form-pagamento-final > div > div > input {
+  width: 100%;
+  border: 1px solid var(--paleta-quatro);
+  background: transparent;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.form-pagamento-final > div > div > select {
+  width: 100%;
+  border: 1px solid var(--paleta-quatro);
+  background: transparent;
+  border-radius: 8px;
+  padding: 0.8rem;
+  margin-bottom: 1rem;
+}
+
+.form-pagamento-final > div > div > div {
+  display: flex;
+  gap: 1rem;
+}
+
+.form-pagamento-final > div > div > div > input {
+  scale: 1.25;
+}
+
+.form-pagamento-final h2 {
+  font-size: 1.5rem;
+  padding-bottom: 1rem;
+}
+
+.micro-card > .card-icon {
+  background: var(--paleta-um);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 18vw;
+  max-width: 200px;
+  color: var(--paleta-seis);
+  border-radius: 12px;
+  padding: 1rem;
+  margin: 0.5rem 0;
+  box-shadow: 0px 8px 20px 0px #00000030;
+}
+
+.micro-card > .card-icon > span {
+  font-size: 1.2rem;
+}
+
+.micro-card > .card-icon > svg {
+  font-size: 4rem;
+}
+
+.form-pagamento-final h3 {
+  margin: 0.5rem 0 0.5rem 0;
+}
