@@ -1,10 +1,8 @@
-/* Estilo geral do menu flutuante */
 .menu-flutuante {
   position: relative;
   z-index: 1;
 }
 
-/* Botão de perfil */
 .menu-flutuante .profile-button {
   background: none;
   border: none;
@@ -17,14 +15,12 @@
   font-size: 24px;
 }
 
-/* Avatar de perfil */
 .menu-flutuante .avatar {
   width: 40px;
   height: 40px;
   border-radius: 50%;
 }
 
-/* Dropdown */
 .menu-flutuante .dropdown {
   position: absolute;
   top: 100%;
@@ -37,7 +33,6 @@
   animation: menuFlutuanteFadeIn 0.3s ease;
 }
 
-/* Cabeçalho do dropdown */
 .menu-flutuante .dropdown-header {
   display: flex;
   align-items: center;
@@ -46,14 +41,12 @@
   border-bottom: 1px solid #e0e0e0;
 }
 
-/* Avatar grande */
 .menu-flutuante .avatar-large {
   width: 40px;
   height: 40px;
   border-radius: 50%;
 }
 
-/* Itens do dropdown */
 .menu-flutuante .dropdown-item {
   padding: 10px 20px;
   background-color: white;
@@ -66,16 +59,15 @@
 
 .menu-flutuante .dropdown-item:hover {
   background-color: #f0f0f0;
+  transition: 0.3s;
 }
 
-/* Linha de separação */
 .menu-flutuante hr {
   margin: 5px 0;
   border: 0;
   border-top: 1px solid #e0e0e0;
 }
 
-/* Animação do dropdown */
 @keyframes menuFlutuanteFadeIn {
   from {
     opacity: 0;

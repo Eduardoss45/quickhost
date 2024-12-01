@@ -9,8 +9,6 @@ import "./CardReservas.css";
 
 const CardReservas = ({ userName, reserva }) => {
   const { userData } = useDetalhes(reserva);
-  const { userData: data, loading, error } = useDetalhes(userData?.accommodation);
-  console.log(userData)
   const { accommodationData } = useAccommodation(userData?.accommodation);
   const { userData: dados } = useDetalhes(accommodationData?.creator);
   return (

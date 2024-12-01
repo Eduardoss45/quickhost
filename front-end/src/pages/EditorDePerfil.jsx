@@ -20,13 +20,12 @@ const EditorDePerfil = () => {
     editUser,
     handleChange,
   } = useEdit(id_user, token);
-  console.log(error);
 
   const [showPassword, setShowPassword] = useState(false);
   const [image, setImage] = useState(null);
 
   useEffect(() => {
-    fetchUserData(); // Carregar os dados do usuário ao inicializar
+    fetchUserData();
   }, [fetchUserData]);
 
   const handleFileDrop = (acceptedFiles) => {
@@ -53,14 +52,14 @@ const EditorDePerfil = () => {
 
   const handleReset = () => {
     setImage(null);
-    fetchUserData(); // Recarrega os dados do usuário
+    fetchUserData();
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const form = new FormData();
-    // Adiciona dados ao FormData usando uma função utilitária
+
     populateFormData(form, formData);
 
     if (image) {
@@ -73,7 +72,7 @@ const EditorDePerfil = () => {
       await editUser(form);
       if (success) {
         alert("Dados atualizados com sucesso!");
-        fetchUserData(); // Recarrega os dados após a atualização
+        fetchUserData();
       }
     } catch (error) {
       console.error("Erro ao atualizar dados:", error);

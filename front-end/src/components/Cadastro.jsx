@@ -14,10 +14,10 @@ function Cadastro() {
   const navigate = useNavigate();
 
   const handleFormSubmit = (event) => {
-    event.preventDefault(); // Previne o comportamento padrão do formulário
+    event.preventDefault();
     if (formData.password === formData.confirmPassword) {
       setErrorPassword(false);
-      handleSubmit(event); // Passa o evento para `handleSubmit`, caso ele precise
+      handleSubmit(event);
     } else {
       setErrorPassword(true);
     }
@@ -40,7 +40,7 @@ function Cadastro() {
       }
     }, 10000);
 
-    return () => clearInterval(interval); // Limpa o intervalo ao desmontar o componente
+    return () => clearInterval(interval);
   }, [errorPassword]);
 
   return (

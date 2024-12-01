@@ -7,7 +7,6 @@ const useComments = (id_review) => {
   const [error, setError] = useState(null);
   const token = localStorage.token;
 
-  // Função GET: traz todos os comentários ou por ID de review
   const getComments = async (uuid = null) => {
     setLoading(true);
     try {
@@ -28,7 +27,7 @@ const useComments = (id_review) => {
       );
 
       setComentarios(response.data);
-      console.log(response)
+      console.log(response);
     } catch (err) {
       setError(err.response ? err.response.data : err.message);
     } finally {
@@ -36,7 +35,6 @@ const useComments = (id_review) => {
     }
   };
 
-  // Função POST: cria um novo comentário
   const postComment = async (
     user_uuid,
     accommodation_uuid,
@@ -60,7 +58,7 @@ const useComments = (id_review) => {
         }
       );
       console.log(response);
-      setComentarios((prev) => [...prev, response.data]); // Adiciona o novo comentário à lista
+      setComentarios((prev) => [...prev, response.data]);
     } catch (err) {
       setError(err.response ? err.response.data : err.message);
     } finally {
@@ -68,7 +66,6 @@ const useComments = (id_review) => {
     }
   };
 
-  // Função PUT: atualiza um comentário existente
   const updateComment = async (review_uuid, newComment, newRating) => {
     setLoading(true);
     try {
@@ -98,7 +95,6 @@ const useComments = (id_review) => {
     }
   };
 
-  // Função DELETE: remove um comentário existente
   const deleteComment = async (review_uuid) => {
     setLoading(true);
     try {
@@ -114,7 +110,7 @@ const useComments = (id_review) => {
       );
       setComentarios((prev) =>
         prev.filter((item) => item.uuid !== review_uuid)
-      ); // Remove o comentário deletado
+      );
     } catch (err) {
       setError(err.response ? err.response.data : err.message);
     } finally {
@@ -124,7 +120,7 @@ const useComments = (id_review) => {
 
   useEffect(() => {
     if (id_review) {
-      getComments(id_review); // Busca os comentários quando o ID da acomodação é fornecido
+      getComments(id_review);
     }
   }, [id_review]);
 

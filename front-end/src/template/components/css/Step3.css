@@ -15,9 +15,8 @@
   color: var(--paleta-dois);
 }
 
-/* Estilo aplicado quando a opção está ativa */
 .step-option.active p {
-  color: var(--paleta-tres) !important; /* Cor do texto quando selecionado */
+  color: var(--paleta-tres) !important;
 }
 
 .step-option {
@@ -30,8 +29,8 @@
 }
 
 .step-option.active {
-  background-color: var(--paleta-dois); /* Cor da borda quando selecionado */
-  color: var(--paleta-tres); /* Cor de fundo quando selecionado */
+  background-color: var(--paleta-dois);
+  color: var(--paleta-tres);
 }
 
 .step-third-opt {
@@ -48,9 +47,9 @@
 
 .step-option.active h2,
 .step-option.active p {
-  color: var(--paleta-tres); /* Cor do texto dentro da opção ativa */
+  color: var(--paleta-tres);
 }
 
 .step-option.active .step-third-opt > span {
-  color: var(--paleta-tres); /* Cor do ícone dentro da opção ativa */
+  color: var(--paleta-tres);
 }

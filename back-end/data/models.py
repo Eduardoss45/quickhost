@@ -15,9 +15,6 @@ from .validators import (
 )
 
 
-# ---------------------
-# Gerenciador de Usuário Personalizado
-# ---------------------
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         if not email:
@@ -34,9 +31,6 @@ class CustomUserManager(BaseUserManager):
         return self.create_user(email, password, **extra_fields)
 
 
-# ---------------------
-# Modelo de Conta de Usuário
-# ---------------------
 class UserAccount(AbstractUser):
     id_user = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     birth_date = models.DateField(null=True, blank=True)
@@ -62,9 +56,6 @@ class UserAccount(AbstractUser):
         return f"{self.id_user}"
 
 
-# ---------------------
-# Modelo de Anúncio de Propriedade
-# ---------------------
 class PropertyListing(models.Model):
     id_accommodation = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     creator = models.ForeignKey(
@@ -168,9 +159,6 @@ class PropertyListing(models.Model):
         super().save(*args, **kwargs)
 
 
-# ---------------------
-# Modelo de Reserva
-# ---------------------
 class Booking(models.Model):
     id_booking = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     user_booking = models.ForeignKey(
@@ -195,9 +183,6 @@ class Booking(models.Model):
         )
 
 
-# ---------------------
-# Modelo de Favoritos
-# ---------------------
 class FavoriteProperty(models.Model):
     id_favorite_property = models.UUIDField(
         primary_key=True, default=uuid4, editable=False
@@ -218,9 +203,6 @@ class FavoriteProperty(models.Model):
         return f"{self.user_favorite_property.username} - {self.accommodation.title}"
 
 
-# ---------------------
-# Modelo de Avaliações
-# ---------------------
 class Review(models.Model):
     id_review = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     accommodation = models.ForeignKey(

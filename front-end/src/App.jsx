@@ -1,26 +1,34 @@
-import Footer from "./components/Footer";
-import Anuncio from "./components/Anuncio";
-import Login from "./components/Login";
+import React, { Suspense, useState } from "react";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar";
-import Cadastro from "./components/Cadastro";
-import Home from "./pages/Home";
-import Favoritos from "./pages/Favoritos";
-import Reservas from "./pages/Reservas";
-import EditorDePerfil from "./pages/EditorDePerfil";
-import Hospedar from "./pages/Hospedar";
-import CadastroAcomodacoes from "./pages/CadastroAcomodacoes";
-import Configuracoes from "./pages/Configuracoes";
+import Footer from "./components/Footer";
 import useData from "./hooks/useData";
 import useUserData from "./hooks/useUserData";
-import Step1 from "./template/components/Step1";
-import CardCancelarReservas from "./components/CardCancelarReservas";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
-import { useState } from "react";
-import InformacoesAcomodacao from "./pages/InformacoesAcomodacao";
-import EditorAcomodacoes from "./pages/EditorAcomodacoes";
-import Pagamento from "./pages/Pagamento";
-import FormPagamento from "./components/FormPagamento";
-import FinalizacaoReservas from "./pages/FinalizacaoReservas";
+const Home = React.lazy(() => import("./pages/Home"));
+const Anuncio = React.lazy(() => import("./components/Anuncio"));
+const Login = React.lazy(() => import("./components/Login"));
+const Cadastro = React.lazy(() => import("./components/Cadastro"));
+const Favoritos = React.lazy(() => import("./pages/Favoritos"));
+const Reservas = React.lazy(() => import("./pages/Reservas"));
+const EditorDePerfil = React.lazy(() => import("./pages/EditorDePerfil"));
+const Hospedar = React.lazy(() => import("./pages/Hospedar"));
+const CadastroAcomodacoes = React.lazy(() =>
+  import("./pages/CadastroAcomodacoes")
+);
+const Configuracoes = React.lazy(() => import("./pages/Configuracoes"));
+const CardCancelarReservas = React.lazy(() =>
+  import("./components/CardCancelarReservas")
+);
+const Pagamento = React.lazy(() => import("./pages/Pagamento"));
+const FormPagamento = React.lazy(() => import("./components/FormPagamento"));
+const FinalizacaoReservas = React.lazy(() =>
+  import("./pages/FinalizacaoReservas")
+);
+const InformacoesAcomodacao = React.lazy(() =>
+  import("./pages/InformacoesAcomodacao")
+);
+const EditorAcomodacoes = React.lazy(() => import("./pages/EditorAcomodacoes"));
+const Step1 = React.lazy(() => import("./template/components/Step1"));
 
 function App() {
   const { data, loading, error } = useData();
@@ -45,12 +53,14 @@ function App() {
       }`}
     >
       <BrowserRouter>
-        <InnerApp
-          accommodations={filteredAccommodations}
-          loading={loading}
-          error={error}
-          onSearch={handleSearch}
-        />
+        <Suspense fallback={<div>Carregando...</div>}>
+          <InnerApp
+            accommodations={filteredAccommodations}
+            loading={loading}
+            error={error}
+            onSearch={handleSearch}
+          />
+        </Suspense>
       </BrowserRouter>
     </div>
   );
@@ -84,7 +94,6 @@ function InnerApp({ accommodations, loading, error, onSearch }) {
               />
             }
           />
-          {/* <Route path="/acomodacao" element={<Anuncio />} /> */}
           <Route path="/acomodacao/:data" element={<Anuncio />} />
           <Route path="/perfil" element={<EditorDePerfil />} />
           <Route path="/configuracoes" element={<Configuracoes />} />

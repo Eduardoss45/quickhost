@@ -6,7 +6,7 @@ import "./css/Step6.css";
 
 const Step6 = ({ updateFieldHandler }) => {
   const [photos, setPhotos] = useState([]);
-  const [mainCoverImageIndex, setMainCoverImageIndex] = useState(null); // Armazenar o índice da imagem principal
+  const [mainCoverImageIndex, setMainCoverImageIndex] = useState(null);
 
   const onDrop = (acceptedFiles) => {
     if (photos.length + acceptedFiles.length <= 20) {
@@ -40,7 +40,7 @@ const Step6 = ({ updateFieldHandler }) => {
   };
 
   const clearPhotos = () => {
-    setPhotos([]); // Limpa o estado de fotos
+    setPhotos([]);
     if (typeof updateFieldHandler === "function") {
       updateFieldHandler({
         target: {
@@ -49,19 +49,19 @@ const Step6 = ({ updateFieldHandler }) => {
         },
         target: {
           name: "main_cover_image",
-          value: undefined, // Envia o índice como o valor para a chave main_cover_image
+          value: undefined,
         },
       });
     }
   };
 
   const handleImageClick = (index) => {
-    setMainCoverImageIndex(index); // Atualiza o índice da imagem principal
+    setMainCoverImageIndex(index);
     if (typeof updateFieldHandler === "function") {
       updateFieldHandler({
         target: {
           name: "main_cover_image",
-          value: index, // Envia o índice como o valor para a chave main_cover_image
+          value: index,
         },
       });
     }
@@ -124,12 +124,12 @@ const Step6 = ({ updateFieldHandler }) => {
               <img
                 src={photo.preview}
                 alt={`Preview ${index + 1}`}
-                onClick={() => handleImageClick(index)} // Ao clicar na imagem, define como a imagem principal
+                onClick={() => handleImageClick(index)}
                 style={{
                   border:
                     mainCoverImageIndex === index
                       ? "3px solid #f97316"
-                      : "none", // Destaca a imagem selecionada
+                      : "none",
                 }}
               />
             </div>

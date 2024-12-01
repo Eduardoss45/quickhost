@@ -13,7 +13,6 @@ const useCadastro = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
-  console.log(formData);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

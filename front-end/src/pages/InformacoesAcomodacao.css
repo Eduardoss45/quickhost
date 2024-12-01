@@ -43,4 +43,5 @@
 .info-acomodacao > div:nth-child(2) > button:hover {
   background: var(--paleta-dois);
   color: var(--paleta-seis);
+  transition: 0.3s;
 }

@@ -6,15 +6,14 @@ const useAccommodation = (uuid) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   useEffect(() => {
-    // Só faz a requisição se o UUID for válido
     if (!uuid) {
       console.log(uuid);
-      return; // Não faz nada se o UUID não estiver disponível
+      return;
     }
 
     const fetchAccommodationData = async () => {
-      setLoading(true); // Começa o carregamento
-      setError(null); // Limpa qualquer erro anterior
+      setLoading(true);
+      setError(null);
       try {
         const response = await axios.get(
           `${
@@ -24,17 +23,17 @@ const useAccommodation = (uuid) => {
             uuid
           )}`
         );
-        setAccommodationData(response.data); // Armazena os dados
+        setAccommodationData(response.data);
       } catch (error) {
         console.error("Erro ao buscar dados da acomodação:", error);
-        setError("Erro ao carregar dados da acomodação."); // Define a mensagem de erro
+        setError("Erro ao carregar dados da acomodação.");
       } finally {
-        setLoading(false); // Finaliza o carregamento
+        setLoading(false);
       }
     };
 
     fetchAccommodationData();
-  }, [uuid]); // Recarrega sempre que o uuid mudar ou for definido
+  }, [uuid]);
 
   return { accommodationData, loading, error };
 };

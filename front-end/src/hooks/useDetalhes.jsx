@@ -26,7 +26,7 @@ const useDetalhes = (uuid) => {
         }
       } catch (error) {
         console.error("Erro ao buscar dados:", error);
-        // Garantir que o erro seja tratado corretamente
+
         setError(
           error.response?.data?.detail ||
             "An error occurred while fetching data."

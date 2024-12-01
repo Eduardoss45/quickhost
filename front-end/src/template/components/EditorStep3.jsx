@@ -35,7 +35,7 @@ const Step5 = ({ data, updateFieldHandler }) => {
   const toggleResource = (key) => {
     setResources((prev) => {
       const newValue = !prev[key];
-      updateFieldHandler({ target: { name: key, value: newValue } }); // Atualiza o campo diretamente
+      updateFieldHandler({ target: { name: key, value: newValue } });
       return { ...prev, [key]: newValue };
     });
   };
@@ -43,7 +43,7 @@ const Step5 = ({ data, updateFieldHandler }) => {
   const toggleSecurity = (key) => {
     setSecurity((prev) => {
       const newValue = !prev[key];
-      updateFieldHandler({ target: { name: key, value: newValue } }); // Atualiza o campo diretamente
+      updateFieldHandler({ target: { name: key, value: newValue } });
       return { ...prev, [key]: newValue };
     });
   };

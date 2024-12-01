@@ -108,7 +108,7 @@ const Anuncio = () => {
         <div onClick={handleFavoriteClick} className="header-btn-favoritar">
           <IoStarSharp
             style={{
-              color: isFavorite ? "#ff6f31" : "#001969", // Cor do ícone de acordo com o estado
+              color: isFavorite ? "#ff6f31" : "#001969",
               cursor: "pointer",
             }}
           />

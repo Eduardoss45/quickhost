@@ -247,7 +247,6 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             new_password = validated_data["password"]
             instance.set_password(new_password)
 
-        # Tentativa de salvar a instância
         try:
             instance.save()
         except serializers.ValidationError as e:
@@ -259,7 +258,6 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
         logger.info(f"Usuário '{instance.username}' atualizado com sucesso.")
 
-        # Retornando um feedback detalhado, com sucesso ou erro.
         return {
             "message": "Os dados do usuário foram alterados com sucesso.",
             "data": {
@@ -394,20 +392,18 @@ class AccommodationSerializer(serializers.ModelSerializer):
         """
         Validações adicionais para garantir a consistência dos dados.
         """
-        if self.instance is None:  # Validações específicas para criação
+        if self.instance is None:
             if "creator" not in data:
                 raise serializers.ValidationError(
                     {"creator": "O campo 'creator' é obrigatório na criação."}
                 )
 
-        # Validações adicionais genéricas podem ser incluídas aqui
         return data
 
     def create(self, validated_data):
         """Cria e salva uma nova acomodação no banco de dados."""
         logger.info("Iniciando a criação da acomodação.")
         try:
-            bank_account_data = validated_data.pop("bank_account", None)
             internal_images = validated_data.pop("internal_images", [])
             main_cover_image = validated_data.pop("main_cover_image", None)
             user = validated_data.get("creator")
@@ -416,12 +412,11 @@ class AccommodationSerializer(serializers.ModelSerializer):
             if consecutive_days_limit <= 0:
                 validated_data["consecutive_days_limit"] = -1
 
-            # Ajusta o preço por noite
             price_per_night = validated_data.get("price_per_night", 0)
             price_per_night = Decimal(price_per_night)
             if price_per_night > 0:
-                min_rate = Decimal("0.03")  # 3%
-                max_rate = Decimal("0.15")  # 15%
+                min_rate = Decimal("0.03")
+                max_rate = Decimal("0.15")
                 max_price_for_max_rate = Decimal("1000")
                 if price_per_night <= max_price_for_max_rate:
                     rate = min_rate + (max_rate - min_rate) * (
@@ -432,20 +427,16 @@ class AccommodationSerializer(serializers.ModelSerializer):
                 price_per_night *= 1 - rate
             validated_data["price_per_night"] = round(price_per_night, 2)
 
-            with transaction.atomic():  # Garante consistência em caso de falha
-                # Remove dados relacionados a ManyToMany ou outros não necessários
+            with transaction.atomic():
+
                 registered_user_bookings_data = validated_data.pop(
                     "registered_user_bookings", None
                 )
 
-                # Cria a acomodação
                 accommodation = models.PropertyListing.objects.create(**validated_data)
-                accommodation_uuid = (
-                    accommodation.id_accommodation
-                )  # Define corretamente o UUID
+                accommodation_uuid = accommodation.id_accommodation
                 logger.info(f"Acomodação criada: {accommodation_uuid}")
 
-                # Configura ManyToMany, se aplicável
                 if registered_user_bookings_data:
                     accommodation.registered_user_bookings.set(
                         registered_user_bookings_data
@@ -455,7 +446,6 @@ class AccommodationSerializer(serializers.ModelSerializer):
                     f"Usuários relacionados adicionados à acomodação {accommodation.id_accommodation}."
                 )
 
-                # Salvar imagens internas
                 image_paths = []
                 for image in internal_images:
                     if isinstance(image, TemporaryUploadedFile):
@@ -467,7 +457,6 @@ class AccommodationSerializer(serializers.ModelSerializer):
                         if default_storage.save(file_path, image):
                             image_paths.append("media/" + file_path)
 
-                # Definir imagem de capa
                 def set_main_cover_image(main_cover_image, image_paths, accommodation):
                     try:
                         main_cover_image = int(main_cover_image)
@@ -491,24 +480,11 @@ class AccommodationSerializer(serializers.ModelSerializer):
                 accommodation.save()
                 logger.info(f"URLs das imagens armazenadas: {image_paths}.")
 
-                # Atualizar `registered_accommodations` para o usuário
                 user.registered_accommodations.add(accommodation_uuid)
                 user.save()
                 logger.info(
                     f"Acomodação {accommodation_uuid} adicionada ao usuário {user.id_user}."
                 )
-
-                # Criar conta bancária associada, se houver
-                if bank_account_data:
-                    bank_account = models.BankDetails.objects.create(
-                        **bank_account_data
-                    )
-                    accommodation.bank_account = bank_account
-                    accommodation.save()
-                    logger.info(
-                        f"Conta bancária associada à acomodação: {bank_account}."
-                    )
-
                 return accommodation
         except Exception as e:
             logger.error(f"Erro ao criar acomodação: {e}")
@@ -523,7 +499,7 @@ class AccommodationSerializer(serializers.ModelSerializer):
             f"Iniciando a atualização da acomodação {instance.id_accommodation}."
         )
         try:
-            # Processar o campo `internal_images` se estiver presente
+
             if "internal_images" in validated_data:
                 internal_images = validated_data.get("internal_images", [])
                 if not isinstance(internal_images, list):
@@ -559,7 +535,6 @@ class AccommodationSerializer(serializers.ModelSerializer):
 
                         validated_data["internal_images"] = image_paths
 
-            # Atualizar imagem de capa, se fornecida
             main_cover_image = validated_data.pop("main_cover_image", None)
             if main_cover_image is not None:
                 try:
@@ -584,12 +559,11 @@ class AccommodationSerializer(serializers.ModelSerializer):
                         "main_cover_image não é um índice válido. Mantendo existente."
                     )
 
-            # Ajustar preço por noite, se fornecido
             if "price_per_night" in validated_data:
                 price_per_night = Decimal(validated_data["price_per_night"])
                 if price_per_night > 0:
-                    min_rate = Decimal("0.03")  # 3%
-                    max_rate = Decimal("0.15")  # 15%
+                    min_rate = Decimal("0.03")
+                    max_rate = Decimal("0.15")
                     max_price_for_max_rate = Decimal("1000")
                     if price_per_night <= max_price_for_max_rate:
                         rate = min_rate + (max_rate - min_rate) * (
@@ -601,7 +575,6 @@ class AccommodationSerializer(serializers.ModelSerializer):
                         price_per_night * (1 - rate), 2
                     )
 
-            # Preservar valores para campos não fornecidos explicitamente
             fields_to_preserve = [
                 "wifi",
                 "tv",
@@ -626,12 +599,10 @@ class AccommodationSerializer(serializers.ModelSerializer):
                 if field not in validated_data:
                     validated_data[field] = getattr(instance, field)
 
-            # Atualizar o restante dos campos
             for attr, value in validated_data.items():
                 if getattr(instance, attr) != value:
                     setattr(instance, attr, value)
 
-            # Salvar alterações no banco de dados
             instance.save()
             logger.info(
                 f"Acomodação {instance.id_accommodation} atualizada com sucesso."
@@ -667,19 +638,19 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         """Valida os dados da review antes de salvar."""
-        # Validação do rating
+
         rating = attrs.get("rating")
         if rating is not None:
             rating_error = validate_rating(rating)
             if rating_error:
                 raise serializers.ValidationError({"rating": rating_error})
-        # Validação do comentário
+
         comment = attrs.get("comment")
         if comment:
             comment_error = validate_comment(comment)
             if comment_error:
                 raise serializers.ValidationError({"comment": comment_error})
-        # Validação do usuário
+
         user_uuid = attrs.get("user_comment")
         if user_uuid:
             try:
@@ -690,7 +661,6 @@ class ReviewSerializer(serializers.ModelSerializer):
                     {"user_comment": "Usuário não encontrado."}
                 )
 
-        # Validação da acomodação
         accommodation = attrs.get("accommodation")
         if accommodation:
             try:
@@ -731,9 +701,6 @@ class BookingSerializer(serializers.ModelSerializer):
     accommodation = serializers.PrimaryKeyRelatedField(
         queryset=models.PropertyListing.objects.all()
     )
-    # registered_user_bookings = serializers.PrimaryKeyRelatedField(
-    #     queryset=models.UserAccount.objects.all(), many=True, required=False
-    # )
 
     class Meta:
         model = models.Booking
@@ -774,19 +741,17 @@ class BookingSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         try:
             with transaction.atomic():
-                # Extração de dados validados
+
                 user_booking = validated_data["user_booking"]
                 accommodation = validated_data["accommodation"]
                 check_in_date = validated_data["check_in_date"]
                 check_out_date = validated_data["check_out_date"]
                 price = validated_data["price"]
 
-                # Calcular preço total
                 total_price = self.calculate_total_price(
                     check_in_date, check_out_date, price
                 )
 
-                # Criar a reserva
                 booking = models.Booking.objects.create(
                     user_booking=user_booking,
                     accommodation=accommodation,
@@ -796,16 +761,12 @@ class BookingSerializer(serializers.ModelSerializer):
                     is_active=validated_data.get("is_active", True),
                 )
 
-                # Atualizar `registered_user_bookings` com a reserva
                 accommodation.registered_user_bookings.add(booking)
 
-                # Atualizar `registered_accommodation_bookings` com a reserva
                 user_booking.registered_accommodation_bookings.add(booking)
 
-                # Atualizar `registered_accommodations` com a acomodação
                 user_booking.registered_accommodations.add(accommodation)
 
-                # Salvar alterações
                 return booking
 
         except Exception as e:
@@ -816,8 +777,8 @@ class BookingSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         try:
-            with transaction.atomic():  # Garante consistência em caso de falha
-                # Atualiza os campos permitidos
+            with transaction.atomic():
+
                 instance.check_in_date = validated_data.get(
                     "check_in_date", instance.check_in_date
                 )
@@ -827,7 +788,6 @@ class BookingSerializer(serializers.ModelSerializer):
                 instance.price = validated_data.get("price", instance.price)
                 instance.is_active = validated_data.get("is_active", instance.is_active)
 
-                # Verifica se a acomodação ou o usuário mudou
                 new_accommodation = validated_data.get(
                     "accommodation", instance.accommodation
                 )
@@ -835,35 +795,28 @@ class BookingSerializer(serializers.ModelSerializer):
                     "user_booking", instance.user_booking
                 )
 
-                # Atualiza as associações caso necessário
                 if new_accommodation != instance.accommodation:
-                    # Remove a reserva da acomodação anterior
+
                     instance.accommodation.registered_bookings.remove(instance)
                     instance.accommodation.registered_user_bookings.remove(instance)
 
-                    # Adiciona a reserva à nova acomodação
                     new_accommodation.registered_bookings.add(instance)
                     new_accommodation.registered_user_bookings.add(instance)
 
-                    # Atualiza o campo de acomodação na reserva
                     instance.accommodation = new_accommodation
 
                 if new_user_booking != instance.user_booking:
-                    # Remove a reserva do usuário anterior
+
                     instance.user_booking.registered_accommodation_bookings.remove(
                         instance
                     )
 
-                    # Adiciona a reserva ao novo usuário
                     new_user_booking.registered_accommodation_bookings.add(instance)
 
-                    # Atualiza o campo de usuário na reserva
                     instance.user_booking = new_user_booking
 
-                # Salva as alterações na instância
                 instance.save()
 
-                # Salva as alterações nos modelos relacionados
                 new_accommodation.save()
                 new_user_booking.save()
 

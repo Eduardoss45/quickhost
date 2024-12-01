@@ -20,7 +20,7 @@
   color: var(--paleta-dois);
 }
 
-/* Estilo quando o botão está ativo */
+
 .btn-form-custom.active {
   background-color: var(--paleta-dois);
   color: var(--paleta-tres); !important;

@@ -1,4 +1,3 @@
-/* Estilo principal da barra de pesquisa */
 .search-bar {
   display: flex;
   align-items: center;
@@ -11,7 +10,6 @@
   margin: 2rem;
 }
 
-/* Estilo da área de entrada de pesquisa */
 .search-input {
   display: flex;
   align-items: center;
@@ -66,6 +64,7 @@
 
 .dropdown-button:hover {
   background-color: #f0f0f0;
+  transition: 0.3s;
 }
 
 .dropdown-line {
@@ -76,7 +75,6 @@
   margin: 0 auto;
 }
 
-/* Estilo do menu suspenso */
 .dropdown-menu {
   position: absolute;
   top: 100%;
@@ -102,6 +100,7 @@
 
 .dropdown-menu div:hover {
   background-color: #f0f0f0;
+  transition: 0.3s;
 }
 
 .visible {

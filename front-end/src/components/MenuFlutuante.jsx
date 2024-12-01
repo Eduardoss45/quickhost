@@ -16,7 +16,7 @@ const MenuFlutuante = ({
     localStorage.removeItem("isAuthenticated");
     localStorage.removeItem("email");
     localStorage.removeItem("password");
-    window.location.reload(); // Atualiza a página para refletir o logout
+    window.location.reload();
   };
 
   return (

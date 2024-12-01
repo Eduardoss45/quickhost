@@ -16,14 +16,14 @@ const BarraPesquisaFiltro = ({ onSearch, onFilterClick, onSort }) => {
     Apartamento: "apartment",
     Casa: "home",
     Quarto: "room",
-    Todos: "", // Todos os tipos de acomodação
+    Todos: "",
   };
 
   const orderMapping = {
     Avaliação: "rating",
     "Mais recentes": "newest",
     "Mais antigos": "oldest",
-    Todos: "", // Todos os critérios de ordenação
+    Todos: "",
   };
 
   const dropdownRef = useRef(null);
@@ -31,21 +31,20 @@ const BarraPesquisaFiltro = ({ onSearch, onFilterClick, onSort }) => {
   const handleTipoHospedagemClick = (tipo) => {
     setTipoHospedagem(tipo);
     setOpenTipoHospedagem(false);
-    onFilterClick(categoryMapping[tipo] || ""); // Passa o tipo de hospedagem para o pai
+    onFilterClick(categoryMapping[tipo] || "");
   };
 
   const handleOrdenarPorClick = (ordenacao) => {
     setOrdenarPor(ordenacao);
     setOpenOrdenarPor(false);
-    onSort(orderMapping[ordenacao] || ""); // Passa o tipo de ordenação para o pai
+    onSort(orderMapping[ordenacao] || "");
   };
 
   const handleSearchChange = (e) => {
     const searchTerm = e.target.value;
-    onSearch(searchTerm); // Passa o termo de pesquisa para o pai
+    onSearch(searchTerm);
   };
 
-  // Fechar dropdowns ao clicar fora
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {

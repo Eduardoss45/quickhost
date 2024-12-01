@@ -6,7 +6,7 @@ import "./FinalizacaoReserva.css";
 const FinalizacaoReservas = () => {
   const { id } = useParams();
   const { accommodationData } = useAccommodation(id);
-  const location = useLocation(); // fazer verificação se a transação foi bem sucedida!
+  const location = useLocation();
   const navigate = useNavigate();
   const handleExit = () => {
     navigate("/");

@@ -74,6 +74,7 @@ const useEditAcomodacao = () => {
           },
         }
       );
+      console.log(response);
       setSuccess(true);
     } catch (error) {
       console.error("Erro ao enviar os dados:", error);

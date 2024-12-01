@@ -4,7 +4,7 @@ import "./css/Step7.css";
 const Step7 = ({ updateFieldHandler }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [consecutiveDaysLimit, setConsecutiveDaysLimit] = useState("1"); // Estado para o limite
+  const [consecutiveDaysLimit, setConsecutiveDaysLimit] = useState("1");
 
   const handleTitleChange = (e) => {
     const newTitle = e.target.value;

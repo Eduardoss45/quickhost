@@ -1,11 +1,11 @@
 .footer {
   display: flex;
-  padding: 2rem;
+  padding: 1rem;
   background-color: var(--paleta-seis);
   color: var(--paleta-quatro);
   flex-direction: column;
-  bottom: 0;
   position: fixed;
+  bottom: 0;
   width: 100%;
   text-align: center;
   gap: 1rem;
@@ -69,6 +69,7 @@
 
 .social > .icon:hover {
   color: var(--paleta-dois);
+  transition: 0.3s;
 }
 
 .bottom {

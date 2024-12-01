@@ -53,13 +53,6 @@ const useCadastroAcomodacoes = () => {
           images.forEach((file) => {
             updatedFormData.append("internal_images", file);
           });
-        } else if (key === "bank_account") {
-          Object.keys(formData.bank_account).forEach((bankKey) => {
-            updatedFormData.append(
-              `bank_account[${bankKey}]`,
-              formData.bank_account[bankKey]
-            );
-          });
         } else {
           updatedFormData.append(key, formData[key]);
         }

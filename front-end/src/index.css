@@ -47,6 +47,7 @@ input {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #00000080;
+  transition: 0.3s;
 }
 
 .App {
@@ -60,4 +61,11 @@ input {
 
 .no-overflow {
   padding-bottom: 0;
+}
+
+button > .hover-nav-bar {
+  transition: 0.3s;
+  background-color: var(--paleta-tres);
+  border: 1px solid var(--paleta-um);
+  color: var(--paleta-seis);
 }

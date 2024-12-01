@@ -1,15 +1,10 @@
 import os
 from pathlib import Path
 from datetime import timedelta
-
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 SECRET_KEY = "django-insecure-@$dlqov(s!z$o1t2=!kp7alf6k_c6e8le8silx_n8=jdc8978m"
-
 DEBUG = True
-
 ALLOWED_HOSTS = []
-
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -21,7 +16,6 @@ INSTALLED_APPS = [
     "corsheaders",
     "data",
 ]
-
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "corsheaders.middleware.CorsMiddleware",
@@ -33,9 +27,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "quickhost.api.middleware.UUIDMiddleware",
 ]
-
 ROOT_URLCONF = "quickhost.urls"
-
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -51,18 +43,13 @@ TEMPLATES = [
         },
     },
 ]
-
 WSGI_APPLICATION = "quickhost.wsgi.application"
-
-
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
     }
 }
-
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
@@ -77,15 +64,11 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
-
-
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
 }
-
-
 SIMPLE_JWT = {
     "AUTH_HEADER_TYPES": ("Bearer",),
     "ROTATE_REFRESH_TOKENS": True,
@@ -94,29 +77,18 @@ SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(hours=10),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
 }
-
 AUTH_USER_MODEL = "data.UserAccount"
-
 LANGUAGE_CODE = "pt-br"
-
 LANGUAGE_CODE = "pt-br"
-
 USE_I18N = True
-
 USE_TZ = True
-
 STATIC_URL = "/static/"
-
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
-
 MEDIA_URL = "/media/"
-
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
 ]
-
 CORS_ALLOW_ALL_ORIGINS = True
-
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,

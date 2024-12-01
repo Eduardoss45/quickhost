@@ -1,4 +1,3 @@
-// Step3.jsx
 import React, { useState, useEffect } from "react";
 import { MdBedroomParent } from "react-icons/md";
 import { FaHouse } from "react-icons/fa6";
@@ -8,13 +7,13 @@ const Step3 = ({ data, updateFieldHandler }) => {
   const [selectedOption, setSelectedOption] = useState(null);
 
   useEffect(() => {
-    setSelectedOption(data.space_type || null); // Define o estado inicial
+    setSelectedOption(data.space_type || null);
   }, [data.space_type]);
 
   const handleSelection = (option) => {
     setSelectedOption(option);
     updateFieldHandler({
-      target: { name: "space_type", value: option }, // Simula o evento
+      target: { name: "space_type", value: option },
     });
   };
 

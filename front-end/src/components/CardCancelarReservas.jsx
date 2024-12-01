@@ -10,14 +10,10 @@ import "./CardCancelarReservas.css";
 const CardCancelarReservas = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-
-  // Dados do usuário, hóspede e criador
   const { userData } = useDetalhes(id);
   const { userData: hospede } = useDetalhes(userData?.user);
   const { accommodationData } = useAccommodation(userData?.accommodation);
   const { userData: creator } = useDetalhes(accommodationData?.creator);
-  console.log();
-  // Hook para cancelar reservas
   const { handleDeleteReserva, loading, success, error } = useCancelarReservas(
     userData?.booking
   );
@@ -116,7 +112,7 @@ const CardCancelarReservas = () => {
           <button
             onClick={handleCancelarReserva}
             className="secondary-button"
-            disabled={loading} // Desabilita o botão durante o carregamento
+            disabled={loading}
           >
             {loading ? "Cancelando..." : "Sim, desejo cancelar"}
           </button>

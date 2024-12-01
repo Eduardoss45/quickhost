@@ -22,7 +22,6 @@ const useBooking = () => {
           },
         }
       );
-      console.log("Reserva enviada com sucesso:", response);
       setSuccess(true);
       setError(false);
     } catch (error) {

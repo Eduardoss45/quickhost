@@ -8,7 +8,6 @@ from rest_framework.response import Response
 from django.http import HttpResponse
 from rest_framework.views import APIView
 from django.db import transaction
-from pprint import pprint
 from django.contrib.auth import get_user_model
 from rest_framework.generics import get_object_or_404
 
@@ -148,7 +147,6 @@ class AccommodationViewSet(viewsets.ModelViewSet):
 
     serializer_class = AccommodationSerializer
     queryset = PropertyListing.objects.all()
-    # logger.info()
 
     def get_permissions(self):
         permission_classes = (
@@ -178,7 +176,6 @@ class AccommodationViewSet(viewsets.ModelViewSet):
                 {"detail": "O ID do usuário deve estar no formato UUID."}
             )
 
-        # logger.info(f"Dados recebidos para criação: {request.data}")
         return super().create(request, *args, **kwargs)
 
     def list(self, request, *args, **kwargs):
@@ -247,7 +244,6 @@ class AccommodationViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_404_NOT_FOUND,
                 )
 
-            # Verifica se o usuário logado é o criador da acomodação
             if accommodation.creator != request.user:
                 return Response(
                     {"detail": "Você não tem permissão para deletar esta acomodação."},
@@ -255,17 +251,12 @@ class AccommodationViewSet(viewsets.ModelViewSet):
                 )
 
             with transaction.atomic():
-                # Remove imagens internas
+
                 if accommodation.internal_images:
                     for image_path in accommodation.internal_images:
                         if default_storage.exists(image_path):
                             default_storage.delete(image_path)
 
-                # Remove conta bancária associada, se houver
-                if accommodation.bank_account:
-                    accommodation.bank_account.delete()
-
-                # Exclui a acomodação
                 accommodation.delete()
                 logger.info(f"Acomodação {id_accommodation} deletada com sucesso.")
 
@@ -298,7 +289,6 @@ class AccommodationViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_404_NOT_FOUND,
                 )
 
-            # Verifica se o usuário logado é o criador da acomodação
             if accommodation.creator != request.user:
                 return Response(
                     {
@@ -307,7 +297,6 @@ class AccommodationViewSet(viewsets.ModelViewSet):
                     status=status.HTTP_403_FORBIDDEN,
                 )
 
-            # Valida e atualiza os dados usando o serializer
             partial = kwargs.pop("partial", False)
             serializer = self.get_serializer(
                 accommodation, data=request.data, partial=partial
@@ -315,14 +304,12 @@ class AccommodationViewSet(viewsets.ModelViewSet):
 
             serializer.is_valid(raise_exception=True)
 
-            # Tratar campos ManyToMany explicitamente, se necessário
             validated_data = serializer.validated_data
             if "registered_user_bookings" in validated_data:
                 accommodation.registered_user_bookings.set(
                     validated_data.pop("registered_user_bookings")
                 )
 
-            # Atualiza outros campos
             serializer.update(accommodation, validated_data)
 
             logger.info(f"Acomodação {id_accommodation} atualizada com sucesso.")
@@ -357,7 +344,6 @@ class GetByUuidView(APIView):
                 {"error": "UUID inválido"}, status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Verificando se o UUID corresponde a um usuário
         user = User.objects.filter(id_user=uuid).first()
         if user:
             favorites = FavoriteProperty.objects.filter(user_favorite_property=user)
@@ -371,11 +357,10 @@ class GetByUuidView(APIView):
                         user.profile_picture.url if user.profile_picture else None
                     ),
                     "phone_number": user.phone_number,
-                    "favorites": favorite_data,  # Incluindo os favoritos do usuário
+                    "favorites": favorite_data,
                 }
             )
 
-        # Verificando se o UUID corresponde a uma acomodação
         accommodation = PropertyListing.objects.filter(id_accommodation=uuid).first()
         if accommodation:
             return Response(
@@ -385,7 +370,6 @@ class GetByUuidView(APIView):
                 }
             )
 
-        # Verificando se o UUID corresponde a uma reserva
         booking = Booking.objects.filter(id_booking=uuid).first()
         if booking:
             return Response(
@@ -398,7 +382,6 @@ class GetByUuidView(APIView):
                 }
             )
 
-        # Caso não encontre nenhum dado
         return Response(
             {
                 "error": "Nenhum dado relacionado a (usuário, acomodação, reservas) encontrado com este UUID"
@@ -435,7 +418,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
             logger.info(
                 f"Avaliação criada: {review.id_review} para a acomodação {review.accommodation.id_accommodation}"
             )
-            # Atualizar a média da acomodação após criar a avaliação
+
             self.update_average_rating(review.accommodation)
             logger.info(
                 f"Média de avaliação atualizada para a acomodação {review.accommodation.id_accommodation}: {review.accommodation.average_rating}"
@@ -463,10 +446,9 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     def retrieve(self, request, *args, **kwargs):
         """Retorna os detalhes de uma avaliação ou todas de uma acomodação."""
-        identifier = kwargs.get("pk")  # Captura o UUID da rota
+        identifier = kwargs.get("pk")
         logger.info(f"Buscando avaliação com identificador: {identifier}")
 
-        # Tentar buscar por id_review
         try:
             review = self.queryset.get(id_review=identifier)
             serializer = self.get_serializer(review)
@@ -475,7 +457,6 @@ class ReviewViewSet(viewsets.ModelViewSet):
         except models.Review.DoesNotExist:
             logger.warning(f"Avaliação {identifier} não encontrada.")
 
-        # Tentar buscar por id_accommodation
         try:
             accommodation = models.PropertyListing.objects.get(
                 id_accommodation=identifier
@@ -524,7 +505,6 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
         review.save()
 
-        # Atualizar a média da acomodação após atualizar a avaliação
         self.update_average_rating(review.accommodation)
         logger.info(
             f"Média de avaliação atualizada para a acomodação {review.accommodation.id_accommodation}: {review.accommodation.average_rating}"
@@ -543,7 +523,6 @@ class ReviewViewSet(viewsets.ModelViewSet):
             status=status.HTTP_204_NO_CONTENT,
         )
 
-        # Atualizar a média da acomodação após excluir a avaliação
         self.update_average_rating(accommodation)
         logger.info(
             f"Avaliação {review.id_review} excluída e média atualizada para a acomodação {accommodation.id_accommodation}."
@@ -553,7 +532,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     def update_average_rating(self, accommodation):
         """Atualiza a média das avaliações de uma acomodação."""
-        reviews = accommodation.reviews.all()  # Acessa todas as avaliações associadas
+        reviews = accommodation.reviews.all()
         if reviews.exists():
             average = reviews.aggregate(Avg("rating"))["rating__avg"]
             accommodation.average_rating = round(average, 2)
@@ -712,24 +691,21 @@ class FavoritePropertyViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = FavoritePropertySerializer
 
-    # Definindo o queryset para retornar os favoritos do usuário
     def get_queryset(self):
-        # Retorna todos os favoritos do usuário autenticado
+
         return models.FavoriteProperty.objects.filter(
             user_favorite_property=self.request.user
         )
 
-    # Listar todos os favoritos (GET)
     def list(self, request):
         logger.info(f"User {request.user.username} is fetching their favorites.")
         favorites = self.get_queryset()
         serializer = self.serializer_class(favorites, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    # Obter um favorito específico (GET)
     def retrieve(self, request, *args, **kwargs):
-        # Obter o UUID do favorito
-        favorite_uuid = kwargs.get("pk")  # 'pk' é o UUID fornecido na URL
+
+        favorite_uuid = kwargs.get("pk")
         try:
             favorite = self.get_queryset().get(id_favorite_property=favorite_uuid)
             serializer = self.serializer_class(favorite)
@@ -740,9 +716,8 @@ class FavoritePropertyViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-    # Adicionar novo favorito (POST)
     def create(self, request):
-        # Verificar se o favorito já existe
+
         accommodation = request.data.get("accommodation")
         if models.FavoriteProperty.objects.filter(
             user_favorite_property=request.user, accommodation=accommodation
@@ -752,7 +727,6 @@ class FavoritePropertyViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # Caso contrário, cria um novo favorito
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             serializer.save(user_favorite_property=request.user)
@@ -760,7 +734,6 @@ class FavoritePropertyViewSet(viewsets.ModelViewSet):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    # Deletar favorito (DELETE)
     def destroy(self, request, *args, **kwargs):
         favorite_id = kwargs.get("pk")
         try:

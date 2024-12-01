@@ -90,7 +90,7 @@ function EditorAcomodacoes() {
 
   const handleExternalSubmit = () => {
     if (validateForm()) {
-      formRef.current.requestSubmit(); // Garante validações nativas do formulário
+      formRef.current.requestSubmit();
     } else {
       alert("Por favor, preencha todos os campos obrigatórios.");
     }
@@ -110,16 +110,14 @@ function EditorAcomodacoes() {
     e.preventDefault();
 
     if (!isWarned) {
-      // Exibe o alerta na primeira vez que o usuário clica
       alert(
         "Você está prestes a deletar essa acomodação, isso pode ser irreversível e caso haja reservas, elas serão imediatamente canceladas e um reembolso será feito para o cliente. Caso queira prosseguir, confirme e clique novamente."
       );
-      // Marca que o alerta foi mostrado
+
       setIsWarned(true);
     } else {
-      // Se o usuário já foi avisado, chama a função para deletar a acomodação
       handleDelete(accommodationData?.id_accommodation);
-      setIsWarned(false); // Reseta o estado para permitir outra confirmação, se necessário
+      setIsWarned(false);
       handleRefresh();
     }
   };
@@ -155,7 +153,7 @@ function EditorAcomodacoes() {
               <span>
                 <LiaPenSolid />
               </span>
-              <h3>Anúncio 1</h3>
+              <h3>Anúncio</h3>
             </div>
             <button
               onClick={() => {
@@ -171,7 +169,7 @@ function EditorAcomodacoes() {
               <span>
                 <LiaPenSolid />
               </span>
-              <h3>Localização 1</h3>
+              <h3>Localização</h3>
             </div>
             <button
               onClick={() => {
@@ -187,7 +185,7 @@ function EditorAcomodacoes() {
               <span>
                 <LiaPenSolid />
               </span>
-              <h3>Comodidades 2</h3>
+              <h3>Comodidades</h3>
             </div>
             <button
               onClick={() => {
@@ -204,7 +202,7 @@ function EditorAcomodacoes() {
               <span>
                 <LiaPenSolid />
               </span>
-              <h3>Comodidades 3</h3>
+              <h3>Comodidades</h3>
             </div>
             <button
               onClick={() => {
@@ -220,7 +218,7 @@ function EditorAcomodacoes() {
               <span>
                 <LiaPenSolid />
               </span>
-              <h3>Anúncio 4</h3>
+              <h3>Anúncio</h3>
             </div>
             <button
               onClick={() => {
@@ -236,7 +234,7 @@ function EditorAcomodacoes() {
               <span>
                 <LiaPenSolid />
               </span>
-              <h3>Localização 5</h3>
+              <h3>Localização</h3>
             </div>
             <button
               onClick={() => {
@@ -258,7 +256,7 @@ function EditorAcomodacoes() {
         <button onClick={handleDeleteAccommodation}>Apagar Anúncio</button>
       </div>
       <div className="btn-editor-acomodacao-end">
-        <button onClick={handleCancelar}>Cancelar</button>
+        <button onClick={handleCancelar}>Sair</button>
         <button onClick={handleExternalSubmit}>Salvar Alterações</button>
       </div>
     </>

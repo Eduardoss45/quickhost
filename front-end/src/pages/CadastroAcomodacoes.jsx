@@ -49,7 +49,6 @@ function CadastroAcomodacoes() {
     }
   };
 
-  // Função para atualizar os dados do formulário
   const updateFieldHandler = (e) => {
     const { name, value, type, checked } = e.target;
     if (type === "checkbox") {
@@ -137,7 +136,7 @@ function CadastroAcomodacoes() {
 
   const handleExternalSubmit = () => {
     if (validateForm()) {
-      formRef.current.requestSubmit(); // Garante validações nativas do formulário
+      formRef.current.requestSubmit();
     } else {
       alert("Por favor, preencha todos os campos obrigatórios.");
     }

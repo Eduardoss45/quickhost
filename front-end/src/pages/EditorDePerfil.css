@@ -92,9 +92,8 @@
 
 .custom-file-upload:hover {
   background-color: #00000020;
+  transition: 0.3s;
 }
-
-/* Novo css abaixo */
 
 .user-info-form > div:nth-child(1) {
   display: flex;
@@ -184,6 +183,7 @@
 
 .dropzone:hover {
   border-color: var(--paleta-um);
+  transition: 0.3s;
 }
 
 .buttons {

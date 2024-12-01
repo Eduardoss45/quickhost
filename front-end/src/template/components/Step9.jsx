@@ -2,7 +2,6 @@ import "./css/Step9.css";
 
 const Step9 = ({ data, bank, updateFieldHandler, updateFieldBankHandler }) => {
   const handleInputChange = (e) => {
-    // Verifica e chama as funções de atualização
     if (updateFieldHandler) updateFieldHandler(e);
     if (updateFieldBankHandler) {
       updateFieldBankHandler({
@@ -12,7 +11,6 @@ const Step9 = ({ data, bank, updateFieldHandler, updateFieldBankHandler }) => {
   };
 
   const handleCheckboxChange = (e) => {
-    // Lida especificamente com o checkbox
     if (updateFieldHandler) updateFieldHandler(e);
     if (updateFieldBankHandler) {
       updateFieldBankHandler({

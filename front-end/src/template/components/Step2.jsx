@@ -28,12 +28,11 @@ const Step2 = ({ data, updateFieldHandler }) => {
   const min = 1;
   const max = 20;
 
-  // Enviar os valores iniciais para o pai ao montar o componente
   useEffect(() => {
     Object.keys(counts).forEach((key) => {
       updateFieldHandler({ target: { name: key, value: counts[key] } });
     });
-  }, []); // Executa uma vez na montagem do componente
+  }, []);
 
   const handleChange = (key, value) => {
     const validValue = Math.max(min, Math.min(max, value));

@@ -60,11 +60,11 @@ const FormPagamento = () => {
     uf: "",
     postal_code: "",
     parcel: 1,
-    amount: accommodationData?.final_price,
-    from_account: accommodationData?.bank_account,
-    to_account: userData?.bank,
-    accommodation: accommodationData?.id_accommodation,
-    user_account: userData?.id_user,
+    amount: "",
+    from_account: "",
+    to_account: "",
+    accommodation: "",
+    user_account: "",
   });
 
   const handleChange = (e) => {
@@ -74,11 +74,8 @@ const FormPagamento = () => {
       [name]: type === "checkbox" ? checked : value,
     }));
   };
-  console.log(formTemplate);
-  console.log(formData.formData);
   const handleNext = () => {
     bookAccommodation(formData.formData);
-
     navigate(`/finalizacao/${id}`, {
       state: true,
     });

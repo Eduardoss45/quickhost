@@ -312,13 +312,27 @@
 .acomodacao-painel-botoes > button:nth-child(1) {
   background-color: var(--paleta-um);
   color: var(--paleta-seis);
+  border: 1px solid var(--paleta-um);
   border: none;
+}
+
+.acomodacao-painel-botoes > button:nth-child(1):hover {
+  background-color: var(--paleta-seis);
+  color: var(--paleta-um);
+  border: 1px solid var(--paleta-um);
+  transition: 0.3s;
 }
 
 .acomodacao-painel-botoes > button:nth-child(2) {
   background-color: transparent;
   color: var(--paleta-dois);
   border: 3px solid var(--paleta-dois);
+}
+
+.acomodacao-painel-botoes > button:nth-child(2):hover {
+  color: var(--paleta-seis);
+  background: var(--paleta-dois);
+  transition: 0.3s;
 }
 
 .acomodacao-dates-container {
@@ -338,11 +352,7 @@
 
 .acomodacao-date-item span {
   font-size: 1rem;
-  color: var(--paleta-dois);
-}
-
-.acomodacao-date-item p {
-  color: var(--paleta-dois);
+  background: transparent;
 }
 
 .caixa-avaliacao-input {
@@ -354,15 +364,21 @@
   align-items: center;
 }
 
+.acomodacao-date-item:hover {
+  transition: all 0.3s;
+  background-color: var(--paleta-dois);
+  color: var(--paleta-seis);
+}
+
 .caixa-avaliacao-input > button {
   display: flex;
   justify-content: space-between;
   border: 1px solid var(--paleta-sete);
   border-radius: 8px;
-  padding: .5rem 2rem;
+  padding: 0.5rem 2rem;
   background-color: var(--paleta-um);
   color: var(--paleta-seis);
-  margin: 0 2rem ;
+  margin: 0 2rem;
   border: none;
 }
 

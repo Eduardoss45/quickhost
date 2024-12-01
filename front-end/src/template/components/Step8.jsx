@@ -7,7 +7,7 @@ const Step8 = ({ updateFieldHandler }) => {
   const [discount, setDiscount] = useState(false);
 
   const handlePriceChange = (e) => {
-    const newPrice = parseFloat(e.target.value) || 0; // Garante que valores inválidos sejam convertidos para 0
+    const newPrice = parseFloat(e.target.value) || 0;
     if (newPrice >= 0) {
       setPricePerNight(newPrice);
       updateFieldHandler({
@@ -17,7 +17,7 @@ const Step8 = ({ updateFieldHandler }) => {
   };
 
   const handleCleaningFee = (e) => {
-    const newCleaningFee = parseFloat(e.target.value) || 0; // Garante que valores inválidos sejam convertidos para 0
+    const newCleaningFee = parseFloat(e.target.value) || 0;
     if (newCleaningFee >= 0) {
       setCleaningFee(newCleaningFee);
       updateFieldHandler({
@@ -46,7 +46,7 @@ const Step8 = ({ updateFieldHandler }) => {
             value={pricePerNight}
             onChange={handlePriceChange}
             placeholder="0,00"
-            min="50" // Impede valores negativos diretamente no campo
+            min="50"
           />
         </strong>
       </div>
@@ -63,7 +63,7 @@ const Step8 = ({ updateFieldHandler }) => {
             value={cleaningFee}
             onChange={handleCleaningFee}
             placeholder="0,00"
-            min="10" // Impede valores negativos diretamente no campo
+            min="10"
           />
         </strong>
       </div>

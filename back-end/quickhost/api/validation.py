@@ -75,7 +75,6 @@ def validate_cpf(cpf):
     if len(cpf) != 11:
         return "CPF inválido. Deve ter 11 dígitos."
 
-    # Verificação de formato usando regex (somente números)
     if not re.match(r"^\d{11}$", cpf):
         return "CPF deve conter apenas números."
 
@@ -284,7 +283,7 @@ def validate_comment(comment):
         return "O campo comment deve ter pelo menos 100 caracteres."
     if len(comment) >= 500:
         return "O campo comment não pode ter mais de 500 caracteres."
-    return None  # Retorna o próprio valor do comentário se for válido
+    return None
 
 
 def validate_check_in_date(check_in_date):
@@ -294,14 +293,10 @@ def validate_check_in_date(check_in_date):
     - Deve ser a partir de amanhã (não hoje ou no passado).
     """
     if isinstance(check_in_date, date):
-        check_in_date = check_in_date.strftime(
-            "%Y-%m-%d"
-        )  # Converte para string, se necessário
+        check_in_date = check_in_date.strftime("%Y-%m-%d")
 
     try:
-        date_obj = datetime.strptime(
-            check_in_date, "%Y-%m-%d"
-        ).date()  # Converte para objeto date
+        date_obj = datetime.strptime(check_in_date, "%Y-%m-%d").date()
     except ValueError:
         return "Data de check-in inválida. Use o formato YYYY-MM-DD."
 
@@ -319,14 +314,10 @@ def validate_check_out_date(check_out_date, check_in_date):
     - Deve ser pelo menos um dia após a data de check-in.
     """
     if isinstance(check_out_date, date):
-        check_out_date = check_out_date.strftime(
-            "%Y-%m-%d"
-        )  # Converte para string, se necessário
+        check_out_date = check_out_date.strftime("%Y-%m-%d")
 
     try:
-        check_out_date_obj = datetime.strptime(
-            check_out_date, "%Y-%m-%d"
-        ).date()  # Converte para objeto date
+        check_out_date_obj = datetime.strptime(check_out_date, "%Y-%m-%d").date()
     except ValueError:
         return "A data de check-out deve ser uma data válida no formato YYYY-MM-DD."
 

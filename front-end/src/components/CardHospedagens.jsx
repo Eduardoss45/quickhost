@@ -7,15 +7,13 @@ import useDetalhes from "../hooks/useDetalhes.jsx";
 import "./CardHospedagens.css";
 
 const CardHospedagens = ({ accommodationData }) => {
-  console.log(accommodationData);
   const { userData } = useDetalhes(accommodationData?.creator);
-  console.log(userData);
 
   return (
     <div className="card-hospedagem" id={accommodationData?.id_accommodation}>
       <img
         src={`${import.meta.env.VITE_BASE_URL}${
-          accommodationData?.internal_images[0]
+          accommodationData?.main_cover_image
         }`}
         alt={accommodationData?.title || "Imagem da acomodação"}
       />

@@ -173,6 +173,7 @@
 .card-cancelar > .secondary-button:hover {
   background-color: var(--paleta-dois);
   color: var(--paleta-seis);
+  transition: 0.3s;
 }
 
 .card-cancelar .card-cancelar-reservas-line {

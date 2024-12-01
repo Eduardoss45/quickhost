@@ -7,8 +7,6 @@ import "./InfoCard.css";
 const InfoCard = ({ booking, index, accommodationData }) => {
   const { userData, loading, error } = useDetalhes(booking);
   const { userData: data } = useDetalhes(userData?.user);
-
-  console.log(data);
   return (
     <div key={index} className="info-card">
       <div>

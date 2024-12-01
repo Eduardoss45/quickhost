@@ -25,7 +25,7 @@ const SeletorData = ({ onDateChange, pricePerDay }) => {
     );
     if (daysDifference < 1) return { total: 0, tax: 0 };
 
-    let taxRate = 1.05; // Taxa padrão
+    let taxRate = 1.05;
     if (daysDifference > 3 && daysDifference <= 7) {
       taxRate = 1.1;
     } else if (daysDifference > 7) {

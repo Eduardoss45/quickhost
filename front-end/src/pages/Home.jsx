@@ -13,7 +13,6 @@ const Home = ({ accommodations }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOption, setSortOption] = useState("");
 
-  console.log(accommodations);
 
   const handleFilterClick = (category) => {
     setSelectedCategory(category);
@@ -25,7 +24,6 @@ const Home = ({ accommodations }) => {
 
   const handleSort = (option) => {
     setSortOption(option);
-    console.log(option);
   };
 
   const handleDetalhesClick = (accommodation) => {

@@ -37,10 +37,17 @@ header {
   font-size: 1.25rem;
   justify-content: center;
 }
+
 .btn {
   background-color: transparent;
   border: 1px solid var(--paleta-tres);
   color: var(--paleta-tres);
+  margin: 0 auto;
+}
+
+.btn:hover {
+  background-color: var(--paleta-seis);
+  color: var(--paleta-um);
 }
 
 .navegacao {

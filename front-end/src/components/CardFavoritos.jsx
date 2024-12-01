@@ -7,14 +7,12 @@ import { PiTrashSimple } from "react-icons/pi";
 import "./CardFavoritos.css";
 
 const CardFavoritos = ({ dados }) => {
-  console.log(dados);
   const { accommodationData } = useAccommodation(dados);
-  console.log(accommodationData);
   const creatorData = useDetalhes(accommodationData?.creator) || null;
   const { userData: name } = creatorData || {};
-  const { isFavorite, toggleFavorite } = useFavorite(dados); // Remove local state for isFavorite
+  const { isFavorite, toggleFavorite } = useFavorite(dados);
   const handleFavoriteClick = () => {
-    toggleFavorite(); // Just toggle favorite via hook
+    toggleFavorite();
     window.location.reload();
   };
 
