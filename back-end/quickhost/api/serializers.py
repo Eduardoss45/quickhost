@@ -34,6 +34,7 @@ from .validation import (
     validate_bathroom_count,
     validate_guest_capacity,
     validate_price_per_night,
+    validate_price,
     validate_main_cover_image,
     validate_space_type,
     validate_address,
@@ -86,10 +87,10 @@ class UserCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.UserAccount
         fields = [
-            "birth_date",
             "username",
             "email",
             "cpf",
+            "birth_date",
             "password",
         ]
         extra_kwargs = {"password": {"write_only": True}}
@@ -357,6 +358,7 @@ class AccommodationSerializer(serializers.ModelSerializer):
             "title",
             "description",
             "price_per_night",
+            "price",
             "average_rating",
             "created_at",
             "is_active",
@@ -377,14 +379,52 @@ class AccommodationSerializer(serializers.ModelSerializer):
             fields["id_accommodation"].required = False
             fields["average_rating"].required = False
             fields["final_price"].required = False
+            fields["price"].required = False
             fields["title"].required = False
             fields["description"].required = False
         else:
-            fields["average_rating"].required = False
+            fields["id_accommodation"].required = False
+            fields["creator"].required = True
+            fields["discount"].required = False
             fields["final_price"].required = False
+            fields["registered_user_bookings"].required = False
+            fields["cleaning_fee"].required = True
+            fields["consecutive_days_limit"].required = True
+            fields["main_cover_image"].required = True
             fields["internal_images"].required = True
+            fields["category"].required = True
+            fields["room_count"].required = True
+            fields["bed_count"].required = True
+            fields["bathroom_count"].required = True
+            fields["guest_capacity"].required = True
+            fields["space_type"].required = True
+            fields["address"].required = True
+            fields["city"].required = True
+            fields["neighborhood"].required = True
+            fields["postal_code"].required = True
+            fields["uf"].required = True
+            fields["wifi"].required = True
+            fields["tv"].required = True
+            fields["kitchen"].required = True
+            fields["washing_machine"].required = True
+            fields["parking_included"].required = True
+            fields["air_conditioning"].required = True
+            fields["pool"].required = True
+            fields["jacuzzi"].required = True
+            fields["grill"].required = True
+            fields["private_gym"].required = True
+            fields["beach_access"].required = True
+            fields["smoke_detector"].required = True
+            fields["fire_extinguisher"].required = True
+            fields["first_aid_kit"].required = True
+            fields["outdoor_camera"].required = True
+            fields["title"].required = True
+            fields["description"].required = True
+            fields["price_per_night"].required = True
+            fields["price"].required = False
             fields["average_rating"].required = False
-            fields["creator"].required = False
+            fields["created_at"].required = False
+            fields["is_active"].required = False
 
         return fields
 
@@ -412,6 +452,8 @@ class AccommodationSerializer(serializers.ModelSerializer):
             if consecutive_days_limit <= 0:
                 validated_data["consecutive_days_limit"] = -1
 
+            price = validated_data.get("price_per_night", 0)
+            validated_data["price"] = round(price, 2)
             price_per_night = validated_data.get("price_per_night", 0)
             price_per_night = Decimal(price_per_night)
             if price_per_night > 0:
@@ -498,16 +540,39 @@ class AccommodationSerializer(serializers.ModelSerializer):
         logger.info(
             f"Iniciando a atualização da acomodação {instance.id_accommodation}."
         )
+        logger.info(validated_data)
         try:
-
+            # Verificar se foi fornecida nova lista de imagens
             if "internal_images" in validated_data:
                 internal_images = validated_data.get("internal_images", [])
-                if not isinstance(internal_images, list):
-                    logger.warning(
-                        "Campo 'internal_images' não é uma lista. Mantendo valores atuais."
+
+                # Se nenhuma imagem for fornecida, remova as imagens existentes
+                if not internal_images:
+                    logger.info("Nenhuma imagem fornecida. Removendo imagens antigas.")
+                    # Excluir as imagens anteriores
+                    if instance.internal_images:
+                        for image_path in instance.internal_images:
+                            image_path = image_path.replace(
+                                "media/", ""
+                            )  # Remover prefixo 'media/'
+                            if default_storage.exists(image_path):
+                                default_storage.delete(image_path)
+                                logger.info(f"Imagem {image_path} deletada.")
+
+                    # Remover a pasta se estiver vazia
+                    image_folder = os.path.join(
+                        settings.MEDIA_ROOT,
+                        f"property_images/{instance.id_accommodation}/",
                     )
-                    validated_data["internal_images"] = instance.internal_images
+                    if os.path.isdir(image_folder) and not os.listdir(image_folder):
+                        os.rmdir(image_folder)
+                        logger.info(f"Pasta {image_folder} deletada, pois está vazia.")
+
+                    instance.internal_images.clear()  # Limpar a lista de imagens
+                    validated_data["internal_images"] = []
+
                 else:
+                    # Caso contrário, processar as novas imagens
                     valid_images = [
                         img
                         for img in internal_images
@@ -535,6 +600,7 @@ class AccommodationSerializer(serializers.ModelSerializer):
 
                         validated_data["internal_images"] = image_paths
 
+            # Atualização do campo 'main_cover_image'
             main_cover_image = validated_data.pop("main_cover_image", None)
             if main_cover_image is not None:
                 try:
@@ -559,6 +625,12 @@ class AccommodationSerializer(serializers.ModelSerializer):
                         "main_cover_image não é um índice válido. Mantendo existente."
                     )
 
+            # Processamento de preço
+            if "price" in validated_data:
+                price = validated_data.get("price", 0)
+                if price > 0:
+                    validated_data["price"] = round(price, 2)
+
             if "price_per_night" in validated_data:
                 price_per_night = Decimal(validated_data["price_per_night"])
                 if price_per_night > 0:
@@ -575,9 +647,12 @@ class AccommodationSerializer(serializers.ModelSerializer):
                         price_per_night * (1 - rate), 2
                     )
 
+            # Preservação de outros campos
             fields_to_preserve = [
                 "wifi",
                 "tv",
+                "price",
+                "price_per_night",
                 "kitchen",
                 "washing_machine",
                 "parking_included",
@@ -599,6 +674,7 @@ class AccommodationSerializer(serializers.ModelSerializer):
                 if field not in validated_data:
                     validated_data[field] = getattr(instance, field)
 
+            # Atualiza os outros campos
             for attr, value in validated_data.items():
                 if getattr(instance, attr) != value:
                     setattr(instance, attr, value)

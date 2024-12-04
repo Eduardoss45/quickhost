@@ -7,6 +7,14 @@ import logging
 logger = logging.getLogger("my_logger")
 
 
+def validate_username(username):
+    if username is None or len(username) < 3:
+        return "O nome de usuário deve ter pelo menos 3 caracteres."
+    if not all(c.isalnum() or c.isspace() or c in "-_" for c in username):
+        return "O nome de usuário deve conter apenas caracteres alfanuméricos, espaços, - e _."
+    return None
+
+
 def validate_birth_date(birth_date):
     if not isinstance(birth_date, date):
         return "Formato de data inválido."
@@ -17,23 +25,9 @@ def validate_birth_date(birth_date):
         - ((today.month, today.day) < (birth_date.month, birth_date.day))
     )
     if birth_date >= today:
-        return "Data de nascimento inválida. A data deve estar no passado."
+        return "Data de nascimento inválida. A data deve estar a frente da atual."
     if age < 18:
         return "O usuário deve ter pelo menos 18 anos."
-    return None
-
-
-def validate_phone_number(phone_number):
-    if phone_number is None or not re.match(r"^\+?1?\d{9,15}$", phone_number):
-        return "Número de telefone inválido. Certifique-se de que tem entre 9 e 15 dígitos, incluindo o código do país, se aplicável."
-    return None
-
-
-def validate_username(username):
-    if username is None or len(username) < 3:
-        return "O nome de usuário deve ter pelo menos 3 caracteres."
-    if not all(c.isalnum() or c.isspace() or c in "-_" for c in username):
-        return "O nome de usuário deve conter apenas caracteres alfanuméricos, espaços, - e _."
     return None
 
 
@@ -42,46 +36,6 @@ def validate_email(email):
         r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$", email
     ):
         return "Formato de e-mail inválido."
-    return None
-
-
-def validate_social_name(social_name):
-    if social_name is None or len(social_name) < 2:
-        return "O nome social deve ter pelo menos 2 caracteres."
-    return None
-
-
-def validate_profile_picture(profile_picture):
-    if isinstance(profile_picture, str) and profile_picture.startswith("http"):
-        return None
-
-    if not hasattr(profile_picture, "name") or not hasattr(profile_picture, "size"):
-        return "Arquivo de imagem inválido."
-
-    valid_extensions = ["jpg", "jpeg", "png", "gif"]
-    if not any(profile_picture.name.lower().endswith(ext) for ext in valid_extensions):
-        return "Imagem de perfil inválida. Formatos suportados: jpg, jpeg, png, gif."
-
-    if profile_picture.size > 5 * 1024 * 1024:
-        return "A imagem de perfil deve ter no máximo 5MB."
-
-    return None
-
-
-def validate_cpf(cpf):
-    if cpf == "":
-        return "O CPF não pode estar vazio."
-
-    if len(cpf) != 11:
-        return "CPF inválido. Deve ter 11 dígitos."
-
-    if not re.match(r"^\d{11}$", cpf):
-        return "CPF deve conter apenas números."
-
-
-def validate_authenticated(authenticated):
-    if authenticated not in [True, False]:
-        return "Autenticado deve ser True ou False."
     return None
 
 
@@ -94,6 +48,46 @@ def validate_password(password):
         return "A senha deve conter pelo menos uma letra maiúscula."
     if not re.search(r"[a-z]", password):
         return "A senha deve conter pelo menos uma letra minúscula."
+    return None
+
+
+def validate_cpf(cpf):
+    if cpf == "":
+        return "O CPF não pode estar vazio."
+    if len(cpf) != 11:
+        return "CPF inválido. Deve ter 11 dígitos."
+    if not re.match(r"^\d{11}$", cpf):
+        return "CPF deve conter apenas números."
+
+
+def validate_phone_number(phone_number):
+    if phone_number is None or not re.match(r"^\+?1?\d{9,15}$", phone_number):
+        return "Número de telefone inválido. Certifique-se de que tem entre 9 e 15 dígitos, incluindo o código do país, se aplicável."
+    return None
+
+
+def validate_social_name(social_name):
+    if social_name is None or len(social_name) < 2:
+        return "O nome social deve ter pelo menos 2 caracteres."
+    return None
+
+
+def validate_profile_picture(profile_picture):
+    if isinstance(profile_picture, str) and profile_picture.startswith("http"):
+        return None
+    if not hasattr(profile_picture, "name") or not hasattr(profile_picture, "size"):
+        return "Arquivo de imagem inválido."
+    valid_extensions = ["jpg", "jpeg", "png", "gif"]
+    if not any(profile_picture.name.lower().endswith(ext) for ext in valid_extensions):
+        return "Imagem de perfil inválida. Formatos suportados: jpg, jpeg, png, gif."
+    if profile_picture.size > 5 * 1024 * 1024:
+        return "A imagem de perfil deve ter no máximo 5MB."
+    return None
+
+
+def validate_authenticated(authenticated):
+    if authenticated not in [True, False]:
+        return "Autenticado deve ser True ou False."
     return None
 
 
@@ -156,6 +150,12 @@ def validate_guest_capacity(guest_capacity):
 def validate_price_per_night(price_per_night):
     if price_per_night < 0:
         return "O preço por noite deve ser um valor positivo."
+    return None
+
+
+def validate_price(price):
+    if price < 0:
+        return "O preço deve ser um valor positivo."
     return None
 
 

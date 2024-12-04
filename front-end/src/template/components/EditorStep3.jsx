@@ -10,7 +10,7 @@ import { PiFireExtinguisherBold, PiSecurityCameraThin } from "react-icons/pi";
 import CustomButton from "../../components/CustomButton";
 import "./css/Step5.css";
 
-const Step5 = ({ data, updateFieldHandler }) => {
+const EditorStep3 = ({ data, updateFieldHandler, accommodationData }) => {
   const [resources, setResources] = useState({
     wifi: data.wifi || false,
     tv: data.tv || false,
@@ -127,4 +127,4 @@ const Step5 = ({ data, updateFieldHandler }) => {
   );
 };
 
-export default Step5;
+export default EditorStep3;

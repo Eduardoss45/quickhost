@@ -76,12 +76,7 @@ const useCadastroAcomodacoes = () => {
       );
       setSuccess(true);
     } catch (error) {
-      console.error("Erro ao enviar os dados:", error);
-      if (error.response) {
-        setError(error.response.data.detail);
-      } else {
-        setError(false);
-      }
+      setError(error?.response.data);
     } finally {
       setLoading(false);
       console.log("Carregamento finalizado, loading:", loading);

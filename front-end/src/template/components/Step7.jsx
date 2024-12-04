@@ -1,10 +1,23 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./css/Step7.css";
 
-const Step7 = ({ updateFieldHandler }) => {
+const Step7 = ({ updateFieldHandler, data }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [consecutiveDaysLimit, setConsecutiveDaysLimit] = useState("1");
+
+  // Verificando se title, description e consecutive_days_limit estão em data e inicializando os estados
+  useEffect(() => {
+    if (data) {
+      setTitle(data.title || ""); // Se title estiver em data, inicializa com ele
+      setDescription(data.description || ""); // Se description estiver em data, inicializa com ele
+      setConsecutiveDaysLimit(
+        data.consecutive_days_limit === -1
+          ? "indeterminado"
+          : String(data.consecutive_days_limit || "1")
+      );
+    }
+  }, [data]);
 
   const handleTitleChange = (e) => {
     const newTitle = e.target.value;
@@ -60,7 +73,7 @@ const Step7 = ({ updateFieldHandler }) => {
       <h3>Indique o número máximo de dias consecutivos em uma reserva</h3>
       <div>
         <select value={consecutiveDaysLimit} onChange={handleDaysLimitChange}>
-          {[...Array(10).keys()].map((num) => (
+          {[...Array(30).keys()].map((num) => (
             <option key={num + 1} value={num + 1}>
               {num + 1}
             </option>

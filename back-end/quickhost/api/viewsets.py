@@ -170,7 +170,7 @@ class AccommodationViewSet(viewsets.ModelViewSet):
                 raise exceptions.ValidationError(
                     {"detail": "O ID do usuário não está registrado."}
                 )
-            request.data["creator"] = user_id
+            # request.data["creator"] = user_id
         except ValueError:
             raise exceptions.ValidationError(
                 {"detail": "O ID do usuário deve estar no formato UUID."}

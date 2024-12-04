@@ -116,44 +116,28 @@ function CadastroAcomodacoes() {
     currentComponent,
     changeStep,
     isLastStep,
-    isConfirm,
   } = useForm(formCabecalhos, formComponents);
-
-  const validateForm = () => {
-    const requiredFields = [];
-
-    for (const field of requiredFields) {
-      const value = formData[field];
-      if (!value) {
-        console.warn(`Campo obrigatório não preenchido: ${field}`);
-        return false;
-      }
-    }
-    return true;
-  };
 
   const formRef = useRef();
 
   const handleExternalSubmit = () => {
-    if (validateForm()) {
-      formRef.current.requestSubmit();
-    } else {
-      alert("Por favor, preencha todos os campos obrigatórios.");
-    }
+    formRef.current.requestSubmit();
   };
 
   const handleFormSubmit = (e) => {
     e.preventDefault();
 
     if (isLastStep) {
-      if (validateForm()) {
-        handleSubmit(formData);
-      } else {
-        alert("Por favor, preencha todos os campos obrigatórios.");
-      }
+      formData.creator = localStorage.id_user;
+      handleSubmit(formData);
     } else {
       changeStep(currentStep + 1);
     }
+  };
+
+  const handleExit = (e) => {
+    e.preventDefault();
+    navigate("/hospedar");
   };
 
   return (
@@ -216,9 +200,9 @@ function CadastroAcomodacoes() {
               <div>
                 <button
                   className="finalizar-button"
-                  onClick={handleExternalSubmit}
+                  onClick={!success ? handleExternalSubmit : handleExit}
                 >
-                  Finalizar
+                  {`${!success ? "Finalizar" : "Sair"}`}
                 </button>
               </div>
             )}

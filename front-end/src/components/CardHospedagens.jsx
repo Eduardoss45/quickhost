@@ -21,7 +21,7 @@ const CardHospedagens = ({ accommodationData }) => {
         <h2>{accommodationData?.title}</h2>
         <p>{userData?.username || "Nome do Criador Indisponível"}</p>
         <p>
-          <strong>R$ {accommodationData?.price_per_night}</strong> por noite
+          <strong>R$ {accommodationData?.price}</strong> por noite
         </p>
       </div>
       <div className="card-hospedagem-linha"></div>

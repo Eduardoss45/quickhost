@@ -48,15 +48,15 @@ const useEditAcomodacao = () => {
         ? formData.internal_images
         : Array.from(formData.internal_images || []);
 
-      Object.keys(formData).forEach((key) => {
-        if (key === "internal_images") {
-          images.forEach((file) => {
-            updatedFormData.append("internal_images", file);
-          });
-        } else {
-          updatedFormData.append(key, formData[key]);
-        }
-      });
+      // Object.keys(formData).forEach((key) => {
+      //   if (key === "internal_images") {
+      //     images.forEach((file) => {
+      //       updatedFormData.append("internal_images", file);
+      //     });
+      //   } else {
+      //     updatedFormData.append(key, formData[key]);
+      //   }
+      // });
 
       console.log(`Enviando dados para: ${updatedFormData}`);
 

@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import { PiNumberCircleOneThin } from "react-icons/pi";
 import { PiNumberCircleTwoThin } from "react-icons/pi";
 import { PiNumberCircleThreeThin } from "react-icons/pi";

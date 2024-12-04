@@ -70,12 +70,8 @@ const EditorDePerfil = () => {
 
     try {
       await editUser(form);
-      if (success) {
-        alert("Dados atualizados com sucesso!");
-        fetchUserData();
-      }
     } catch (error) {
-      console.error("Erro ao atualizar dados:", error);
+      console.log(error);
     }
   };
 
@@ -117,7 +113,8 @@ const EditorDePerfil = () => {
         )}
         {renderPasswordInput("password", "Senha")}
         {renderFileInput("profile_picture", "Foto de Perfil", image)}
-
+        {error && <p className="error">Certifique de preencher os dados!</p>}
+        {success && <p className="success">Dados salvos com sucesso!</p>}
         <div className="buttons">
           <button type="button" onClick={handleReset} className="reset-button">
             Redefinir
@@ -134,7 +131,7 @@ const EditorDePerfil = () => {
     return (
       <div>
         <label htmlFor={id}>{label}</label>
-        {error && error[id] && <p className="error">{error[id]}</p>}
+        {error?.[id] && <p className="error">{error?.[id]}</p>}
         <input
           type="text"
           id={id}
@@ -152,7 +149,7 @@ const EditorDePerfil = () => {
     return (
       <div className="password-field">
         <label>{label}</label>
-        {error && error[id] && <p className="error">{error[id]}</p>}
+        {error?.[id] && <p className="error">{error?.[id]}</p>}
         <input
           type={showPassword ? "text" : "password"}
           id={id}
@@ -171,8 +168,7 @@ const EditorDePerfil = () => {
     return (
       <div className="file-upload">
         <label>{label}</label>
-        {error && error[id] && <p className="error">{error[id]}</p>}
-
+        {error?.[id] && <p className="error">{error?.[id]}</p>}
         <div {...getRootProps({ className: "dropzone" })}>
           <input {...getInputProps()} />
           {isDragActive ? (

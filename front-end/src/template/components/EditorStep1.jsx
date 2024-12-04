@@ -4,11 +4,38 @@ import { CiCamera } from "react-icons/ci";
 import { FiImage } from "react-icons/fi";
 import "./css/EditorStep1.css";
 
-const Step6And7 = ({ updateFieldHandler }) => {
+const EditorStep1 = ({ data, updateFieldHandler, accommodationData }) => {
   const [photos, setPhotos] = useState([]);
   const [mainCoverImageIndex, setMainCoverImageIndex] = useState(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+
+  // Carregar imagens existentes e configurar valores iniciais
+  useEffect(() => {
+    if (accommodationData?.internal_images?.length > 0) {
+      const imagesWithPreview = accommodationData.internal_images.map(
+        (imageUrl) => ({
+          url: imageUrl,
+          preview: imageUrl, // Usar o próprio URL como preview
+        })
+      );
+      setPhotos(imagesWithPreview);
+
+      // Configurar a imagem de capa principal, se disponível
+      if (accommodationData.main_cover_image) {
+        setMainCoverImageIndex(
+          accommodationData.internal_images.findIndex(
+            (image) => image === accommodationData.main_cover_image
+          )
+        );
+      }
+    }
+
+    // Configurar título e descrição
+    if (accommodationData?.title) setTitle(accommodationData.title);
+    if (accommodationData?.description)
+      setDescription(accommodationData.description);
+  }, [accommodationData]);
 
   const onDrop = (acceptedFiles) => {
     if (photos.length + acceptedFiles.length <= 20) {
@@ -49,6 +76,8 @@ const Step6And7 = ({ updateFieldHandler }) => {
           name: "internal_images",
           value: [],
         },
+      });
+      updateFieldHandler({
         target: {
           name: "main_cover_image",
           value: undefined,
@@ -68,12 +97,6 @@ const Step6And7 = ({ updateFieldHandler }) => {
       });
     }
   };
-
-  useEffect(() => {
-    return () => {
-      photos.forEach((photo) => URL.revokeObjectURL(photo.preview));
-    };
-  }, [photos]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -100,6 +123,9 @@ const Step6And7 = ({ updateFieldHandler }) => {
 
   return (
     <div className="editor-step1">
+      <h2>Adicione fotos de sua acomodação (mínimo 5 imagens)</h2>
+      <p>Você pode selecionar mais imagens posteriormente</p>
+      <h3>Selecione imagens</h3>
       <div
         {...getRootProps()}
         className={`box photo-upload-container ${
@@ -118,6 +144,7 @@ const Step6And7 = ({ updateFieldHandler }) => {
             : "Selecionar do Computador"}
         </span>
       </div>
+
       {photos.length < 5 ? (
         <p style={{ color: "red" }}>
           Você precisa adicionar pelo menos 5 fotos para prosseguir.
@@ -128,6 +155,7 @@ const Step6And7 = ({ updateFieldHandler }) => {
           <h2>Escolha uma para exibição como capa principal no site.</h2>
         </>
       )}
+
       <div className="preview-section">
         <h3>Imagens escolhidas</h3>
         <div className="image-gallery">
@@ -135,7 +163,11 @@ const Step6And7 = ({ updateFieldHandler }) => {
             <div key={index} className="image-container">
               <FiImage size={24} color="#f97316" className="image-icon" />
               <img
-                src={photo.preview}
+                src={
+                  photo.url
+                    ? `${import.meta.env.VITE_BASE_URL}${photo.url}`
+                    : photo.preview
+                }
                 alt={`Preview ${index + 1}`}
                 onClick={() => handleImageClick(index)}
                 style={{
@@ -149,6 +181,7 @@ const Step6And7 = ({ updateFieldHandler }) => {
           ))}
         </div>
       </div>
+
       <button
         onClick={clearPhotos}
         disabled={photos.length === 0}
@@ -156,6 +189,7 @@ const Step6And7 = ({ updateFieldHandler }) => {
       >
         Limpar Imagens
       </button>
+
       <h3>Nome da Acomodação</h3>
       <div className="editor-step1-title">
         <input
@@ -166,6 +200,7 @@ const Step6And7 = ({ updateFieldHandler }) => {
         />
         <span className="cont-letras">{title.length}/32</span>
       </div>
+
       <h3>Descrição da Acomodação</h3>
       <div className="editor-step1-description">
         <textarea
@@ -179,4 +214,4 @@ const Step6And7 = ({ updateFieldHandler }) => {
   );
 };
 
-export default Step6And7;
+export default EditorStep1;

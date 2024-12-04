@@ -77,7 +77,7 @@ const Anuncio = () => {
         accommodation: accommodationData.id_accommodation,
         check_in_date: formatDate(checkIn),
         check_out_date: formatDate(checkOut),
-        price: accommodationData.final_price,
+        price: accommodationData.price,
       };
       navigate(`/pagamento/${accommodationData?.id_accommodation}`, {
         state: formData,
@@ -442,12 +442,12 @@ const Anuncio = () => {
           <div className="acomodacao-painel-reservas">
             <div>
               <SeletorData
-                pricePerDay={accommodationData?.final_price}
+                pricePerDay={accommodationData?.price}
                 onDateChange={handleDataChange}
               />
               <div className="acomodacao-painel-hospedagem">
                 <p>Acomodação</p>
-                <span>{`R$ ${accommodationData?.final_price || "0,00"}`}</span>
+                <span>{`R$ ${accommodationData?.price || "0,00"}`}</span>
               </div>
               <div className="linha-acomodacao-descricao"></div>
               <div className="acomodacao-painel-hospedagem">

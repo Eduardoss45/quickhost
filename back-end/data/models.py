@@ -87,6 +87,9 @@ class PropertyListing(models.Model):
     final_price = models.DecimalField(
         max_digits=10, decimal_places=2, default=0.00, blank=True, null=True
     )
+    price = models.DecimalField(
+        max_digits=10, decimal_places=2, default=0.00, blank=True, null=True
+    )
     CATEGORY_CHOICES = [
         ("inn", _("Inn")),
         ("chalet", _("Chalet")),

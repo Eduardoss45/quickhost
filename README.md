@@ -27,7 +27,7 @@ Antes de iniciar, instale as seguintes dependências:
 2. Crie um ambiente virtual para o Django:
 
    ```bash
-   python3 -m venv venv
+   py -m venv venv
    ```
 
 3. Ative o ambiente virtual:
@@ -53,19 +53,19 @@ Antes de iniciar, instale as seguintes dependências:
 5. Configure o banco de dados executando as migrações iniciais:
 
    ```bash
-   python manage.py migrate
+   py manage.py migrate
    ```
 
 6. (Opcional) Crie um superusuário para acessar o painel administrativo do Django:
 
    ```bash
-   python manage.py createsuperuser
+   py manage.py createsuperuser
    ```
 
 7. Inicie o servidor de desenvolvimento do Django:
 
    ```bash
-   python manage.py runserver
+   py manage.py runserver
    ```
 
    O servidor estará disponível em `http://127.0.0.1:8000`.
@@ -85,7 +85,7 @@ Antes de iniciar, instale as seguintes dependências:
    - Usando npm:
 
    ```bash
-   npm install
+   npm i
    ```
 
    - Usando yarn:
@@ -130,7 +130,8 @@ Para rodar a aplicação completa em um ambiente de desenvolvimento, siga os pas
 
    ```bash
    cd back-end
-   python manage.py runserver
+   venv\Scripts\activate
+   py manage.py runserver
    ```
 
 2. Inicie o front-end com React + Vite em outra janela de terminal:

@@ -1,7 +1,7 @@
 import React from "react";
 import "./css/Step4.css";
 
-const Step4 = ({ data, updateFieldHandler }) => {
+const EditorStep2 = ({ data, updateFieldHandler, accommodationData }) => {
   return (
     <div className="step-four">
       <h2>Informe o endereço de sua acomodação</h2>
@@ -81,4 +81,4 @@ const Step4 = ({ data, updateFieldHandler }) => {
   );
 };
 
-export default Step4;
+export default EditorStep2;

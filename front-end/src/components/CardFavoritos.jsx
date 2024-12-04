@@ -30,7 +30,7 @@ const CardFavoritos = ({ dados }) => {
         <h2>{accommodationData?.title}</h2>
         <p>{name?.username || "Nome do Criador Indisponível"}</p>
         <p>
-          <strong>R$ {accommodationData?.final_price}</strong> por noite
+          <strong>R$ {accommodationData?.price}</strong> por noite
         </p>
       </div>
       <div className="card-favoritos-linha"></div>

@@ -7,6 +7,20 @@
   color: var(--paleta-dois);
 }
 
+.user-info-form .error {
+  font-size: 1.2rem;
+  color: var(--paleta-oito);
+  margin: 0.1rem 0;
+  line-height: 1.5;
+}
+
+.user-info-form .success {
+  font-size: 1.2rem;
+  color: var(--paleta-nove);
+  margin: 0 0 1rem 0;
+  line-height: 1.5;
+}
+
 #page-row-perfil input[type="submit"] {
   background-color: var(--paleta-dois);
   color: white;

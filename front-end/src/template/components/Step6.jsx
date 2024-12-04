@@ -4,7 +4,7 @@ import { CiCamera } from "react-icons/ci";
 import { FiImage } from "react-icons/fi";
 import "./css/Step6.css";
 
-const Step6 = ({ updateFieldHandler }) => {
+const Step6 = ({ data, updateFieldHandler }) => {
   const [photos, setPhotos] = useState([]);
   const [mainCoverImageIndex, setMainCoverImageIndex] = useState(null);
 
@@ -47,6 +47,8 @@ const Step6 = ({ updateFieldHandler }) => {
           name: "internal_images",
           value: [],
         },
+      });
+      updateFieldHandler({
         target: {
           name: "main_cover_image",
           value: undefined,
@@ -68,10 +70,20 @@ const Step6 = ({ updateFieldHandler }) => {
   };
 
   useEffect(() => {
-    return () => {
-      photos.forEach((photo) => URL.revokeObjectURL(photo.preview));
-    };
-  }, [photos]);
+    // Verificando se existe internal_images em data e carregando as imagens
+    if (data?.internal_images?.length) {
+      const imagesWithPreview = data.internal_images.map((image) => ({
+        ...image,
+        preview: image.preview || URL.createObjectURL(image), // Carregar o preview caso não exista
+      }));
+      setPhotos(imagesWithPreview);
+
+      // Verificando se main_cover_image está presente e definindo a imagem principal
+      if (data.main_cover_image !== undefined) {
+        setMainCoverImageIndex(data.main_cover_image);
+      }
+    }
+  }, [data]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,

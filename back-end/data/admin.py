@@ -22,6 +22,7 @@ class PropertyListingAdmin(admin.ModelAdmin):
         "title",
         "category",
         "price_per_night",
+        "price",
         "creator_username",
         "is_active",
         "created_at",

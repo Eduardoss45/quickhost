@@ -23,6 +23,7 @@ function EditorAcomodacoes() {
   const { handleSubmit, handleDelete } = useEditAcomodacao();
   const { id } = useParams();
   const { accommodationData } = useAccommodation(id);
+  console.log(accommodationData);
   const [isWarned, setIsWarned] = useState(false);
   const navigate = useNavigate();
   useEffect(() => {
@@ -57,7 +58,11 @@ function EditorAcomodacoes() {
   ];
 
   const formComponents = [
-    <EditorStep1 data={formData} updateFieldHandler={updateFieldHandler} />,
+    <EditorStep1
+      data={formData}
+      updateFieldHandler={updateFieldHandler}
+      accommodationData={accommodationData}
+    />,
     <EditorStep2
       data={formData}
       updateFieldHandler={updateFieldHandler}

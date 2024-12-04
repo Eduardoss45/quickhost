@@ -12,7 +12,7 @@ const useEdit = (id_user, token) => {
     cpf: "",
     profile_picture: null,
   });
-  console.log(formData);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
@@ -45,7 +45,7 @@ const useEdit = (id_user, token) => {
         birth_date: userData.birth_date || "",
         cpf: userData.cpf || "",
       }));
-      setSuccess(true);
+      setSuccess(false);
     } catch (error) {
       handleError(error);
     } finally {
@@ -83,18 +83,15 @@ const useEdit = (id_user, token) => {
       );
       setFormData(response.data);
       setSuccess(true);
-      setError(null);
+      setError(false);
     } catch (error) {
-      console.log(error);
       handleError(error);
       setSuccess(false);
     }
   };
 
   const handleError = (error) => {
-    const errorMessage =
-      error.response?.data?.detail || error.message || "An error occurred";
-    setError(new Error(errorMessage));
+    setError(error.response.data);
   };
 
   const hasFile = (data) =>
@@ -118,15 +115,6 @@ const useEdit = (id_user, token) => {
       }));
     } else {
       console.warn(`A chave "${id}" não existe no formData.`);
-    }
-  };
-
-  const isValidURL = (string) => {
-    try {
-      new URL(string);
-      return true;
-    } catch (e) {
-      return false;
     }
   };
 

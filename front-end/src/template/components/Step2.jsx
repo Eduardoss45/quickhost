@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaMinus, FaPlus } from "react-icons/fa";
+import { PiMinusThin, PiPlusThin } from "react-icons/pi";
 import { LiaUmbrellaBeachSolid } from "react-icons/lia";
 import { MdBedroomParent, MdChalet } from "react-icons/md";
 import { FaBuilding, FaHouse } from "react-icons/fa6";
@@ -8,6 +8,13 @@ import "./css/Step2.css";
 
 const Step2 = ({ data, updateFieldHandler }) => {
   const labels = ["inn", "chalet", "apartment", "home", "room"];
+  const translatedLabels = [
+    "Pousada",
+    "Chalé",
+    "Apartamento",
+    "Casa",
+    "Quarto",
+  ];
   const values = ["Quartos", "Camas", "Banheiro", "Hóspedes acomodados"];
   const icons = [
     <LiaUmbrellaBeachSolid key="umbrella" />,
@@ -29,10 +36,19 @@ const Step2 = ({ data, updateFieldHandler }) => {
   const max = 20;
 
   useEffect(() => {
+    // Verifica se a chave 'category' está presente em 'data' e se o valor é válido
+    if (data.category) {
+      const categoryIndex = labels.indexOf(data.category);
+      if (categoryIndex !== -1) {
+        setActiveButton(categoryIndex);
+      }
+    }
+
+    // Atualiza os campos de contagem com base em 'counts'
     Object.keys(counts).forEach((key) => {
       updateFieldHandler({ target: { name: key, value: counts[key] } });
     });
-  }, []);
+  }, [data.category]);
 
   const handleChange = (key, value) => {
     const validValue = Math.max(min, Math.min(max, value));
@@ -55,7 +71,7 @@ const Step2 = ({ data, updateFieldHandler }) => {
 
   const category =
     activeButton !== null
-      ? labels[activeButton]
+      ? translatedLabels[activeButton]
       : "Nenhuma categoria selecionada";
 
   return (
@@ -67,7 +83,7 @@ const Step2 = ({ data, updateFieldHandler }) => {
             <CustomButton
               key={index}
               icon={icons[index]}
-              label={label}
+              label={translatedLabels[index]}
               isActive={activeButton === index}
               onClick={() => {
                 setActiveButton(index);
@@ -88,7 +104,7 @@ const Step2 = ({ data, updateFieldHandler }) => {
                 </div>
                 <div className="cont-form">
                   <span type="button" onClick={() => decrement(key)}>
-                    <FaMinus />
+                    <PiMinusThin />
                   </span>
                   <input
                     type="number"
@@ -103,7 +119,7 @@ const Step2 = ({ data, updateFieldHandler }) => {
                     }}
                   />
                   <span type="button" onClick={() => increment(key)}>
-                    <FaPlus />
+                    <PiPlusThin />
                   </span>
                 </div>
               </div>

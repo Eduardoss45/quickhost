@@ -1,10 +1,19 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./css/Step8.css";
 
-const Step8 = ({ updateFieldHandler }) => {
+const Step8 = ({ updateFieldHandler, data }) => {
   const [pricePerNight, setPricePerNight] = useState("");
   const [cleaningFee, setCleaningFee] = useState("");
   const [discount, setDiscount] = useState(false);
+
+  // Verificando se os valores estão presentes em data e inicializando os estados
+  useEffect(() => {
+    if (data) {
+      setPricePerNight(data.price_per_night || "");
+      setCleaningFee(data.cleaning_fee || "");
+      setDiscount(data.discount || false);
+    }
+  }, [data]);
 
   const handlePriceChange = (e) => {
     const newPrice = parseFloat(e.target.value) || 0;
@@ -53,6 +62,7 @@ const Step8 = ({ updateFieldHandler }) => {
       <p>
         * Será cobrada uma taxa de serviço de 10% sobre o valor da acomodação.
       </p>
+
       <h2>Determine a taxa de limpeza</h2>
       <h3>Valor</h3>
       <div className="step-eight-preco">

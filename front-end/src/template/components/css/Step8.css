@@ -28,12 +28,12 @@
   border-radius: 8px;
   width: 100%;
   background: transparent;
-  padding: 1rem;
   margin: 0.5rem 0;
 }
 
 .step-eight-preco strong {
   font-size: 1rem;
+  padding-left: 1rem;
   font-weight: 500;
   color: var(--paleta-sete);
   display: flex;
@@ -46,7 +46,9 @@
   border: none;
   background-color: transparent;
   font-size: 1rem;
+  padding: 1rem 0;
   outline: none;
+  flex: 1;
 }
 
 .cupom-desconto {

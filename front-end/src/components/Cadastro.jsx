@@ -81,7 +81,7 @@ function Cadastro() {
           <input
             type="text"
             id="cpf"
-            placeholder="Digite seu CPF"
+            placeholder="Digite seu CPF (11 Digitos)"
             name="cpf"
             value={formData.cpf}
             onChange={handleChange}

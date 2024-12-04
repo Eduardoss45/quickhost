@@ -13,7 +13,6 @@ const Home = ({ accommodations }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOption, setSortOption] = useState("");
 
-
   const handleFilterClick = (category) => {
     setSelectedCategory(category);
   };
@@ -86,13 +85,10 @@ const Home = ({ accommodations }) => {
           >
             <Detalhes
               key={item.id_accommodation}
-              image={
-                (item.internal_images && item.internal_images[0]) ||
-                "media/default-image.jpg"
-              }
+              image={item?.main_cover_image || "media/default-image.jpg"}
               title={item.title}
               creator={item.creator}
-              price_per_night={item.final_price}
+              price_per_night={item.price}
               city={item.city}
               onClick={() => handleDetalhesClick(item)}
             />
