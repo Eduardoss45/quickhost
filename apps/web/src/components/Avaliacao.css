@@ -1,0 +1,62 @@
+.review-card {
+  border-radius: 8px;
+  padding: 16px;
+  max-width: 600px;
+  font-family: Arial, sans-serif;
+  background-color: transparent;
+}
+
+.review-card-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.rating-date {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.profile-image {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  margin-right: 12px;
+}
+
+.name {
+  margin: 0;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.rating {
+  display: flex;
+  align-items: center;
+}
+
+.star {
+  color: var(--paleta-um);
+  font-size: 18px;
+}
+
+.star.inactive {
+  color: var(--paleta-quatro);
+}
+
+.date {
+  margin: 0;
+  font-size: 12px;
+  color: var(--paleta-sete);
+}
+
+.review-text {
+  margin: 0;
+  font-size: 14px;
+  color: var(--paleta-quatro);
+}
+
+.no-reviews {
+  margin: 1rem 0;
+}

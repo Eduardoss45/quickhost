@@ -1,0 +1,64 @@
+.anuncio {
+  box-shadow: 0px 3px 20px 0px #3d3d3d10;
+  max-width: 20vw;
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+  background-color: var(--paleta-seis);
+}
+
+.anuncio img {
+  width: 20vw;
+  height: 15vw;
+  object-fit: cover;
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+}
+
+.anuncio > div:nth-child(2),
+.anuncio > div:nth-child(4) {
+  padding: 0.5rem 1rem;
+}
+
+.anuncio div > div > h2 {
+  color: var(--paleta-sete);
+  font-size: 1.8rem;
+  text-transform: capitalize;
+  font-weight: bold;
+}
+
+.anuncio div > div > p:nth-child(1) {
+  text-transform: capitalize;
+}
+
+.anuncio div > div > p:nth-child(3) {
+  font-size: 1.2rem;
+}
+
+.anuncio div > div > p {
+  padding: 0.4rem 0;
+  color: var(--paleta-quatro);
+}
+
+.anuncio div > div > p > strong {
+  color: var(--paleta-sete);
+  font-size: 1.4rem;
+}
+
+.anuncio-linha {
+  border-bottom: 1px solid var(--paleta-sete);
+}
+
+.anuncio > div:nth-child(4) {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  text-transform: capitalize;
+}
+
+.anuncio > div:nth-child(4) > span:nth-child(1) {
+  font-size: 1.8rem;
+}
+
+.anuncio > div:nth-child(4) > span:nth-child(2) {
+  font-size: 1.2rem;
+}

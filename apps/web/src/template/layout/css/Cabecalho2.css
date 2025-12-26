@@ -1,0 +1,20 @@
+.cabecalho-2 {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.cabecalho-2 > div > h2 {
+  font-size: 1.8rem;
+  color: var(--paleta-um);
+}
+
+.cabecalho-2 > div > p {
+  font-size: 1.4rem;
+  color: var(--paleta-dois);
+}
+
+.cabecalho-2 > a > svg {
+  font-size: 4.5rem;
+  color: var(--paleta-dois);
+}

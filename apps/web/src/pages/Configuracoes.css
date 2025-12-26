@@ -1,0 +1,35 @@
+.configuracoes-page {
+  margin: 1rem 2rem;
+}
+
+.configuracoes-page span {
+  display: flex;
+}
+
+.configuracoes-page > h2 {
+  font-weight: bold;
+  color: var(--paleta-um);
+  margin: 2rem 0rem;
+}
+
+.configuracoes-page > a {
+  display: flex;
+}
+.configuracoes-page > a > div {
+  display: flex;
+  gap: 40vw;
+  justify-content: flex-start;
+  box-shadow: 0px 10px 20px 0px #00000040;
+  border-radius: 10px;
+  padding: 2rem;
+}
+
+.configuracoes-page > a > div > div:nth-child(1) {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.configuracoes-icone {
+  font-size: 3rem;
+}

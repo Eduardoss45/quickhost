@@ -1,0 +1,170 @@
+.editor-step1 {
+  padding: 4rem 0;
+  max-width: 100%;
+}
+
+.editor-step1 > h2 {
+  color: var(--paleta-sete);
+}
+
+.editor-step1 > p {
+  color: var(--paleta-quatro);
+  margin: 1rem 0;
+}
+
+.editor-step1 > h3 {
+  font-size: 1.2rem;
+  margin: 1rem 0;
+}
+
+.box.photo-upload-container {
+  display: flex;
+  border: 2px solid var(--paleta-quatro);
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  background-color: #fafafa;
+  cursor: pointer;
+  width: 40vw;
+  height: 20vw;
+  transition: background-color 0.2s ease-in-out;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 500px;
+  height: 300px;
+}
+
+.box.photo-upload-container p {
+  width: 30vw;
+  padding-bottom: 1rem;
+  font-size: 1.2rem;
+  color: var(--paleta-quatro);
+  text-align: center;
+}
+
+.box.photo-upload-container > svg {
+  color: var(--paleta-quatro);
+}
+
+.box.photo-upload-container > span {
+  padding: 0.5rem 2rem;
+  border: 1px solid var(--paleta-quatro);
+  margin: 1rem;
+  color: var(--paleta-quatro);
+  font-size: 1.4rem;
+  background-color: transparent;
+  border-radius: 8px;
+}
+
+.box.photo-upload-container.dragging {
+  background-color: #f0f0f0;
+}
+
+.preview-section {
+  margin-top: 20px;
+}
+
+.preview-section h3 {
+  margin: 1rem 0;
+}
+
+.image-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.editor-step1 .image-container {
+  position: relative;
+  width: 200px;
+  height: 150px;
+  overflow: hidden;
+  border-radius: 8px;
+  background-color: #ddd;
+  flex: 1;
+}
+
+.editor-step1 .image-container > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.image-icon {
+  position: absolute;
+  left: 10px;
+  background-color: rgba(0, 0, 0, 0.5);
+  margin-top: 0.5rem;
+  padding: 4px;
+  border-radius: 50%;
+}
+
+.editor-step1-button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: var(--paleta-um);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.editor-step1-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.editor-step1 {
+  display: flex;
+  flex-direction: column;
+  text-align: start;
+  align-items: start;
+  margin: 3rem 0;
+}
+
+.editor-step1 h2 {
+  font-size: 1.6rem;
+  margin: 1rem 0;
+}
+
+.editor-step1-title {
+  padding: 0.5rem 0;
+}
+
+.editor-step1-title,
+.editor-step1-description {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: justify;
+}
+
+.editor-step1-title input,
+.editor-step1-description textarea {
+  background-color: transparent;
+  border-radius: 8px;
+  margin: 0.5rem 0;
+  padding: 1rem;
+  width: 60vw;
+}
+
+.editor-step1-description {
+  padding: 0.5rem 0;
+}
+
+.editor-step1-description textarea {
+  padding-bottom: 10rem;
+  height: 200px;
+}
+
+.editor-step1 > div:nth-child(7) {
+  padding: 1rem 0;
+}
+.editor-step1 > div > select {
+  padding: 0.5rem;
+  border-radius: 8px;
+  width: auto;
+}

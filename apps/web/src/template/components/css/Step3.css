@@ -1,0 +1,55 @@
+.step-third {
+  display: flex;
+  align-items: start;
+  flex-direction: column;
+}
+
+.step-third > h2 {
+  font-size: 1.8rem;
+  margin-top: 3rem;
+  font-weight: bold;
+}
+
+.step-third p {
+  font-size: 1.2rem;
+  color: var(--paleta-dois);
+}
+
+.step-option.active p {
+  color: var(--paleta-tres) !important;
+}
+
+.step-option {
+  border: 1px solid var(--paleta-dois);
+  border-radius: 1rem;
+  padding: 1rem 1.5rem;
+  margin: 1rem 0;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}
+
+.step-option.active {
+  background-color: var(--paleta-dois);
+  color: var(--paleta-tres);
+}
+
+.step-third-opt {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+.step-third-opt > span {
+  font-size: 3rem;
+  color: var(--paleta-dois);
+}
+
+.step-option.active h2,
+.step-option.active p {
+  color: var(--paleta-tres);
+}
+
+.step-option.active .step-third-opt > span {
+  color: var(--paleta-tres);
+}

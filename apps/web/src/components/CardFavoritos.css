@@ -1,0 +1,89 @@
+.card-favoritos {
+  box-shadow: 0px 3px 20px 0px #3d3d3d10;
+  max-width: 20vw;
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+  background-color: var(--paleta-seis);
+  margin: 2rem 0;
+}
+
+.card-favoritos img {
+  width: 20vw;
+  height: 15vw;
+  object-fit: cover;
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+}
+
+.card-favoritos > div:nth-child(2),
+.card-favoritos > div:nth-child(4) {
+  padding: 0.5rem 1rem;
+}
+
+.card-favoritos div > h2 {
+  color: var(--paleta-sete);
+  font-size: 1.8rem;
+  text-transform: capitalize;
+  font-weight: bold;
+}
+
+.card-favoritos div > p:nth-child(1) {
+  text-transform: capitalize;
+}
+
+.card-favoritos div > p:nth-child(3) {
+  font-size: 1.2rem;
+}
+
+.card-favoritos div > p {
+  padding: 0.4rem 0;
+  color: var(--paleta-quatro);
+}
+
+.card-favoritos div > p > strong {
+  color: var(--paleta-sete);
+  font-size: 1.4rem;
+}
+
+.card-favoritos-linha {
+  border-bottom: 1px solid var(--paleta-sete);
+}
+
+.card-favoritos > div:nth-child(4) {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  text-transform: capitalize;
+}
+
+.card-favoritos > div:nth-child(4) > span:nth-child(1) {
+  font-size: 1.8rem;
+}
+
+.card-favoritos > div:nth-child(4) > span:nth-child(2) {
+  font-size: 1.2rem;
+}
+
+.card-favoritos-remover {
+  display: flex;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.card-favoritos-remover > button {
+  background-color: transparent;
+  border: 3px solid var(--paleta-dois);
+  border-radius: 7px;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  flex: 1;
+}
+
+.card-favoritos-remover > button span {
+  display: flex;
+  color: var(--paleta-dois);
+  font-size: 2rem;
+}

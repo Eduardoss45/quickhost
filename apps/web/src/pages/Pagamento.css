@@ -1,0 +1,62 @@
+.pagamento-card {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+.pagamento-card > div:nth-child(1) {
+  margin: 2rem;
+  flex: 1;
+}
+
+.pagamento-card > div:nth-child(1) > div:nth-child(1) {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.pagamento-card > div:nth-child(1) > div:nth-child(1) > div > h2 {
+  font-size: 1.8rem;
+  color: var(--paleta-um);
+}
+.pagamento-card > div:nth-child(1) > div:nth-child(1) > div > p {
+  font-size: 1.2rem;
+  color: var(--paleta-dois);
+}
+
+.pagamento-card > div:nth-child(1) > div:nth-child(1) > a > span {
+  display: flex;
+  font-size: 4.5rem;
+  color: var(--paleta-dois);
+}
+
+.pagamento-card > div:nth-child(2) > img {
+  margin: 2rem;
+  border-radius: 10px;
+  width: 40vw;
+  height: 50vw;
+  object-fit: cover;
+}
+
+.card-primario h3 {
+  margin: 3rem 0 0.5rem 0;
+  color: var(--paleta-sete);
+  font-size: 1.5rem;
+}
+
+.card-primario > div > p {
+  font-size: 1.2rem;
+  color: var(--paleta-quatro);
+}
+
+.card-primario > div:nth-child(4) > p {
+  margin-bottom: 4rem;
+}
+
+.card-primario > div:nth-child(4) > button {
+  padding: 1rem 4rem;
+  border-radius: 8px;
+  border: none;
+  background: var(--paleta-um);
+  color: var(--paleta-seis);
+  font-size: 1.2rem;
+}
