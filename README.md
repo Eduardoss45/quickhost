@@ -1,135 +1,234 @@
-# Turborepo starter
+# 📐 Regra Universal de Stack — Full-stack Moderno
 
-This Turborepo starter is maintained by the Turborepo core team.
+## 🎯 Princípios Obrigatórios (independentes de tecnologia)
 
-## Using this example
+Todo projeto **deve** atender a estes princípios:
 
-Run the following command:
+1. **Separação clara de responsabilidades**
 
-```sh
-npx create-turbo@latest
+   * UI ≠ Estado ≠ Domínio ≠ Infra
+2. **Tipagem forte ponta a ponta**
+3. **Validação em borda** (input nunca é confiável)
+4. **Observabilidade mínima**
+
+   * logs estruturados
+   * health checks
+5. **Ambiente reproduzível**
+
+   * Docker obrigatório
+6. **Documentação mínima executável**
+
+   * README + Swagger
+
+Esses princípios **não mudam**, mesmo que frameworks mudem.
+
+---
+
+## 🧩 Camada 1 — Front-end (Regra Universal)
+
+### Stack Base (imutável)
+
+```txt
+React
+TypeScript
+Tailwind CSS
 ```
 
-## What's inside?
+### Regras obrigatórias
 
-This Turborepo includes the following packages/apps:
+* Roteamento explícito (SPA)
+* Componentização previsível
+* Zero lógica de domínio em componentes de UI
 
-### Apps and Packages
+### Ferramentas padronizadas
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+| Responsabilidade | Tecnologia      |
+| ---------------- | --------------- |
+| Roteamento       | TanStack Router |
+| Estado global    | Zustand         |
+| Data fetching    | TanStack Query  |
+| Formulários      | react-hook-form |
+| Validação        | Zod             |
+| UI base          | shadcn/ui       |
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+### Regras arquiteturais
 
-### Utilities
+* **Server State ≠ Client State**
 
-This Turborepo has some additional tools already setup for you:
+  * Server → TanStack Query
+  * Client → Zustand
+* **Zod é a fonte da verdade** para validação
+* **Nenhum fetch direto em componente**
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+📌 *Qualquer projeto antigo deve ser migrado para este modelo, mesmo que continue simples.*
 
-### Build
+---
 
-To build all apps and packages, run the following command:
+## 🛠️ Camada 2 — Back-end (Regra Universal)
 
-```
-cd my-turborepo
+### Stack Base (imutável)
 
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
-```
-
-You can build a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
+```txt
+Node.js
+TypeScript
+NestJS
 ```
 
-### Develop
+### Organização obrigatória
 
-To develop all apps and packages, run the following command:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
+```txt
+Controller
+DTO
+Service
+Domain (opcional, mas recomendado)
+Repository
 ```
 
-You can develop a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+### Tecnologias padrão
 
+| Responsabilidade | Tecnologia       |
+| ---------------- | ---------------- |
+| ORM              | TypeORM          |
+| Banco relacional | PostgreSQL       |
+| Validação        | class-validator  |
+| Auth             | JWT + Passport   |
+| Hash             | bcrypt ou argon2 |
+
+### Regras arquiteturais
+
+* **Controller nunca contém regra de negócio**
+* **DTO ≠ Entity**
+* **Service orquestra, Repository persiste**
+* **Validação ocorre antes do Service**
+
+---
+
+## 🧠 Camada 3 — Comunicação & Integração
+
+### Regra de evolução obrigatória
+
+1. Projeto começa **monólito**
+2. Eventos são introduzidos
+3. Serviços podem ser extraídos sem refatoração brutal
+
+### Stack padrão
+
+| Responsabilidade | Tecnologia          |
+| ---------------- | ------------------- |
+| Mensageria       | RabbitMQ            |
+| Eventos          | Event-driven        |
+| Tempo real       | WebSocket (Gateway) |
+
+### Regra fundamental
+
+> **HTTP é síncrono, eventos são assíncronos. Nunca misturar responsabilidades.**
+
+---
+
+## 🗄️ Camada 4 — Banco de Dados
+
+### Regras universais
+
+* PostgreSQL como padrão
+* Migrations obrigatórias
+* Entidades **sem lógica complexa**
+* Auditoria simplificada quando aplicável
+
+### Stack
+
+```txt
+PostgreSQL
+TypeORM Migrations
 ```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
+---
+
+## 🐳 Camada 5 — Infraestrutura (Obrigatória)
+
+### Stack mínima
+
+```txt
+Docker
+Docker Compose
 ```
 
-### Remote Caching
+### Regras fixas
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+* Nenhum projeto roda fora do Docker
+* `.env.example` obrigatório
+* Serviços isolados por container
+* Banco e broker sempre containerizados
 
-Turborepo can use a technique known as [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
+---
 
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
+## 📦 Camada 6 — Monorepo (Regra de Escala)
 
-```
-cd my-turborepo
+### Quando usar
 
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo login
+* Full-stack
+* Mais de um serviço
+* Código compartilhado
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
-```
+### Stack padrão
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo link
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
+```txt
+Turborepo
 ```
 
-## Useful Links
+### Pacotes obrigatórios
 
-Learn more about the power of Turborepo:
+```txt
+packages/
+  types
+  utils
+  eslint-config
+  tsconfig
+```
 
-- [Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.com/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.com/docs/reference/configuration)
-- [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
+---
+
+## 📚 Camada 7 — Qualidade & DX
+
+### Obrigatório
+
+| Item             | Regra        |
+| ---------------- | ------------ |
+| Swagger          | Sempre ativo |
+| Logs             | Estruturados |
+| Health check     | /health      |
+| Lint             | Centralizado |
+| Build previsível | Sem hacks    |
+
+### Diferencial (mas recomendado)
+
+* Testes unitários
+* Rate limiting
+* CI básico
+
+---
+
+## 🔁 Regra de Atualização de Projetos Antigos
+
+Sempre seguir esta ordem:
+
+1. **Migrar para TypeScript**
+2. **Adicionar Zod + react-hook-form**
+3. **Padronizar fetch com TanStack Query**
+4. **Isolar estado global (Zustand)**
+5. **Dockerizar**
+6. **Documentar arquitetura**
+
+Se um projeto antigo **não atende a esses pontos**, ele **não está atualizado**.
+
+---
+
+## 🧠 Regra de Especialização (Importante)
+
+> Você **não está escolhendo stacks**.
+> Você está **criando um sistema operacional pessoal de projetos**.
+
+Essa regra permite:
+
+* Trocar framework sem perder arquitetura
+* Defender decisões em entrevista
+* Evoluir projetos simples → profissionais
