@@ -1,28 +1,35 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class AuthGatewayService {
+  constructor(
+    @Inject('AUTH_CLIENT')
+    private readonly client: ClientProxy,
+  ) {}
+
   registerAuthService() {
-    return 'Novo usuário criado';
+    return firstValueFrom(this.client.send('auth-register', {}));
   }
 
   loginAuthService() {
-    return 'Login realizado com sucesso';
+    return firstValueFrom(this.client.send('auth-login', {}));
   }
 
   logoutAuthService() {
-    return 'Logout realizado com sucesso';
+    return firstValueFrom(this.client.send('auth-logout', {}));
   }
 
   refreshAuthService() {
-    return 'Token atualizado com sucesso';
+    return firstValueFrom(this.client.send('auth-refresh', {}));
   }
 
   forgotPasswordAuthService() {
-    return 'Troca de senha solicitada';
+    return firstValueFrom(this.client.send('auth-forgot-password', {}));
   }
 
   resetPasswordAuthService() {
-    return 'Senha trocada com sucesso';
+    return firstValueFrom(this.client.send('auth-reset-password', {}));
   }
 }

@@ -1,5 +1,5 @@
 {
-  "name": "api-gateway",
+  "name": "auth-service",
   "version": "0.0.1",
   "description": "",
   "author": "",
@@ -25,10 +25,9 @@
     "@nestjs/core": "^11.0.1",
     "@nestjs/microservices": "^11.1.10",
     "@nestjs/platform-express": "^11.0.1",
-    "amqp-connection-manager": "^5.0.0",
     "amqplib": "^0.10.9",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.2"
+    "rxjs": "^7.8.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
