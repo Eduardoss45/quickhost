@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import { AuthModule } from './modules/auth.module';
+import { AuthModule } from './auth/auth.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 
 async function bootstrap() {
@@ -9,10 +9,10 @@ async function bootstrap() {
       transport: Transport.RMQ,
       options: {
         urls: [process.env.RMQ_URL!],
-        queue: 'auth_queue',
+        queue: 'qk_auth_queue',
         prefetchCount: 10,
         queueOptions: {
-          durable: true,
+          durable: false,
         },
       },
     },
