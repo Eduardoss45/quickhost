@@ -34,4 +34,8 @@ export class UserRepository {
   findById(id: string): Promise<User | null> {
     return this.repo.findOne({ where: { id } });
   }
+
+  updateRefreshToken(userId: string, hash: string | null) {
+    return this.repo.update(userId, { refreshTokenHash: hash ?? undefined });
+  }
 }

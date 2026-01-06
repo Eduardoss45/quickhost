@@ -1,11 +1,39 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import { UserRepository } from '../repositories/user.repository';
+import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly users: UserRepository) {}
+  constructor(
+    private readonly users: UserRepository,
+    private readonly jwtService: JwtService,
+  ) {}
+
+  private async generateTokens(user: {
+    id: string;
+    email: string;
+    username: string;
+  }) {
+    const payload = {
+      sub: user.id,
+      email: user.email,
+      username: user.username,
+    };
+
+    const accessToken = this.jwtService.sign(payload, {
+      expiresIn: '15m',
+    });
+    const refreshToken = this.jwtService.sign(
+      { sub: user.id },
+      { expiresIn: '7d' },
+    );
+    return {
+      accessToken,
+      refreshToken,
+    };
+  }
 
   async register(data: { email: string; username: string; password: string }) {
     const exists = await this.users.findByEmail(data.email);
@@ -25,10 +53,19 @@ export class AuthService {
       password: passwordHash,
     });
 
+    const tokens = await this.generateTokens(user);
+
+    const refreshHash = await bcrypt.hash(tokens.refreshToken, 10);
+    await this.users.updateRefreshToken(user.id, refreshHash);
+
     return {
-      id: user.id,
-      email: user.email,
-      username: user.username,
+      status: 'created',
+      user: {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+      },
+      ...tokens,
     };
   }
 
@@ -51,10 +88,50 @@ export class AuthService {
       });
     }
 
+    const tokens = await this.generateTokens(user);
+
+    const refreshHash = await bcrypt.hash(tokens.refreshToken, 10);
+    await this.users.updateRefreshToken(user.id, refreshHash);
+
     return {
-      id: user.id,
-      email: user.email,
-      username: user.username,
+      user: {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+      },
+      ...tokens,
     };
+  }
+
+  async refresh(refreshToken: string) {
+    try {
+      const payload = this.jwtService.verify<{ sub: string }>(refreshToken);
+      const user = await this.users.findById(payload.sub);
+
+      if (!user || !user.refreshTokenHash) {
+        throw new UnauthorizedException('Access denied');
+      }
+
+      const valid = await bcrypt.compare(refreshToken, user.refreshTokenHash);
+
+      if (!valid) {
+        throw new UnauthorizedException('Invalid refresh token');
+      }
+
+      const tokens = await this.generateTokens(user);
+      const newRefreshHash = await bcrypt.hash(tokens.refreshToken, 10);
+      await this.users.updateRefreshToken(user.id, newRefreshHash);
+
+      return {
+        user: {
+          id: user.id,
+          email: user.email,
+          username: user.username,
+        },
+        ...tokens,
+      };
+    } catch {
+      throw new UnauthorizedException('Invalid token');
+    }
   }
 }

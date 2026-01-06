@@ -1,0 +1,15 @@
+import { Injectable, Inject } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
+import { firstValueFrom } from 'rxjs';
+
+@Injectable()
+export class AuthService {
+  constructor(
+    @Inject('ACCOMMODATIONS_CLIENT')
+    private readonly client: ClientProxy,
+  ) {}
+
+  registerAccommodationsService() {
+    return firstValueFrom(this.client.send('register', {}));
+  }
+}

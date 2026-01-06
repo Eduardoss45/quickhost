@@ -1,5 +1,5 @@
 {
-  "name": "api-gateway",
+  "name": "acommodations-service",
   "version": "0.0.1",
   "description": "",
   "author": "",
@@ -22,13 +22,8 @@
   },
   "dependencies": {
     "@nestjs/common": "^11.1.11",
-    "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.1.11",
-    "@nestjs/microservices": "^11.1.11",
     "@nestjs/platform-express": "^11.1.11",
-    "@nestjs/throttler": "^6.5.0",
-    "amqp-connection-manager": "^5.0.0",
-    "amqplib": "^0.10.9",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2"
   },

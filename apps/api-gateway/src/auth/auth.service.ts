@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { RegisterDto, LoginDto } from 'src/dtos';
+import { AuthRegisterDto, AuthLoginDto } from 'src/dtos';
 import { firstValueFrom } from 'rxjs';
 
 @Injectable()
@@ -10,11 +10,11 @@ export class AuthService {
     private readonly client: ClientProxy,
   ) {}
 
-  registerAuthService(data: RegisterDto) {
+  registerAuthService(data: AuthRegisterDto) {
     return firstValueFrom(this.client.send('register', data));
   }
 
-  loginAuthService(data: LoginDto) {
+  loginAuthService(data: AuthLoginDto) {
     return firstValueFrom(this.client.send('login', data));
   }
 
