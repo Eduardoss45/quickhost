@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
+import { AccommodationModule } from './accommodations/accommodations.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
@@ -15,6 +16,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
       },
     ]),
     AuthModule,
+    AccommodationModule,
   ],
 })
 export class ApiGatewayModule {}

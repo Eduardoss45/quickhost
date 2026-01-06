@@ -1,11 +1,11 @@
-import { Controller, Body, Post } from '@nestjs/common';
-import { AuthService } from './accommodations.service';
+import { Controller, Post } from '@nestjs/common';
+import { AccommodationsService } from './accommodations.service';
 
-@Controller('auth')
-export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+@Controller('accommodations')
+export class AccommodationsController {
+  constructor(private readonly accommodationService: AccommodationsService) {}
   @Post('register')
-  registerAuthController(@Body() data: {}) {
-    return this.authService.registerAccommodationsService();
+  registerAccommodationsController() {
+    return this.accommodationService.registerAccommodationsService();
   }
 }

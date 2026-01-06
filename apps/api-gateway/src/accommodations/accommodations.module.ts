@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { AuthController } from './accommodations.controller';
-import { AuthService } from './accommodations.service';
+import { AccommodationsController } from './accommodations.controller';
+import { AccommodationsService } from './accommodations.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
 
@@ -14,7 +14,7 @@ import { ConfigService } from '@nestjs/config';
           transport: Transport.RMQ,
           options: {
             urls: [config.get<string>('RMQ_URL')!],
-            queue: 'qk_auth_queue',
+            queue: 'qk_accommodations_queue',
             queueOptions: {
               durable: false,
             },
@@ -23,7 +23,7 @@ import { ConfigService } from '@nestjs/config';
       },
     ]),
   ],
-  controllers: [AuthController],
-  providers: [AuthService],
+  controllers: [AccommodationsController],
+  providers: [AccommodationsService],
 })
-export class AuthModule {}
+export class AccommodationModule {}

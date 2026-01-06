@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AccommodationsController } from './accommodations.controller';
-import { AcommodationsService } from './accommodations.service';
+import { AccommodationsController } from './controllers/accommodations.controller';
+import { AcommodationsService } from './services/accommodations.service';
 
 @Module({
   imports: [

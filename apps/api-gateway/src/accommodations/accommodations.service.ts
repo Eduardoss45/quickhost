@@ -3,7 +3,7 @@ import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 
 @Injectable()
-export class AuthService {
+export class AccommodationsService {
   constructor(
     @Inject('ACCOMMODATIONS_CLIENT')
     private readonly client: ClientProxy,
