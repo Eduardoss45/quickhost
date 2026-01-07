@@ -9,6 +9,10 @@ export class AccommodationsService {
     private readonly client: ClientProxy,
   ) {}
 
+  getAccommodationsService () {
+    return firstValueFrom(this.client.send('accommodations', {}))
+  }
+
   registerAccommodationsService() {
     return firstValueFrom(this.client.send('register', {}));
   }

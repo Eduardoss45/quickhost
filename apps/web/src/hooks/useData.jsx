@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+const url = import.meta.env.VITE_BASE_URL;
 
 const useData = () => {
   const [data, setData] = useState(null);
@@ -9,14 +10,10 @@ const useData = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(
-          `${import.meta.env.VITE_BASE_URL}${
-            import.meta.env.VITE_ACCOMMODATION_DATA_URL
-          }`
-        );
+        const response = await axios.get(url + '/api/accommodations');
         setData(response.data);
       } catch (error) {
-        console.error("Erro ao buscar os dados:", error);
+        console.error('Erro ao buscar os dados:', error);
         setError(error.response ? error.response.data : error.message);
       } finally {
         setLoading(false);
