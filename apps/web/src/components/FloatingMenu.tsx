@@ -1,21 +1,15 @@
-import { Link } from "react-router-dom";
-import { FaUser } from "react-icons/fa";
+import { Link } from 'react-router-dom';
+import { FaUser } from 'react-icons/fa';
 import './css/MenuFlutuante.css';
 
-const MenuFlutuante = ({
-  onSignUpClick,
-  onLoginClick,
-  isAuthenticated,
-  profilePicture,
-  name,
-}) => {
+const FloatingMenu = ({ onSignUpClick, onLoginClick, isAuthenticated, profilePicture, name }) => {
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("refreshToken");
-    localStorage.removeItem("id_user");
-    localStorage.removeItem("isAuthenticated");
-    localStorage.removeItem("email");
-    localStorage.removeItem("password");
+    localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('id_user');
+    localStorage.removeItem('isAuthenticated');
+    localStorage.removeItem('email');
+    localStorage.removeItem('password');
     window.location.reload();
   };
 
@@ -24,12 +18,12 @@ const MenuFlutuante = ({
       <div className="dropdown">
         {!isAuthenticated ? (
           <>
-            <Link to="/cadastro">
+            <Link to="/register">
               <button className="dropdown-item" onClick={onSignUpClick}>
                 Cadastrar-se
               </button>
             </Link>
-            <Link to="/entrar">
+            <Link to="/login">
               <button className="dropdown-item" onClick={onLoginClick}>
                 Fazer Login
               </button>
@@ -39,15 +33,11 @@ const MenuFlutuante = ({
           <>
             <div className="dropdown-header">
               {profilePicture ? (
-                <img
-                  src={profilePicture}
-                  alt="Avatar do Usuário"
-                  className="avatar-large"
-                />
+                <img src={profilePicture} alt="Avatar do Usuário" className="avatar-large" />
               ) : (
                 <FaUser className="avatar-large" />
               )}
-              <span>{name || "Nome de Usuário"}</span>
+              <span>{name || 'Nome de Usuário'}</span>
             </div>
             <Link to="/reservas">
               <button className="dropdown-item">Reservas</button>
@@ -75,4 +65,4 @@ const MenuFlutuante = ({
   );
 };
 
-export default MenuFlutuante;
+export default FloatingMenu;

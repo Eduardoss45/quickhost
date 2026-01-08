@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 
-const useComments = (id_review) => {
+const useComments = id_review => {
   const [comentarios, setComentarios] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -11,12 +11,9 @@ const useComments = (id_review) => {
     setLoading(true);
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_BASE_URL}${
+        `${import.meta.env.VITE_API_BASE_URL}${
           uuid
-            ? import.meta.env.VITE_COMMENTS_MANAGE_URL.replace(
-                "<uuid:id_review>",
-                uuid
-              )
+            ? import.meta.env.VITE_COMMENTS_MANAGE_URL.replace('<uuid:id_review>', uuid)
             : import.meta.env.VITE_COMMENTS_URL
         }`,
         {
@@ -35,16 +32,11 @@ const useComments = (id_review) => {
     }
   };
 
-  const postComment = async (
-    user_uuid,
-    accommodation_uuid,
-    comment,
-    rating
-  ) => {
+  const postComment = async (user_uuid, accommodation_uuid, comment, rating) => {
     setLoading(true);
     try {
       const response = await axios.post(
-        `${import.meta.env.VITE_BASE_URL}${import.meta.env.VITE_COMMENTS_URL}`,
+        `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_COMMENTS_URL}`,
         {
           user_comment: user_uuid,
           rating: rating,
@@ -58,7 +50,7 @@ const useComments = (id_review) => {
         }
       );
       console.log(response);
-      setComentarios((prev) => [...prev, response.data]);
+      setComentarios(prev => [...prev, response.data]);
     } catch (err) {
       setError(err.response ? err.response.data : err.message);
     } finally {
@@ -70,9 +62,7 @@ const useComments = (id_review) => {
     setLoading(true);
     try {
       const response = await axios.put(
-        `${import.meta.env.VITE_BASE_URL}${
-          import.meta.env.VITE_COMMENTS_MANAGE_URL
-        }`,
+        `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_COMMENTS_MANAGE_URL}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -83,10 +73,8 @@ const useComments = (id_review) => {
           rating: newRating,
         }
       );
-      setComentarios((prev) =>
-        prev.map((item) =>
-          item.uuid === review_uuid ? { ...item, ...response.data } : item
-        )
+      setComentarios(prev =>
+        prev.map(item => (item.uuid === review_uuid ? { ...item, ...response.data } : item))
       );
     } catch (err) {
       setError(err.response ? err.response.data : err.message);
@@ -95,22 +83,18 @@ const useComments = (id_review) => {
     }
   };
 
-  const deleteComment = async (review_uuid) => {
+  const deleteComment = async review_uuid => {
     setLoading(true);
     try {
       await axios.delete(
-        `${import.meta.env.VITE_BASE_URL}${
-          import.meta.env.VITE_COMMENTS_MANAGE_URL
-        }`,
+        `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_COMMENTS_MANAGE_URL}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         }
       );
-      setComentarios((prev) =>
-        prev.filter((item) => item.uuid !== review_uuid)
-      );
+      setComentarios(prev => prev.filter(item => item.uuid !== review_uuid));
     } catch (err) {
       setError(err.response ? err.response.data : err.message);
     } finally {

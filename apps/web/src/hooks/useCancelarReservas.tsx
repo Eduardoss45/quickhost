@@ -1,11 +1,11 @@
-import { useState } from "react";
-import axios from "axios";
+import { useState } from 'react';
+import axios from 'axios';
 
-const useCancelarReservas = (id_booking) => {
+const useCancelarReservas = id_booking => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem('token');
 
   console.log(id_booking);
 
@@ -16,10 +16,8 @@ const useCancelarReservas = (id_booking) => {
 
     try {
       const response = await axios.delete(
-        `${
-          import.meta.env.VITE_BASE_URL
-        }${import.meta.env.VITE_BOOKINGS_MANAGE_URL.replace(
-          "<uuid:id_booking>",
+        `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_BOOKINGS_MANAGE_URL.replace(
+          '<uuid:id_booking>',
           id_booking
         )}`,
         {

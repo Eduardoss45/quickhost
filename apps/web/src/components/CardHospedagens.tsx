@@ -1,8 +1,8 @@
-import { CiLocationOn } from "react-icons/ci";
-import { IoEyeOutline } from "react-icons/io5";
-import { LiaPenSolid } from "react-icons/lia";
-import { Link } from "react-router-dom";
-import useDetalhes from "../hooks/useDetalhes.jsx";
+import { CiLocationOn } from 'react-icons/ci';
+import { IoEyeOutline } from 'react-icons/io5';
+import { LiaPenSolid } from 'react-icons/lia';
+import { Link } from 'react-router-dom';
+import useDetalhes from '../hooks/useDetalhes.jsx';
 
 import './css/CardHospedagens.css';
 
@@ -12,14 +12,12 @@ const CardHospedagens = ({ accommodationData }) => {
   return (
     <div className="card-hospedagem" id={accommodationData?.id_accommodation}>
       <img
-        src={`${import.meta.env.VITE_BASE_URL}${
-          accommodationData?.main_cover_image
-        }`}
-        alt={accommodationData?.title || "Imagem da acomodação"}
+        src={`${import.meta.env.VITE_API_BASE_URL}${accommodationData?.main_cover_image}`}
+        alt={accommodationData?.title || 'Imagem da acomodação'}
       />
       <div className="card-hospedagem-content">
         <h2>{accommodationData?.title}</h2>
-        <p>{userData?.username || "Nome do Criador Indisponível"}</p>
+        <p>{userData?.username || 'Nome do Criador Indisponível'}</p>
         <p>
           <strong>R$ {accommodationData?.price}</strong> por noite
         </p>
@@ -29,7 +27,7 @@ const CardHospedagens = ({ accommodationData }) => {
         <span>
           <CiLocationOn />
         </span>
-        <span>{accommodationData?.city || "Cidade Indisponível"}</span>
+        <span>{accommodationData?.city || 'Cidade Indisponível'}</span>
       </div>
       <div className="card-hospedagem-linha"></div>
       <div className="card-hospedagem-ver">

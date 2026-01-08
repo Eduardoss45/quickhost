@@ -16,7 +16,8 @@ const CardFavoritos = ({ dados }) => {
     window.location.reload();
   };
 
-  const imageUrl = `${import.meta.env.VITE_BASE_URL}${accommodationData?.main_cover_image}` || null;
+  const imageUrl =
+    `${import.meta.env.VITE_API_BASE_URL}${accommodationData?.main_cover_image}` || null;
 
   return (
     <div className="card-favoritos">

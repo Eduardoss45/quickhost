@@ -1,38 +1,33 @@
-import { useState } from "react";
-import axios from "axios";
+import { useState } from 'react';
+import axios from 'axios';
 
 const useEditAcomodacao = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
-  const id_user = localStorage.getItem("id_user");
-  const token = localStorage.getItem("token");
+  const id_user = localStorage.getItem('id_user');
+  const token = localStorage.getItem('token');
 
   const handleChange = (e, setFormData) => {
-    console.log("Evento recebido:", e);
+    console.log('Evento recebido:', e);
 
     if (e && e.target) {
       const { name, value, type, checked } = e.target;
       console.log(
-        `Mudança no campo: ${name}, Novo valor: ${
-          type === "checkbox" ? checked : value
-        }`
+        `Mudança no campo: ${name}, Novo valor: ${type === 'checkbox' ? checked : value}`
       );
-      setFormData((prevData) => ({
+      setFormData(prevData => ({
         ...prevData,
-        [name]: type === "checkbox" ? checked : value,
+        [name]: type === 'checkbox' ? checked : value,
       }));
-    } else if (e && typeof e === "object" && e.name && e.value) {
+    } else if (e && typeof e === 'object' && e.name && e.value) {
       console.log(`Mudança direta no campo: ${e.name}, Novo valor: ${e.value}`);
-      setFormData((prevData) => ({
+      setFormData(prevData => ({
         ...prevData,
         [e.name]: e.value,
       }));
     } else {
-      console.warn(
-        "Evento não possui target nem é um objeto com name/value:",
-        e
-      );
+      console.warn('Evento não possui target nem é um objeto com name/value:', e);
     }
   };
 
@@ -61,10 +56,8 @@ const useEditAcomodacao = () => {
       console.log(`Enviando dados para: ${updatedFormData}`);
 
       const response = await axios.put(
-        `${
-          import.meta.env.VITE_BASE_URL
-        }${import.meta.env.VITE_ACCOMMODATION_URL.replace(
-          "<uuid:id_accommodation>",
+        `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_ACCOMMODATION_URL.replace(
+          '<uuid:id_accommodation>',
           accommodationData
         )}`,
         updatedFormData,
@@ -77,19 +70,19 @@ const useEditAcomodacao = () => {
       console.log(response);
       setSuccess(true);
     } catch (error) {
-      console.error("Erro ao enviar os dados:", error);
+      console.error('Erro ao enviar os dados:', error);
       if (error.response) {
         setError(error.response.data.detail);
       } else {
-        setError("Erro desconhecido");
+        setError('Erro desconhecido');
       }
     } finally {
       setLoading(false);
-      console.log("Carregamento finalizado, loading:", loading);
+      console.log('Carregamento finalizado, loading:', loading);
     }
   };
 
-  const handleDelete = async (accommodationData) => {
+  const handleDelete = async accommodationData => {
     setLoading(true);
     setError(null);
     setSuccess(false);
@@ -98,10 +91,8 @@ const useEditAcomodacao = () => {
 
     try {
       const response = await axios.delete(
-        `${
-          import.meta.env.VITE_BASE_URL
-        }${import.meta.env.VITE_ACCOMMODATION_URL.replace(
-          "<uuid:id_accommodation>",
+        `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_ACCOMMODATION_URL.replace(
+          '<uuid:id_accommodation>',
           accommodationData
         )}`,
         {
@@ -111,17 +102,17 @@ const useEditAcomodacao = () => {
         }
       );
       setSuccess(true);
-      console.log("Acomodação deletada com sucesso");
+      console.log('Acomodação deletada com sucesso');
     } catch (error) {
-      console.error("Erro ao deletar acomodação", error);
+      console.error('Erro ao deletar acomodação', error);
       if (error.response) {
         setError(error.response.data.detail);
       } else {
-        setError("Erro desconhecido");
+        setError('Erro desconhecido');
       }
     } finally {
       setLoading(false);
-      console.log("Carregamento finalizado, loading:", loading);
+      console.log('Carregamento finalizado, loading:', loading);
     }
   };
 

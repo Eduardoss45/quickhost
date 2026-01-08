@@ -1,15 +1,15 @@
-import { useState, useEffect, useCallback } from "react";
-import axios from "axios";
+import { useState, useEffect, useCallback } from 'react';
+import axios from 'axios';
 
 const useEdit = (id_user, token) => {
   const [formData, setFormData] = useState({
-    username: "",
-    social_name: "",
-    email: "",
-    phone_number: "",
-    password: "",
-    birth_date: "",
-    cpf: "",
+    username: '',
+    social_name: '',
+    email: '',
+    phone_number: '',
+    password: '',
+    birth_date: '',
+    cpf: '',
     profile_picture: null,
   });
 
@@ -19,31 +19,29 @@ const useEdit = (id_user, token) => {
 
   const fetchUserData = useCallback(async () => {
     if (!id_user || !token) {
-      setError(new Error("User ID and Authorization token are required"));
+      setError(new Error('User ID and Authorization token are required'));
       setLoading(false);
       return;
     }
 
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_BASE_URL}${
-          import.meta.env.VITE_USER_DATA_URL
-        }${id_user}/`,
+        `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_USER_DATA_URL}${id_user}/`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
 
       const userData = response.data;
-      setFormData((prevData) => ({
+      setFormData(prevData => ({
         ...prevData,
-        username: userData.username || "",
-        social_name: userData.social_name || "",
-        email: userData.email || "",
-        phone_number: userData.phone_number || "",
-        password: userData.password || "",
-        birth_date: userData.birth_date || "",
-        cpf: userData.cpf || "",
+        username: userData.username || '',
+        social_name: userData.social_name || '',
+        email: userData.email || '',
+        phone_number: userData.phone_number || '',
+        password: userData.password || '',
+        birth_date: userData.birth_date || '',
+        cpf: userData.cpf || '',
       }));
       setSuccess(false);
     } catch (error) {
@@ -53,16 +51,14 @@ const useEdit = (id_user, token) => {
     }
   }, [id_user, token]);
 
-  const editUser = async (updatedData) => {
+  const editUser = async updatedData => {
     if (!id_user || !token) {
-      setError(new Error("User ID and Authorization token are required"));
+      setError(new Error('User ID and Authorization token are required'));
       return;
     }
 
     try {
-      const dataToSend = hasFile(updatedData)
-        ? prepareFormData(updatedData)
-        : updatedData;
+      const dataToSend = hasFile(updatedData) ? prepareFormData(updatedData) : updatedData;
 
       if (dataToSend instanceof FormData) {
         for (const [key, value] of dataToSend.entries()) {
@@ -73,9 +69,7 @@ const useEdit = (id_user, token) => {
       }
 
       const response = await axios.put(
-        `${import.meta.env.VITE_BASE_URL}${
-          import.meta.env.VITE_USER_DATA_URL
-        }${id_user}/`,
+        `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_USER_DATA_URL}${id_user}/`,
         dataToSend,
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -90,14 +84,13 @@ const useEdit = (id_user, token) => {
     }
   };
 
-  const handleError = (error) => {
+  const handleError = error => {
     setError(error.response.data);
   };
 
-  const hasFile = (data) =>
-    Object.values(data).some((value) => value instanceof File);
+  const hasFile = data => Object.values(data).some(value => value instanceof File);
 
-  const prepareFormData = (data) => {
+  const prepareFormData = data => {
     const formData = new FormData();
     Object.entries(data).forEach(([key, value]) => {
       formData.append(key, value);
@@ -105,11 +98,11 @@ const useEdit = (id_user, token) => {
     return formData;
   };
 
-  const handleChange = (event) => {
+  const handleChange = event => {
     const { id, value } = event.target;
 
     if (id in formData) {
-      setFormData((prevData) => ({
+      setFormData(prevData => ({
         ...prevData,
         [id]: value,
       }));

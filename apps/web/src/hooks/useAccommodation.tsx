@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 
-const useAccommodation = (uuid) => {
+const useAccommodation = uuid => {
   const [accommodationData, setAccommodationData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -16,17 +16,15 @@ const useAccommodation = (uuid) => {
       setError(null);
       try {
         const response = await axios.get(
-          `${
-            import.meta.env.VITE_BASE_URL
-          }${import.meta.env.VITE_ACCOMMODATION_URL.replace(
-            "<uuid:id_accommodation>",
+          `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_ACCOMMODATION_URL.replace(
+            '<uuid:id_accommodation>',
             uuid
           )}`
         );
         setAccommodationData(response.data);
       } catch (error) {
-        console.error("Erro ao buscar dados da acomodação:", error);
-        setError("Erro ao carregar dados da acomodação.");
+        console.error('Erro ao buscar dados da acomodação:', error);
+        setError('Erro ao carregar dados da acomodação.');
       } finally {
         setLoading(false);
       }

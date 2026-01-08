@@ -1,10 +1,10 @@
-import { PiArrowCircleLeftThin } from "react-icons/pi";
-import { GoCreditCard } from "react-icons/go";
-import { useNavigate, useParams, Link, useLocation } from "react-router-dom";
-import useAccommodation from "../hooks/useAccommodation";
-import useBooking from "../hooks/useBooking";
-import useUserData from "../hooks/useUserData";
-import { useState } from "react";
+import { PiArrowCircleLeftThin } from 'react-icons/pi';
+import { GoCreditCard } from 'react-icons/go';
+import { useNavigate, useParams, Link, useLocation } from 'react-router-dom';
+import useAccommodation from '../hooks/useAccommodation';
+import useBooking from '../hooks/useBooking';
+import useUserData from '../hooks/useUserData';
+import { useState } from 'react';
 import './css/FormPagamento.css';
 
 const FormPagamento = () => {
@@ -13,11 +13,7 @@ const FormPagamento = () => {
   const location = useLocation();
   const { accommodationData } = useAccommodation(id);
   const { userData } = useUserData();
-  const {
-    bookAccommodation,
-    error: bookingError,
-    success: bookingSuccess,
-  } = useBooking();
+  const { bookAccommodation, error: bookingError, success: bookingSuccess } = useBooking();
 
   const formData = location.state;
   const checkIn = formData.formData.check_in_date;
@@ -28,11 +24,9 @@ const FormPagamento = () => {
     const checkInDate = new Date(checkIn);
     const checkOutDate = new Date(checkOut);
     if (isNaN(checkInDate) || isNaN(checkOutDate)) {
-      throw new Error("Datas inválidas fornecidas.");
+      throw new Error('Datas inválidas fornecidas.');
     }
-    const daysDifference = Math.ceil(
-      (checkOutDate - checkInDate) / (1000 * 60 * 60 * 24)
-    );
+    const daysDifference = Math.ceil((checkOutDate - checkInDate) / (1000 * 60 * 60 * 24));
     if (daysDifference < 1) return { total: 0, tax: 0 };
     let taxRate = 1.05;
     if (daysDifference > 3 && daysDifference <= 7) {
@@ -48,30 +42,30 @@ const FormPagamento = () => {
   const basePrice = calculateTotalPriceAndTax(checkIn, checkOut, price);
 
   const [formTemplate, setFormTemplate] = useState({
-    account_holder: "",
-    account_number: "",
-    validity: "",
-    agency_code: "",
-    account_type: "",
+    account_holder: '',
+    account_number: '',
+    validity: '',
+    agency_code: '',
+    account_type: '',
     is_company_account: false,
-    address: "",
-    neighborhood: "",
-    city: "",
-    uf: "",
-    postal_code: "",
+    address: '',
+    neighborhood: '',
+    city: '',
+    uf: '',
+    postal_code: '',
     parcel: 1,
-    amount: "",
-    from_account: "",
-    to_account: "",
-    accommodation: "",
-    user_account: "",
+    amount: '',
+    from_account: '',
+    to_account: '',
+    accommodation: '',
+    user_account: '',
   });
 
-  const handleChange = (e) => {
+  const handleChange = e => {
     const { name, value, type, checked } = e.target;
-    setFormTemplate((prev) => ({
+    setFormTemplate(prev => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: type === 'checkbox' ? checked : value,
     }));
   };
   const handleNext = () => {
@@ -141,7 +135,7 @@ const FormPagamento = () => {
               <h3>Tipo de conta</h3>
               <select
                 name="account_type"
-                value={formTemplate.account_type || ""}
+                value={formTemplate.account_type || ''}
                 onChange={handleChange}
               >
                 <option value="">Selecione</option>
@@ -150,16 +144,12 @@ const FormPagamento = () => {
                 <option value="depositos">Depósitos</option>
               </select>
               <h3>Parcela</h3>
-              <select
-                name="parcel"
-                value={formTemplate.parcel}
-                onChange={handleChange}
-              >
+              <select name="parcel" value={formTemplate.parcel} onChange={handleChange}>
                 {[...Array(12)].map((_, index) => {
                   const numeroParcelas = index + 1;
                   const valorParcela = (basePrice.total / numeroParcelas)
                     .toFixed(2)
-                    .replace(".", ",");
+                    .replace('.', ',');
                   return (
                     <option key={numeroParcelas} value={numeroParcelas}>
                       {`${numeroParcelas}x de ${valorParcela} sem juros`}
@@ -236,9 +226,7 @@ const FormPagamento = () => {
       </div>
       <div>
         <img
-          src={`${import.meta.env.VITE_BASE_URL}${
-            accommodationData?.main_cover_image
-          }`}
+          src={`${import.meta.env.VITE_API_BASE_URL}${accommodationData?.main_cover_image}`}
           alt="A imagem principal não foi definida pelo anfitrião"
         />
       </div>

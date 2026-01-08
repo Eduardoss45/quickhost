@@ -1,31 +1,29 @@
-import React, { useState, useEffect } from "react";
-import { useDropzone } from "react-dropzone";
-import { CiCamera } from "react-icons/ci";
-import { FiImage } from "react-icons/fi";
-import "./css/EditorStep1.css";
+import React, { useState, useEffect } from 'react';
+import { useDropzone } from 'react-dropzone';
+import { CiCamera } from 'react-icons/ci';
+import { FiImage } from 'react-icons/fi';
+import './css/EditorStep1.css';
 
 const EditorStep1 = ({ data, updateFieldHandler, accommodationData }) => {
   const [photos, setPhotos] = useState([]);
   const [mainCoverImageIndex, setMainCoverImageIndex] = useState(null);
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
 
   // Carregar imagens existentes e configurar valores iniciais
   useEffect(() => {
     if (accommodationData?.internal_images?.length > 0) {
-      const imagesWithPreview = accommodationData.internal_images.map(
-        (imageUrl) => ({
-          url: imageUrl,
-          preview: imageUrl, // Usar o próprio URL como preview
-        })
-      );
+      const imagesWithPreview = accommodationData.internal_images.map(imageUrl => ({
+        url: imageUrl,
+        preview: imageUrl, // Usar o próprio URL como preview
+      }));
       setPhotos(imagesWithPreview);
 
       // Configurar a imagem de capa principal, se disponível
       if (accommodationData.main_cover_image) {
         setMainCoverImageIndex(
           accommodationData.internal_images.findIndex(
-            (image) => image === accommodationData.main_cover_image
+            image => image === accommodationData.main_cover_image
           )
         );
       }
@@ -33,21 +31,20 @@ const EditorStep1 = ({ data, updateFieldHandler, accommodationData }) => {
 
     // Configurar título e descrição
     if (accommodationData?.title) setTitle(accommodationData.title);
-    if (accommodationData?.description)
-      setDescription(accommodationData.description);
+    if (accommodationData?.description) setDescription(accommodationData.description);
   }, [accommodationData]);
 
-  const onDrop = (acceptedFiles) => {
+  const onDrop = acceptedFiles => {
     if (photos.length + acceptedFiles.length <= 20) {
       processFiles(acceptedFiles);
     }
   };
 
-  const processFiles = (files) => {
-    if (typeof updateFieldHandler === "function") {
+  const processFiles = files => {
+    if (typeof updateFieldHandler === 'function') {
       updateFieldHandler({
         target: {
-          name: "internal_images",
+          name: 'internal_images',
           value: files,
         },
       });
@@ -55,43 +52,43 @@ const EditorStep1 = ({ data, updateFieldHandler, accommodationData }) => {
     createImagePreviewArray(files);
   };
 
-  const createImagePreviewArray = (files) => {
-    const newPhotos = files.map((file) =>
+  const createImagePreviewArray = files => {
+    const newPhotos = files.map(file =>
       Object.assign(file, {
         preview: URL.createObjectURL(file),
       })
     );
 
-    setPhotos((prevPhotos) => {
-      prevPhotos.forEach((photo) => URL.revokeObjectURL(photo.preview));
+    setPhotos(prevPhotos => {
+      prevPhotos.forEach(photo => URL.revokeObjectURL(photo.preview));
       return [...prevPhotos, ...newPhotos];
     });
   };
 
   const clearPhotos = () => {
     setPhotos([]);
-    if (typeof updateFieldHandler === "function") {
+    if (typeof updateFieldHandler === 'function') {
       updateFieldHandler({
         target: {
-          name: "internal_images",
+          name: 'internal_images',
           value: [],
         },
       });
       updateFieldHandler({
         target: {
-          name: "main_cover_image",
+          name: 'main_cover_image',
           value: undefined,
         },
       });
     }
   };
 
-  const handleImageClick = (index) => {
+  const handleImageClick = index => {
     setMainCoverImageIndex(index);
-    if (typeof updateFieldHandler === "function") {
+    if (typeof updateFieldHandler === 'function') {
       updateFieldHandler({
         target: {
-          name: "main_cover_image",
+          name: 'main_cover_image',
           value: index,
         },
       });
@@ -100,24 +97,24 @@ const EditorStep1 = ({ data, updateFieldHandler, accommodationData }) => {
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: "image/*",
+    accept: 'image/*',
     multiple: true,
     disabled: photos.length >= 20,
   });
 
-  const handleTitleChange = (e) => {
+  const handleTitleChange = e => {
     const newTitle = e.target.value;
     setTitle(newTitle);
     updateFieldHandler({
-      target: { name: "title", value: newTitle },
+      target: { name: 'title', value: newTitle },
     });
   };
 
-  const handleDescriptionChange = (e) => {
+  const handleDescriptionChange = e => {
     const newDescription = e.target.value;
     setDescription(newDescription);
     updateFieldHandler({
-      target: { name: "description", value: newDescription },
+      target: { name: 'description', value: newDescription },
     });
   };
 
@@ -128,27 +125,16 @@ const EditorStep1 = ({ data, updateFieldHandler, accommodationData }) => {
       <h3>Selecione imagens</h3>
       <div
         {...getRootProps()}
-        className={`box photo-upload-container ${
-          isDragActive ? "dragging" : ""
-        }`}
+        className={`box photo-upload-container ${isDragActive ? 'dragging' : ''}`}
       >
-        <p>
-          Selecione uma foto do seu computador ou arraste e solte uma sobre esta
-          área.
-        </p>
+        <p>Selecione uma foto do seu computador ou arraste e solte uma sobre esta área.</p>
         <CiCamera size={70} />
         <input {...getInputProps()} />
-        <span>
-          {isDragActive
-            ? "Solte as imagens aqui..."
-            : "Selecionar do Computador"}
-        </span>
+        <span>{isDragActive ? 'Solte as imagens aqui...' : 'Selecionar do Computador'}</span>
       </div>
 
       {photos.length < 5 ? (
-        <p style={{ color: "red" }}>
-          Você precisa adicionar pelo menos 5 fotos para prosseguir.
-        </p>
+        <p style={{ color: 'red' }}>Você precisa adicionar pelo menos 5 fotos para prosseguir.</p>
       ) : (
         <>
           <p>{photos.length}/20</p>
@@ -163,18 +149,11 @@ const EditorStep1 = ({ data, updateFieldHandler, accommodationData }) => {
             <div key={index} className="image-container">
               <FiImage size={24} color="#f97316" className="image-icon" />
               <img
-                src={
-                  photo.url
-                    ? `${import.meta.env.VITE_BASE_URL}${photo.url}`
-                    : photo.preview
-                }
+                src={photo.url ? `${import.meta.env.VITE_API_BASE_URL}${photo.url}` : photo.preview}
                 alt={`Preview ${index + 1}`}
                 onClick={() => handleImageClick(index)}
                 style={{
-                  border:
-                    mainCoverImageIndex === index
-                      ? "3px solid #f97316"
-                      : "none",
+                  border: mainCoverImageIndex === index ? '3px solid #f97316' : 'none',
                 }}
               />
             </div>
@@ -182,11 +161,7 @@ const EditorStep1 = ({ data, updateFieldHandler, accommodationData }) => {
         </div>
       </div>
 
-      <button
-        onClick={clearPhotos}
-        disabled={photos.length === 0}
-        className="editor-step1-button"
-      >
+      <button onClick={clearPhotos} disabled={photos.length === 0} className="editor-step1-button">
         Limpar Imagens
       </button>
 

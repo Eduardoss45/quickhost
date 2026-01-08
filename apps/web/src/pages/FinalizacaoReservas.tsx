@@ -1,6 +1,6 @@
-import { useLocation, useParams, Link, useNavigate } from "react-router-dom";
-import { PiArrowCircleLeftThin } from "react-icons/pi";
-import useAccommodation from "../hooks/useAccommodation";
+import { useLocation, useParams, Link, useNavigate } from 'react-router-dom';
+import { PiArrowCircleLeftThin } from 'react-icons/pi';
+import useAccommodation from '../hooks/useAccommodation';
 import './css/FinalizacaoReserva.css';
 
 const FinalizacaoReservas = () => {
@@ -9,7 +9,7 @@ const FinalizacaoReservas = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const handleExit = () => {
-    navigate("/");
+    navigate('/');
   };
   return (
     <div className="pagamento-card">
@@ -28,17 +28,15 @@ const FinalizacaoReservas = () => {
         <div className="pagamento-concluido">
           <h3>Sucesso!</h3>
           <p>
-            Sua estadia já foi confirmada em “{accommodationData?.title}” e já
-            pode ser revisada na aba “Reservas”.
+            Sua estadia já foi confirmada em “{accommodationData?.title}” e já pode ser revisada na
+            aba “Reservas”.
           </p>
         </div>
         <button onClick={handleExit}>Finalizar pagamento</button>
       </div>
       <div>
         <img
-          src={`${import.meta.env.VITE_BASE_URL}${
-            accommodationData?.main_cover_image
-          }`}
+          src={`${import.meta.env.VITE_API_BASE_URL}${accommodationData?.main_cover_image}`}
           alt="A imagem principal não foi definida pelo anfitrião"
         />
       </div>

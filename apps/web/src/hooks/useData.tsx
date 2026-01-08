@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-const url = import.meta.env.VITE_BASE_URL;
+const url = import.meta.env.VITE_API_BASE_URL;
 
 const useData = () => {
   const [data, setData] = useState(null);

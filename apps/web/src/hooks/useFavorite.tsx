@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 
-const useFavorite = (accommodation) => {
+const useFavorite = accommodation => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [favoriteId, setFavoriteId] = useState(null);
   const [allFavorites, setAllFavorites] = useState([]);
@@ -10,7 +10,7 @@ const useFavorite = (accommodation) => {
   const checkFavorite = async () => {
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_BASE_URL}${import.meta.env.VITE_FAVORITE_URL}`,
+        `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_FAVORITE_URL}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -18,9 +18,7 @@ const useFavorite = (accommodation) => {
       const data = response.data;
       setAllFavorites(data);
 
-      const favorite = data.find(
-        (item) => item.accommodation === accommodation
-      );
+      const favorite = data.find(item => item.accommodation === accommodation);
 
       if (favorite) {
         setIsFavorite(true);
@@ -30,7 +28,7 @@ const useFavorite = (accommodation) => {
         setFavoriteId(null);
       }
     } catch (error) {
-      console.error("Erro ao verificar favorito", error);
+      console.error('Erro ao verificar favorito', error);
       setIsFavorite(false);
     }
   };
@@ -51,7 +49,7 @@ const useFavorite = (accommodation) => {
       };
 
       const response = await axios.post(
-        `${import.meta.env.VITE_BASE_URL}${import.meta.env.VITE_FAVORITE_URL}`,
+        `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_FAVORITE_URL}`,
         dataToSend,
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -59,10 +57,10 @@ const useFavorite = (accommodation) => {
       );
       setIsFavorite(true);
       setFavoriteId(response.data.id_favorite_property);
-      console.log("Acomodação adicionada aos favoritos", response.data);
+      console.log('Acomodação adicionada aos favoritos', response.data);
       await checkFavorite();
     } catch (error) {
-      console.error("Erro ao adicionar favorito", error);
+      console.error('Erro ao adicionar favorito', error);
     }
   };
 
@@ -70,10 +68,8 @@ const useFavorite = (accommodation) => {
     try {
       if (favoriteId) {
         await axios.delete(
-          `${
-            import.meta.env.VITE_BASE_URL
-          }${import.meta.env.VITE_FAVORITE_MANAGER_URL.replace(
-            "<uuid:id_favorite_property>",
+          `${import.meta.env.VITE_API_BASE_URL}${import.meta.env.VITE_FAVORITE_MANAGER_URL.replace(
+            '<uuid:id_favorite_property>',
             favoriteId
           )}`,
           {
@@ -82,11 +78,11 @@ const useFavorite = (accommodation) => {
         );
         setIsFavorite(false);
         setFavoriteId(null);
-        console.log("Acomodação removida dos favoritos");
+        console.log('Acomodação removida dos favoritos');
         await checkFavorite();
       }
     } catch (error) {
-      console.error("Erro ao remover favorito", error);
+      console.error('Erro ao remover favorito', error);
     }
   };
 

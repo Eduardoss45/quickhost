@@ -117,7 +117,7 @@ const Anuncio = () => {
             <>
               <div className="box1">
                 <img
-                  src={`${import.meta.env.VITE_BASE_URL}${accommodationData.internal_images[1]}`}
+                  src={`${import.meta.env.VITE_API_BASE_URL}${accommodationData.internal_images[1]}`}
                   alt="Imagem 1"
                 />
                 <div className="conteudo-acomodacao-status">
@@ -132,19 +132,19 @@ const Anuncio = () => {
               </div>
               <div className="box2">
                 <img
-                  src={`${import.meta.env.VITE_BASE_URL}${accommodationData.internal_images[2]}`}
+                  src={`${import.meta.env.VITE_API_BASE_URL}${accommodationData.internal_images[2]}`}
                   alt="Imagem 2"
                 />
               </div>
               <div className="box3">
                 <img
-                  src={`${import.meta.env.VITE_BASE_URL}${accommodationData.internal_images[3]}`}
+                  src={`${import.meta.env.VITE_API_BASE_URL}${accommodationData.internal_images[3]}`}
                   alt="Imagem 3"
                 />
               </div>
               <div className="box4">
                 <img
-                  src={`${import.meta.env.VITE_BASE_URL}${accommodationData.internal_images[4]}`}
+                  src={`${import.meta.env.VITE_API_BASE_URL}${accommodationData.internal_images[4]}`}
                   alt="Imagem 4"
                 />
               </div>
@@ -164,7 +164,7 @@ const Anuncio = () => {
               <div>
                 {creator?.profile_picture && (
                   <img
-                    src={`${import.meta.env.VITE_BASE_URL}${creator.profile_picture}`}
+                    src={`${import.meta.env.VITE_API_BASE_URL}${creator.profile_picture}`}
                     alt="Imagem do Criador"
                   />
                 )}
