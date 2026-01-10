@@ -1,9 +1,8 @@
 import { useEffect } from 'react';
 import { useUser } from './hooks/new/useUser';
-
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
 import { Outlet } from 'react-router-dom';
+import Navbar from './components/layout/Navbar';
+import Footer from './components/layout/Footer';
 
 function App() {
   const { bootstrapSession, hydrated } = useUser();
@@ -16,9 +15,11 @@ function App() {
   }
 
   return (
-    <div>
+    <div className="min-h-screen flex flex-col">
       <Navbar />
-      <Outlet />
+      <main className="flex flex-1 bg-zinc-100">
+        <Outlet />
+      </main>
       <Footer />
     </div>
   );

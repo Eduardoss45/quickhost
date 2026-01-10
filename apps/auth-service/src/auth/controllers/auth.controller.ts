@@ -22,8 +22,8 @@ export class AuthController {
   }
 
   @MessagePattern('refresh')
-  async authRefresh(@Payload() {}) {
-    return 'refresh';
+  async authRefresh(@Payload() data: any) {
+    return this.authService.refresh(data);
   }
 
   @MessagePattern('forgot-password')

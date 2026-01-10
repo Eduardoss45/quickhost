@@ -1,7 +1,8 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { AuthRegisterDto, AuthLoginDto } from 'src/dtos';
+import { AuthLoginDto } from 'src/dtos'; // ! remover depois de criar o comando
 import { firstValueFrom } from 'rxjs';
+import { RegisterCommand } from 'src/types';
 
 @Injectable()
 export class AuthService {
@@ -10,20 +11,20 @@ export class AuthService {
     private readonly client: ClientProxy,
   ) {}
 
-  registerAuthService(data: AuthRegisterDto) {
-    return firstValueFrom(this.client.send('register', data));
+  registerAuthService(command: RegisterCommand) {
+    return firstValueFrom(this.client.send('register', command));
   }
 
-  loginAuthService(data: AuthLoginDto) {
-    return firstValueFrom(this.client.send('login', data));
+  loginAuthService(command: AuthLoginDto) {
+    return firstValueFrom(this.client.send('login', command));
   }
 
   logoutAuthService() {
     return firstValueFrom(this.client.send('logout', {}));
   }
 
-  refreshAuthService() {
-    return firstValueFrom(this.client.send('refresh', {}));
+  refreshAuthService(data: { refreshToken: string }) {
+    return firstValueFrom(this.client.send('refresh', data));
   }
 
   forgotPasswordAuthService() {

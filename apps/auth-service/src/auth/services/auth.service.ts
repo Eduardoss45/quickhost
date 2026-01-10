@@ -35,7 +35,14 @@ export class AuthService {
     };
   }
 
-  async register(data: { email: string; username: string; password: string }) {
+  async register(data: {
+    email: string;
+    username: string;
+    password: string;
+    confirm_password: string;
+    cpf: string;
+    birdth_date: Date;
+  }) {
     const exists = await this.users.findByEmail(data.email);
 
     if (exists) {
@@ -45,12 +52,21 @@ export class AuthService {
       });
     }
 
+    if (data.password !== data.confirm_password) {
+      throw new RpcException({
+        statusCode: 400,
+        message: 'Passwords do not match',
+      });
+    }
+
     const passwordHash = await bcrypt.hash(data.password, 10);
 
     const user = await this.users.createUser({
       email: data.email,
       username: data.username,
       password: passwordHash,
+      cpf: data.cpf,
+      birth_date: data.birdth_date,
     });
 
     const tokens = await this.generateTokens(user);

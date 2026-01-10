@@ -5,7 +5,6 @@ import { PiArrowCircleLeftThin } from "react-icons/pi";
 import { useDropzone } from "react-dropzone";
 import { Link } from "react-router-dom";
 import useEdit from "../hooks/useEdit";
-import './css/EditorDePerfil.css';
 
 const EditorDePerfil = () => {
   const id_user = localStorage.getItem("id_user");
@@ -84,7 +83,7 @@ const EditorDePerfil = () => {
   if (loading) return <p>Loading...</p>;
 
   return (
-    <div className="user-info-form">
+    <div >
       <div>
         <Link to="/">
           <span>
@@ -113,13 +112,13 @@ const EditorDePerfil = () => {
         )}
         {renderPasswordInput("password", "Senha")}
         {renderFileInput("profile_picture", "Foto de Perfil", image)}
-        {error && <p className="error">Certifique de preencher os dados!</p>}
-        {success && <p className="success">Dados salvos com sucesso!</p>}
-        <div className="buttons">
-          <button type="button" onClick={handleReset} className="reset-button">
+        {error && <p >Certifique de preencher os dados!</p>}
+        {success && <p >Dados salvos com sucesso!</p>}
+        <div >
+          <button type="button" onClick={handleReset} >
             Redefinir
           </button>
-          <button type="submit" className="save-button" disabled={loading}>
+          <button type="submit"  disabled={loading}>
             {loading ? "Salvando..." : "Salvar Alterações"}
           </button>
         </div>
@@ -131,7 +130,7 @@ const EditorDePerfil = () => {
     return (
       <div>
         <label htmlFor={id}>{label}</label>
-        {error?.[id] && <p className="error">{error?.[id]}</p>}
+        {error?.[id] && <p >{error?.[id]}</p>}
         <input
           type="text"
           id={id}
@@ -147,9 +146,9 @@ const EditorDePerfil = () => {
 
   function renderPasswordInput(id, label) {
     return (
-      <div className="password-field">
+      <div >
         <label>{label}</label>
-        {error?.[id] && <p className="error">{error?.[id]}</p>}
+        {error?.[id] && <p >{error?.[id]}</p>}
         <input
           type={showPassword ? "text" : "password"}
           id={id}
@@ -166,9 +165,9 @@ const EditorDePerfil = () => {
 
   function renderFileInput(id, label, file) {
     return (
-      <div className="file-upload">
+      <div >
         <label>{label}</label>
-        {error?.[id] && <p className="error">{error?.[id]}</p>}
+        {error?.[id] && <p >{error?.[id]}</p>}
         <div {...getRootProps({ className: "dropzone" })}>
           <input {...getInputProps()} />
           {isDragActive ? (

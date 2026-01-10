@@ -1,7 +1,7 @@
 import { PiArrowCircleLeftThin } from 'react-icons/pi';
 import { useNavigate, useParams, Link, useLocation } from 'react-router-dom';
 import useAccommodation from '../hooks/useAccommodation';
-import './css/Pagamento.css';
+
 
 const Pagamento = () => {
   const { id } = useParams();
@@ -46,8 +46,8 @@ const Pagamento = () => {
     }
   }
   return (
-    <div className="pagamento-card">
-      <div className="card-primario">
+    <div >
+      <div >
         <div>
           <Link to="/">
             <span>

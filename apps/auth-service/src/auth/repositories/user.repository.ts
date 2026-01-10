@@ -14,6 +14,8 @@ export class UserRepository {
     email: string;
     username: string;
     password: string;
+    cpf: string;
+    birth_date: Date;
   }): Promise<User> {
     const user = this.repo.create(data);
     return this.repo.save(user);

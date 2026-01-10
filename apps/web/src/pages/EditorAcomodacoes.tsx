@@ -1,20 +1,18 @@
-import useAccommodation from "../hooks/useAccommodation";
-import useEditAcomodacao from "../hooks/useEditAcomodacao";
-import { useNavigate, useParams } from "react-router-dom";
-import { useEditStep } from "../hooks/useEditStep";
-import { useState, useEffect, useRef } from "react";
-import { LiaPenSolid } from "react-icons/lia";
-import { PiTrashSimple } from "react-icons/pi";
+import useAccommodation from '../hooks/useAccommodation';
+import useEditAcomodacao from '../hooks/useEditAcomodacao';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useEditStep } from '../hooks/useEditStep';
+import { useState, useEffect, useRef } from 'react';
+import { LiaPenSolid } from 'react-icons/lia';
+import { PiTrashSimple } from 'react-icons/pi';
 
-import EditorStep1 from "../template/components/EditorStep1";
-import EditorStep2 from "../template/components/EditorStep2";
-import EditorStep3 from "../template/components/EditorStep3";
+import EditorStep1 from './EditorStep1';
+import EditorStep2 from './EditorStep2';
+import EditorStep3 from './EditorStep3';
 
-import Cabecalho11 from "../template/layout/Cabecalho11";
-import Cabecalho12 from "../template/layout/Cabecalho12";
-import Cabecalho13 from "../template/layout/Cabecalho13";
-
-import './css/EditorAcomodacoes.css';
+import Cabecalho11 from './Cabecalho11';
+import Cabecalho12 from './Cabecalho12';
+import Cabecalho13 from './Cabecalho13';
 
 const formTemplate = {};
 
@@ -27,24 +25,24 @@ function EditorAcomodacoes() {
   const [isWarned, setIsWarned] = useState(false);
   const navigate = useNavigate();
   useEffect(() => {
-    console.log("FormData atualizado:", formData);
+    console.log('FormData atualizado:', formData);
   }, [formData]);
 
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter") {
+  const handleKeyDown = e => {
+    if (e.key === 'Enter') {
       e.preventDefault();
     }
   };
 
-  const updateFieldHandler = (e) => {
+  const updateFieldHandler = e => {
     const { name, value, type, checked } = e.target;
-    if (type === "checkbox") {
-      setFormData((prevData) => ({
+    if (type === 'checkbox') {
+      setFormData(prevData => ({
         ...prevData,
         [name]: checked,
       }));
     } else {
-      setFormData((prevData) => ({
+      setFormData(prevData => ({
         ...prevData,
         [name]: value,
       }));
@@ -75,8 +73,10 @@ function EditorAcomodacoes() {
     />,
   ];
 
-  const { currentStep, currentCabecalho, currentComponent, changeStep } =
-    useEditStep(formCabecalhos, formComponents);
+  const { currentStep, currentCabecalho, currentComponent, changeStep } = useEditStep(
+    formCabecalhos,
+    formComponents
+  );
 
   const validateForm = () => {
     const requiredFields = [];
@@ -97,26 +97,26 @@ function EditorAcomodacoes() {
     if (validateForm()) {
       formRef.current.requestSubmit();
     } else {
-      alert("Por favor, preencha todos os campos obrigatórios.");
+      alert('Por favor, preencha todos os campos obrigatórios.');
     }
   };
 
-  const handleFormSubmit = (e) => {
+  const handleFormSubmit = e => {
     e.preventDefault();
 
     if (validateForm()) {
       handleSubmit(formData, accommodationData?.id_accommodation);
     } else {
-      alert("Por favor, preencha todos os campos obrigatórios.");
+      alert('Por favor, preencha todos os campos obrigatórios.');
     }
   };
 
-  const handleDeleteAccommodation = (e) => {
+  const handleDeleteAccommodation = e => {
     e.preventDefault();
 
     if (!isWarned) {
       alert(
-        "Você está prestes a deletar essa acomodação, isso pode ser irreversível e caso haja reservas, elas serão imediatamente canceladas e um reembolso será feito para o cliente. Caso queira prosseguir, confirme e clique novamente."
+        'Você está prestes a deletar essa acomodação, isso pode ser irreversível e caso haja reservas, elas serão imediatamente canceladas e um reembolso será feito para o cliente. Caso queira prosseguir, confirme e clique novamente.'
       );
 
       setIsWarned(true);
@@ -128,12 +128,12 @@ function EditorAcomodacoes() {
   };
 
   const handleRefresh = () => {
-    navigate("/hospedar");
+    navigate('/hospedar');
     window.location.reload();
   };
 
   const handleCancelar = () => {
-    navigate("/");
+    navigate('/');
     window.location.reload();
   };
 
@@ -141,7 +141,7 @@ function EditorAcomodacoes() {
     <>
       <form
         ref={formRef}
-        className="editor-description-form"
+        
         onSubmit={handleFormSubmit}
         encType="multipart/form-data"
         onKeyDown={handleKeyDown}
@@ -151,7 +151,7 @@ function EditorAcomodacoes() {
           <>{currentComponent}</>
         </div>
       </form>
-      <div className="btn-editor-acomodacao">
+      <div >
         {currentStep === 1 ? (
           <>
             <div>
@@ -251,7 +251,7 @@ function EditorAcomodacoes() {
           </>
         )}
       </div>
-      <div className="btn-editor-deletar">
+      <div>
         <div>
           <span>
             <PiTrashSimple />
@@ -260,7 +260,7 @@ function EditorAcomodacoes() {
         </div>
         <button onClick={handleDeleteAccommodation}>Apagar Anúncio</button>
       </div>
-      <div className="btn-editor-acomodacao-end">
+      <div>
         <button onClick={handleCancelar}>Sair</button>
         <button onClick={handleExternalSubmit}>Salvar Alterações</button>
       </div>

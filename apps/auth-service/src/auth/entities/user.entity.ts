@@ -22,7 +22,7 @@ export class User {
   @Column({ select: false })
   password: string = '';
   
-  @Column({ length: 11, nullable: true })
+  @Column({ length: 11, nullable: true, unique: true })
   cpf?: string;
   
   @Column({ type: 'date', nullable: true })

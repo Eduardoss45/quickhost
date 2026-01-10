@@ -1,7 +1,6 @@
 import { useLocation, useParams, Link, useNavigate } from 'react-router-dom';
 import { PiArrowCircleLeftThin } from 'react-icons/pi';
 import useAccommodation from '../hooks/useAccommodation';
-import './css/FinalizacaoReserva.css';
 
 const FinalizacaoReservas = () => {
   const { id } = useParams();
@@ -12,7 +11,7 @@ const FinalizacaoReservas = () => {
     navigate('/');
   };
   return (
-    <div className="pagamento-card">
+    <div>
       <div>
         <div>
           <Link to="/">
@@ -25,7 +24,7 @@ const FinalizacaoReservas = () => {
             <p>{accommodationData?.title}</p>
           </div>
         </div>
-        <div className="pagamento-concluido">
+        <div>
           <h3>Sucesso!</h3>
           <p>
             Sua estadia já foi confirmada em “{accommodationData?.title}” e já pode ser revisada na

@@ -14,6 +14,8 @@ interface RegisterPayload {
   username: string;
   password: string;
   confirm_password: string;
+  cpf: string;
+  birth_date: Date;
 }
 
 export function useUser() {
@@ -25,8 +27,9 @@ export function useUser() {
 
   const bootstrapSession = async () => {
     try {
-      const res = await api.get('/api/auth/refresh');
+      const res = await api.post('/api/auth/refresh');
       setUser(res.data.user);
+      console.log('passou pelo bootstrap');
     } catch {
       clearUser();
     } finally {
@@ -38,17 +41,10 @@ export function useUser() {
     setLoading(true);
     try {
       const res = await api.post('/api/auth/register', data);
-
-      // ! Testes
-      console.log('Resposta do registro:', res.data);
-
       setUser(res.data.user);
       toast.success('Registro realizado com sucesso!');
       navigate('/');
     } catch (e: any) {
-      // ! Testes
-      console.log('Resposta do registro:', e.response?.data);
-
       toast.error(e.response?.data?.message ?? 'Erro ao registrar usuário');
     } finally {
       setLoading(false);
@@ -59,7 +55,6 @@ export function useUser() {
     setLoading(true);
     try {
       const res = await api.post('/api/auth/login', data);
-
       setUser(res.data.user);
       toast.success('Login realizado com sucesso!');
       navigate('/');
@@ -75,6 +70,8 @@ export function useUser() {
     if (!hydrated) return;
 
     const pathname = location.pathname;
+
+    console.log(user); // ! user esta como undefined
 
     if (pathname !== '/login' && pathname !== '/register' && !user) {
       toast.warning('Por favor, faça login para continuar.');

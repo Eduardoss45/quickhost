@@ -1,22 +1,20 @@
-import './css/Favoritos.css';
-import CardFavoritos from "../components/CardFavoritos";
-import useFavorite from "../hooks/useFavorite";
+
+import CardFavoritos from './CardFavoritos';
+import useFavorite from '../hooks/useFavorite';
 
 const Favoritos = () => {
   const { allFavorites } = useFavorite();
 
   const favoriteAccommodations = allFavorites
-    ?.filter((item) => item.user_favorite_property === localStorage.id_user)
-    .map((item) => item.accommodation);
+    ?.filter(item => item.user_favorite_property === localStorage.id_user)
+    .map(item => item.accommodation);
 
   return (
-    <div className="pagina-favoritos">
+    <div>
       <h2>Favoritos</h2>
       <div>
         {favoriteAccommodations.length > 0 ? (
-          favoriteAccommodations.map((item) => (
-            <CardFavoritos key={item} dados={item} />
-          ))
+          favoriteAccommodations.map(item => <CardFavoritos key={item} dados={item} />)
         ) : (
           <p>Você não possui acomodações favoritas!</p>
         )}

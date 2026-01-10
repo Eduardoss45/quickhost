@@ -22,9 +22,9 @@ router.register(r"bookings", BookingViewSet, basename="booking")
 router.register(r"favorites", FavoritePropertyViewSet, basename="favorites")
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
-    path("token/", CustomTokenObtainPairView.as_view(), name="token_obtain"),
-    path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    path("admin/", admin.site.urls), # ! Ignorar
+    path("token/", CustomTokenObtainPairView.as_view(), name="token_obtain"), # ! Ignorar
+    path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"), # ! Ignorar
     path("", include(router.urls)),
     path(
         "users/",

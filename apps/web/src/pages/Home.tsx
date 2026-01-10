@@ -1,31 +1,29 @@
-import { useMemo } from "react";
-import { useState } from "react";
-import Detalhes from "../components/Detalhes";
-import Anuncio from "../components/Anuncio";
-import BarraPesquisaFiltro from "../components/BarraPesquisaFiltro";
-import { Link } from "react-router-dom";
-
-import './css/Home.css';
+import { useMemo } from 'react';
+import { useState } from 'react';
+import Detalhes from './Detalhes';
+import Anuncio from './Anuncio';
+import BarraPesquisaFiltro from './BarraPesquisaFiltro';
+import { Link } from 'react-router-dom';
 
 const Home = ({ accommodations }) => {
-  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedAccommodation, setSelectedAccommodation] = useState(null);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [sortOption, setSortOption] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortOption, setSortOption] = useState('');
 
-  const handleFilterClick = (category) => {
+  const handleFilterClick = category => {
     setSelectedCategory(category);
   };
 
-  const handleSearch = (term) => {
+  const handleSearch = term => {
     setSearchTerm(term);
   };
 
-  const handleSort = (option) => {
+  const handleSort = option => {
     setSortOption(option);
   };
 
-  const handleDetalhesClick = (accommodation) => {
+  const handleDetalhesClick = accommodation => {
     setSelectedAccommodation(accommodation);
   };
 
@@ -33,13 +31,9 @@ const Home = ({ accommodations }) => {
     setSelectedAccommodation(null);
   };
 
-  const filteredAccommodations = accommodations.filter((item) => {
-    const matchesCategory = selectedCategory
-      ? item.category === selectedCategory
-      : true;
-    const matchesSearchTerm = item.city
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase());
+  const filteredAccommodations = accommodations.filter(item => {
+    const matchesCategory = selectedCategory ? item.category === selectedCategory : true;
+    const matchesSearchTerm = item.city.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesCategory && matchesSearchTerm;
   });
 
@@ -54,13 +48,13 @@ const Home = ({ accommodations }) => {
 
     return [...filteredAccommodations].sort(
       (a, b) => {
-        if (sortOption === "rating") {
+        if (sortOption === 'rating') {
           return b.rating - a.rating;
-        } else if (sortOption === "newest") {
+        } else if (sortOption === 'newest') {
           return new Date(b.created_at) - new Date(a.created_at);
-        } else if (sortOption === "oldest") {
+        } else if (sortOption === 'oldest') {
           return new Date(a.created_at) - new Date(b.created_at);
-        } else if (sortOption === "") {
+        } else if (sortOption === '') {
           return 0;
         }
         return 0;
@@ -78,14 +72,11 @@ const Home = ({ accommodations }) => {
         />
       </div>
       <div id="area-anuncio">
-        {sortedAccommodations.map((item) => (
-          <Link
-            key={item.id_accommodation}
-            to={`/acomodacao/${item?.id_accommodation}`}
-          >
+        {sortedAccommodations.map(item => (
+          <Link key={item.id_accommodation} to={`/acomodacao/${item?.id_accommodation}`}>
             <Detalhes
               key={item.id_accommodation}
-              image={item?.main_cover_image || "media/default-image.jpg"}
+              image={item?.main_cover_image || 'media/default-image.jpg'}
               title={item.title}
               creator={item.creator}
               price_per_night={item.price}

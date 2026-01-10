@@ -5,6 +5,7 @@ export type User = {
   id: string;
   email: string;
   username: string;
+  profile_picture: string;
 };
 
 type AuthState = {
