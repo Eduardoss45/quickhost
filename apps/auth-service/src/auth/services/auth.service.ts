@@ -150,4 +150,14 @@ export class AuthService {
       throw new UnauthorizedException('Invalid token');
     }
   }
+
+  async logout(refreshToken: string) {
+    try {
+      const payload = this.jwtService.verify<{ sub: string }>(refreshToken);
+      await this.users.updateRefreshToken(payload.sub, null);
+      return { success: true };
+    } catch {
+      return { success: true };
+    }
+  }
 }

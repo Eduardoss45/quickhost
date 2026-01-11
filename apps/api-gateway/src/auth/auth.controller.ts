@@ -62,7 +62,16 @@ export class AuthController {
   }
 
   @Post('logout')
-  async logout() {
+  async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    const refreshToken = req.cookies.refreshToken;
+
+    if (refreshToken) {
+      await this.authService.logoutAuthService(refreshToken);
+    }
+
+    res.clearCookie('accessToken', { path: '/' });
+    res.clearCookie('refreshToken', { path: '/api/auth/refresh' });
+
     return {
       status: 200,
       message: 'Logout realizado com sucesso',

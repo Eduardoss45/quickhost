@@ -19,8 +19,8 @@ export class AuthService {
     return firstValueFrom(this.client.send('login', command));
   }
 
-  logoutAuthService() {
-    return firstValueFrom(this.client.send('logout', {}));
+  logoutAuthService(data: { refreshToken: string }) {
+    return firstValueFrom(this.client.send('logout', data));
   }
 
   refreshAuthService(data: { refreshToken: string }) {

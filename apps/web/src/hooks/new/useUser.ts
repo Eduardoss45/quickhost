@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { api } from '@/services/api';
 import { toast } from 'sonner';
@@ -22,14 +22,13 @@ export function useUser() {
   const { user, setUser, clearUser, hydrated, setHydrated } = authStore();
   const [loading, setLoading] = useState(false);
 
+  const hasWarnedRef = useRef(false);
   const navigate = useNavigate();
-  const location = useLocation();
 
   const bootstrapSession = async () => {
     try {
       const res = await api.post('/api/auth/refresh');
       setUser(res.data.user);
-      console.log('passou pelo bootstrap');
     } catch {
       clearUser();
     } finally {
@@ -65,17 +64,23 @@ export function useUser() {
     }
   };
 
+  const logout = async () => {
+    try {
+      await api.post('/api/auth/logout');
+    } catch {
+    } finally {
+      clearUser();
+      navigate('/');
+    }
+  };
+
   useEffect(() => {
-    api;
     if (!hydrated) return;
 
-    const pathname = location.pathname;
+    if (!user && !hasWarnedRef.current) {
+      hasWarnedRef.current = true;
 
-    console.log(user); // ! user esta como undefined
-
-    if (pathname !== '/login' && pathname !== '/register' && !user) {
-      toast.warning('Por favor, faça login para continuar.');
-      navigate('/login');
+      toast.warning('Algumas funcionalidades exigem login.');
     }
   }, [hydrated, user]);
 
@@ -85,6 +90,7 @@ export function useUser() {
     hydrated,
     login,
     register,
+    logout,
     bootstrapSession,
     isAuthenticated: !!user,
   };

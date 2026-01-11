@@ -17,8 +17,8 @@ export class AuthController {
   }
 
   @MessagePattern('logout')
-  async authLogout(@Payload() {}) {
-    return 'logout';
+  async authLogout(@Payload() data: any) {
+    return this.authService.logout(data);
   }
 
   @MessagePattern('refresh')
