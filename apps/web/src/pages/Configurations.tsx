@@ -1,180 +1,108 @@
-import { useState, useEffect } from 'react';
-import { FaEye, FaEyeSlash } from 'react-icons/fa';
-import { CiCamera } from 'react-icons/ci';
-import { PiArrowCircleLeftThin } from 'react-icons/pi';
-import { useDropzone } from 'react-dropzone';
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { PiArrowCircleLeftThin } from 'react-icons/pi';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+
+import { PasswordField } from '@/components/custom/PasswordField';
+import { ProfileImageField } from '@/components/custom/ProfileImageField';
+
+import { configurationsSchema, ConfigurationsFormData } from '@/schemas/configurations.schema';
+
 import useEdit from '../hooks/useEdit';
 
-const Configurations = () => {
+function Configurations() {
   const id_user = localStorage.getItem('id_user');
   const token = localStorage.getItem('token');
 
-  const { formData, loading, error, success, fetchUserData, editUser, handleChange } = useEdit(
-    id_user,
-    token
-  );
+  const { fetchUserData, editUser } = useEdit(id_user, token);
 
-  const [showPassword, setShowPassword] = useState(false);
-  const [image, setImage] = useState(null);
-
-  useEffect(() => {
-    fetchUserData();
-  }, [fetchUserData]);
-
-  const handleFileDrop = acceptedFiles => {
-    const file = acceptedFiles[0];
-    const fileExtension = file.name.split('.').pop().toLowerCase();
-
-    if (!['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension)) {
-      alert('Tipo de arquivo inválido. Somente imagens são permitidas.');
-      return;
-    }
-
-    setImage(file);
-    handleChange({
-      target: {
-        id: 'profile_picture',
-        value: file,
-      },
-    });
-  };
-
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
-  };
-
-  const handleReset = () => {
-    setImage(null);
-    fetchUserData();
-  };
-
-  const handleSubmit = async e => {
-    e.preventDefault();
-
-    const form = new FormData();
-
-    populateFormData(form, formData);
-
-    if (image) {
-      form.append('profile_picture', image);
-    }
-
-    console.log('Dados a serem enviados:', [...form.entries()]);
-
-    try {
-      await editUser(form);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop: handleFileDrop,
-    accept: 'image/*',
-    multiple: false,
+  const form = useForm<ConfigurationsFormData>({
+    resolver: zodResolver(configurationsSchema),
   });
 
-  if (loading) return <p>Loading...</p>;
+  useEffect(() => {
+    fetchUserData().then(data => form.reset(data));
+  }, []);
+
+  const onSubmit = async (data: ConfigurationsFormData) => {
+    const formData = new FormData();
+    Object.entries(data).forEach(([k, v]) => v && formData.append(k, v));
+    await editUser(formData);
+  };
 
   return (
-    <div>
-      <div>
-        <Link to="/">
-          <span>
-            <PiArrowCircleLeftThin />
-          </span>
-        </Link>
-        <h2>Minhas informações</h2>
-      </div>
-      <form onSubmit={handleSubmit}>
-        {renderInput('username', 'Nome Completo', formData.username)}
-        {renderInput('cpf', 'CPF', formData.cpf, false, '14')}
-        {renderInput('birth_date', 'Data de Nascimento', formData.birth_date, true)}
-        {renderInput('social_name', 'Nome Social', formData.social_name)}
-        {renderInput('email', 'Email', formData.email, true)}
-        {renderInput('phone_number', 'Telefone', formData.phone_number, false, '15')}
-        {renderPasswordInput('password', 'Senha')}
-        {renderFileInput('profile_picture', 'Foto de Perfil', image)}
-        {error && <p>Certifique de preencher os dados!</p>}
-        {success && <p>Dados salvos com sucesso!</p>}
-        <div>
-          <button type="button" onClick={handleReset}>
-            Redefinir
-          </button>
-          <button type="submit" disabled={loading}>
-            {loading ? 'Salvando...' : 'Salvar Alterações'}
-          </button>
-        </div>
-      </form>
+    <div className="w-full max-w-3xl mx-auto p-6">
+      <Link to="/" className="flex items-center gap-2 mb-4">
+        <PiArrowCircleLeftThin />
+        Voltar
+      </Link>
+
+      <h2 className="text-2xl font-bold mb-6">Minhas informações</h2>
+
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          {[
+            ['username', 'Nome Completo'],
+            ['cpf', 'CPF'],
+            ['birth_date', 'Data de Nascimento'],
+            ['social_name', 'Nome Social'],
+            ['email', 'Email'],
+            ['phone_number', 'Telefone'],
+          ].map(([name, label]) => (
+            <FormField
+              key={name}
+              control={form.control}
+              name={name as keyof ConfigurationsFormData}
+              render={({ field }) => (
+                <FormItem className="w-full">
+                  <FormLabel>{label}</FormLabel>
+                  <FormControl>
+                    <Input {...field} className="p-6 w-full" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          ))}
+
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <PasswordField label="Senha" placeholder="Digite sua nova senha" field={field} />
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="profile_picture"
+            render={({ field }) => (
+              <ProfileImageField value={field.value} onChange={file => field.onChange(file)} />
+            )}
+          />
+
+          <div className="flex justify-end gap-4">
+            <Button type="reset" variant="outline" onClick={() => form.reset()}>
+              Redefinir
+            </Button>
+            <Button type="submit">Salvar alterações</Button>
+          </div>
+        </form>
+      </Form>
     </div>
   );
-
-  function renderInput(id, label, value, readOnly = false, maxLength = null) {
-    return (
-      <div>
-        <label htmlFor={id}>{label}</label>
-        {error?.[id] && <p>{error?.[id]}</p>}
-        <input
-          type="text"
-          id={id}
-          name={id}
-          placeholder={value || `Digite seu ${label.toLowerCase()}`}
-          onChange={handleChange}
-          readOnly={readOnly}
-          maxLength={maxLength || undefined}
-        />
-      </div>
-    );
-  }
-
-  function renderPasswordInput(id, label) {
-    return (
-      <div>
-        <label>{label}</label>
-        {error?.[id] && <p>{error?.[id]}</p>}
-        <input
-          type={showPassword ? 'text' : 'password'}
-          id={id}
-          name={id}
-          placeholder="Digite sua senha"
-          onChange={handleChange}
-        />
-        <button type="button" onClick={togglePasswordVisibility}>
-          {showPassword ? <FaEyeSlash /> : <FaEye />}
-        </button>
-      </div>
-    );
-  }
-
-  function renderFileInput(id, label, file) {
-    return (
-      <div>
-        <label>{label}</label>
-        {error?.[id] && <p>{error?.[id]}</p>}
-        <div {...getRootProps({ className: 'dropzone' })}>
-          <input {...getInputProps()} />
-          {isDragActive ? (
-            <p>Solte a imagem aqui...</p>
-          ) : (
-            <>
-              <CiCamera size={50} />
-              <p>{file ? file.name : 'Nenhuma imagem selecionada'}</p>
-              <button type="button">Selecionar do Computador</button>
-            </>
-          )}
-        </div>
-      </div>
-    );
-  }
-
-  function populateFormData(form, data) {
-    Object.entries(data).forEach(([key, value]) => {
-      if (value !== null && value !== undefined) {
-        form.append(key, value);
-      }
-    });
-  }
-};
+}
 
 export default Configurations;

@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
+import { UserModule } from './user/user.module';
 import { AccommodationModule } from './accommodations/accommodations.module';
-import { ThrottlerModule } from '@nestjs/throttler';
+import { SecurityModule } from 'strategies/security.module';
 
 @Module({
   imports: [
@@ -16,6 +18,8 @@ import { ThrottlerModule } from '@nestjs/throttler';
       },
     ]),
     AuthModule,
+    UserModule,
+    SecurityModule,
     AccommodationModule,
   ],
 })

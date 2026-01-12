@@ -37,7 +37,17 @@ export class UserRepository {
     return this.repo.findOne({ where: { id } });
   }
 
+  findByUsername(username: string): Promise<User | null> {
+    return this.repo.findOne({ where: { username } });
+  }
+
+  async updateProfile(userId: string, data: Partial<User>): Promise<void> {
+    await this.repo.update(userId, data);
+  }
+
   updateRefreshToken(userId: string, hash: string | null) {
-    return this.repo.update(userId, { refreshTokenHash: hash ?? undefined });
+    return this.repo.update(userId, {
+      refreshTokenHash: hash ?? undefined,
+    });
   }
 }
