@@ -41,26 +41,32 @@ function Login() {
   };
 
   return (
-    <div>
-      <div>
-        <h1>Bem vindo(a) de volta!</h1>
-
+    <div className="flex justify-around flex-row gap-24">
+      <div className="w-1/2 my-6">
+        <h1 className="text-2xl font-bold">Bem vindo(a) de volta!</h1>
         <p>
-          Não tem uma conta? <Link to="/register">Cadastre-se</Link>
+          Não tem uma conta?{' '}
+          <Link
+            to="/register"
+            className="underline decoration-current underline-offset-4 font-medium"
+          >
+            Cadastrar-se
+          </Link>
         </p>
-
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="mt-6">
             <FormField
               control={form.control}
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel className="font-medium text-1xl">Email</FormLabel>
                   <FormControl>
-                    <Input type="email" placeholder="Digite seu email" {...field} />
+                    <Input className="p-6" type="email" placeholder="Digite seu email" {...field} />
                   </FormControl>
-                  <FormMessage />
+                  <div className="mb-6">
+                    <FormMessage />
+                  </div>
                 </FormItem>
               )}
             />
@@ -70,38 +76,55 @@ function Login() {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Senha</FormLabel>
+                  <FormLabel className="font-medium text-1xl">Senha</FormLabel>
                   <FormControl>
-                    <div>
+                    <div className="flex items-center rounded-md border border-input focus-within:ring-2 focus-within:ring-ring shadow-xs">
                       <Input
+                        className="flex-1 border-none outline-none ring-0 focus:ring-0 focus-visible:ring-0 focus-visible:outline-none p-6 shadow-none"
                         type={showPassword ? 'text' : 'password'}
                         placeholder="Digite sua senha"
                         {...field}
                       />
-                      <button type="button" onClick={togglePasswordVisibility}>
+                      <button
+                        type="button"
+                        onClick={togglePasswordVisibility}
+                        className="px-3 text-muted-foreground hover:text-foreground"
+                      >
                         {showPassword ? <FaEyeSlash /> : <FaEye />}
                       </button>
                     </div>
                   </FormControl>
-                  <FormMessage />
+                  <div className="mb-6">
+                    <FormMessage />
+                  </div>
                 </FormItem>
               )}
             />
 
-            <p>
-              Ao fazer login, você concorda com nossos <Link to="#">Termos de Serviço</Link> e de{' '}
-              <Link to="#">Privacidade</Link>.
+            <p className="mb-3">
+              Ao fazer login, você concorda com nossos{' '}
+              <Link to="#" className="underline decoration-current underline-offset-4 font-medium">
+                Termos de Serviço
+              </Link>{' '}
+              e de{' '}
+              <Link to="#" className="underline decoration-current underline-offset-4 font-medium">
+                Privacidade
+              </Link>
+              .
             </p>
 
-            <Button type="submit" disabled={loading}>
-              {loading ? 'Carregando...' : 'Fazer Login'}
+            <Button type="submit" disabled={loading} className="bg-orange-400 py-5 px-8 text-white">
+              {loading ? 'Carregando...' : 'Acessar'}
             </Button>
           </form>
         </Form>
       </div>
-
-      <div>
-        <img src={bg} alt="Imagem de uma casa grande e pessoas andando no jardim" />
+      <div className="w-1/2">
+        <img
+          className="w-full h-full object-cover"
+          src={bg}
+          alt="Imagem de uma casa grande e pessoas andando no jardim"
+        />
       </div>
     </div>
   );

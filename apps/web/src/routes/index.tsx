@@ -3,6 +3,7 @@ import Register from '@/pages/Register';
 import { Route, Routes } from 'react-router-dom';
 import App from '@/App';
 import Home from '@/pages/Home';
+import Configurations from '@/pages/Configurations';
 
 export function AppRoutes() {
   return (
@@ -11,6 +12,7 @@ export function AppRoutes() {
         <Route path="/" element={<Home accommodations={[]} />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/configurations" element={<Configurations />} />
       </Route>
     </Routes>
   );

@@ -13,23 +13,25 @@
   --paleta-nove: 0 170 0;
 }
 
-html,
-body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-}
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
+  html,
+  body {
+    height: 100%;
+  }
 
-button,
-a {
-  cursor: pointer;
-  text-decoration: none;
+  button {
+    @apply cursor-pointer;
+  }
+
+  a {
+    @apply no-underline text-inherit;
+  }
 }
 
 ::-webkit-scrollbar {

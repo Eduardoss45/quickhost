@@ -61,23 +61,23 @@ const FloatingMenu = ({
       <DropdownMenuSeparator />
 
       <DropdownMenuItem asChild>
-        <Link to="/reservas">Reservas</Link>
+        <Link to="/reservations">Reservas</Link>
       </DropdownMenuItem>
 
       <DropdownMenuItem asChild>
-        <Link to="/hospedar">Hospedar</Link>
+        <Link to="/host">Hospedar</Link>
       </DropdownMenuItem>
 
       <DropdownMenuItem asChild>
-        <Link to="/favoritos">Favoritos</Link>
+        <Link to="/favorites">Favoritos</Link>
       </DropdownMenuItem>
 
       <DropdownMenuItem asChild>
-        <Link to="/mensagens">Mensagens</Link>
+        <Link to="/chat">Mensagens</Link>
       </DropdownMenuItem>
 
       <DropdownMenuItem asChild>
-        <Link to="/configuracoes">Configurações</Link>
+        <Link to="/configurations">Configurações</Link>
       </DropdownMenuItem>
 
       <DropdownMenuSeparator />

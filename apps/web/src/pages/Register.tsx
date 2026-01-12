@@ -6,6 +6,7 @@ import {
   FormControl,
   FormMessage,
 } from '@/components/ui/form';
+import { PasswordField } from '@/components/custom/PasswordField';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { Input } from '@/components/ui/input';
@@ -43,24 +44,29 @@ function Register() {
   };
 
   return (
-    <div>
-      <div>
-        <h1>Cadastre-se</h1>
+    <div className="flex flex-1 justify-around flex-row gap-24">
+      <div className="w-full my-6">
+        <h1 className="text-2xl font-bold">Cadastro</h1>
         <p>
-          Já tem uma conta? <Link to="/login">Faça Login</Link>
+          Já tem uma conta?{' '}
+          <Link to="/login" className="underline decoration-current underline-offset-4 font-medium">
+            Faça Login
+          </Link>
         </p>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="mt-6">
             <FormField
               control={form.control}
               name="username"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Nome de usuário</FormLabel>
+                  <FormLabel className="font-medium text-1xl">Nome de usuário</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Digite seu nome de usuário" />
+                    <Input className="p-6" {...field} placeholder="Digite seu nome de usuário" />
                   </FormControl>
-                  <FormMessage />
+                  <div className="mb-6">
+                    <FormMessage />
+                  </div>
                 </FormItem>
               )}
             />
@@ -69,11 +75,13 @@ function Register() {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel className="font-medium text-1xl">Email</FormLabel>
                   <FormControl>
-                    <Input type="email" {...field} />
+                    <Input className="p-6" type="email" {...field} />
                   </FormControl>
-                  <FormMessage />
+                  <div className="mb-6">
+                    <FormMessage />
+                  </div>
                 </FormItem>
               )}
             />
@@ -83,11 +91,13 @@ function Register() {
               name="cpf"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>CPF</FormLabel>
+                  <FormLabel className="font-medium text-1xl">CPF</FormLabel>
                   <FormControl>
-                    <Input inputMode="numeric" {...field} />
+                    <Input className="p-6" inputMode="numeric" {...field} />
                   </FormControl>
-                  <FormMessage />
+                  <div className="mb-6">
+                    <FormMessage />
+                  </div>
                 </FormItem>
               )}
             />
@@ -97,20 +107,24 @@ function Register() {
               name="birth_date"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Data de nascimento</FormLabel>
+                  <FormLabel className="font-medium text-1xl">Data de nascimento</FormLabel>
 
                   <Popover>
                     <PopoverTrigger asChild>
                       <FormControl>
-                        <Button
-                          variant="outline"
-                          className="w-full justify-start text-left font-normal"
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {field.value
-                            ? format(new Date(field.value), 'dd/MM/yyyy')
-                            : 'Selecione uma data'}
-                        </Button>
+                        <div className="flex items-center rounded-md border border-input focus-within:ring-2 focus-within:ring-ring shadow-xs">
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            className="flex-1 justify-start text-left font-normal p-6 shadow-none hover:bg-transparent"
+                          >
+                            {field.value
+                              ? format(new Date(field.value), 'dd/MM/yyyy')
+                              : 'Selecione uma data'}
+                          </Button>
+
+                          <CalendarIcon className="mx-3 h-4 w-4 text-muted-foreground" />
+                        </div>
                       </FormControl>
                     </PopoverTrigger>
 
@@ -120,14 +134,15 @@ function Register() {
                         selected={field.value}
                         onSelect={field.onChange}
                         initialFocus
-                        fromYear={1900} // permite pular diretamente para anos antigos
+                        fromYear={1900}
                         toYear={new Date().getFullYear()}
-                        captionLayout="dropdown" // dropdown mês/ano
+                        captionLayout="dropdown"
                       />
                     </PopoverContent>
                   </Popover>
-
-                  <FormMessage />
+                  <div className="mb-6">
+                    <FormMessage />
+                  </div>
                 </FormItem>
               )}
             />
@@ -136,13 +151,7 @@ function Register() {
               control={form.control}
               name="password"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Senha</FormLabel>
-                  <FormControl>
-                    <Input type="password" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+                <PasswordField label="Senha" placeholder="Digite sua senha" field={field} />
               )}
             />
 
@@ -151,24 +160,30 @@ function Register() {
               name="confirm_password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Confirmar senha</FormLabel>
+                  <FormLabel className="font-medium text-1xl mt-6">Confirmar senha</FormLabel>
                   <FormControl>
-                    <Input type="password" {...field} />
+                    <Input className="p-6" type="password" {...field} />
                   </FormControl>
-                  <FormMessage />
+                  <div className="mb-6">
+                    <FormMessage />
+                  </div>
                 </FormItem>
               )}
             />
 
-            <Button type="submit" disabled={loading}>
-              {loading ? 'Aguarde...' : 'Cadastrar'}
+            <Button type="submit" disabled={loading} className="bg-orange-400 py-5 px-8 text-white">
+              {loading ? 'Aguarde...' : 'Finalizar'}
             </Button>
           </form>
         </Form>
       </div>
 
-      <div>
-        <img src={bg} alt="Imagem de um ambiente agradável" />
+      <div className="w-full">
+        <img
+          className="w-full h-full object-cover"
+          src={bg}
+          alt="Imagem de um ambiente agradável"
+        />
       </div>
     </div>
   );
