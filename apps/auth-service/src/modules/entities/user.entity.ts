@@ -9,31 +9,34 @@ import {
 export class User {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
-  
+
   @Column({ length: 150, unique: true })
   username: string = '';
-  
+
   @Column({ length: 150, nullable: true })
   social_name?: string;
-  
+
   @Column({ length: 255, unique: true })
   email: string = '';
 
   @Column({ select: false })
   password: string = '';
-  
+
   @Column({ length: 11, nullable: true, unique: true })
   cpf?: string;
-  
+
   @Column({ type: 'date', nullable: true })
   birth_date?: Date;
 
   @Column({ length: 20, nullable: true })
   phone_number?: string;
-  
-  @Column({ nullable: true })
-  profile_picture_url?: string;
-  
+
+  @Column({
+    type: 'varchar',
+    nullable: true,
+  })
+  profile_picture_url?: string | null;
+
   @Column({ nullable: true })
   refreshTokenHash?: string;
 

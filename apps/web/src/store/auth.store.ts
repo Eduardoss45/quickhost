@@ -5,7 +5,14 @@ export type User = {
   id: string;
   email: string;
   username: string;
-  profile_picture: string;
+
+  social_name?: string | null;
+  cpf?: string | null;
+  birth_date?: string | null;
+  phone_number?: string | null;
+
+  profile_picture_url?: string | null;
+  created_at?: string;
 };
 
 type AuthState = {

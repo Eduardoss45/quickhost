@@ -31,4 +31,18 @@ export class UserService {
       }),
     );
   }
+
+  async getProfile(userId: string) {
+    return await firstValueFrom(
+      this.client.send('get-profile', {
+        userId,
+      }),
+    );
+  }
+
+  async removeProfilePicture(userId: string) {
+    return await firstValueFrom(
+      this.client.send('remove-profile-picture', { userId }),
+    );
+  }
 }

@@ -8,7 +8,6 @@ import { useUser } from '@/hooks/new/useUser';
 import NavButton from '../custom/NavButton';
 import FloatingMenu from '../../pages/FloatingMenu';
 import useNavbar from '../../hooks/useNavbar';
-import useUserData from '../../hooks/useUserData';
 import { authStore } from '@/store/auth.store';
 
 import {
@@ -23,26 +22,17 @@ const Navbar = () => {
   const location = useLocation();
   const { logout } = useUser();
 
-  const { user } = authStore(state => state);
-  const isAuthenticated = Boolean(user);
-
-  const { userData } = useUserData();
-
-  const [userAvatarUrl, setUserAvatarUrl] = useState('');
-  const [userDisplayName, setUserDisplayName] = useState('');
-
+  const { user } = authStore();
   const { showLoginPainel, showUserRegistration, initializePageState } = useNavbar();
+  const isAuthenticated = Boolean(user);
+  const userDisplayName = user?.username ?? '';
+  const userAvatarUrl = user?.profile_picture_url
+    ? `${import.meta.env.VITE_API_BASE_URL}${user.profile_picture_url}`
+    : '';
 
   useEffect(() => {
     initializePageState();
   }, [location.pathname, initializePageState]);
-
-  useEffect(() => {
-    if (!userData) return;
-
-    setUserAvatarUrl(userData.profile_picture ?? '');
-    setUserDisplayName(userData.username ?? '');
-  }, [userData]);
 
   return (
     <header className="flex items-center justify-between bg-orange-400 p-5">
@@ -71,13 +61,15 @@ const Navbar = () => {
           <DropdownMenuTrigger asChild>
             <button
               aria-label="Menu do usuário"
-              className="rounded border border-white p-1.5 focus:outline-none focus:ring-2 focus:ring-white/70"
+              className={`rounded border border-white ${
+                !userAvatarUrl ? 'p-1.5' : ''
+              } focus:outline-none focus:ring-2 focus:ring-white/70`}
             >
               {userAvatarUrl ? (
                 <img
                   src={userAvatarUrl}
                   alt="Avatar do usuário"
-                  className="h-8 w-8 rounded-full object-cover"
+                  className="h-8 w-8 rounded-sm object-cover"
                 />
               ) : (
                 <FaUser className="text-2xl text-white" />

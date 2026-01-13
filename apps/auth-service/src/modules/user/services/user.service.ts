@@ -3,7 +3,7 @@ import { User } from '../../entities/user.entity';
 import * as bcrypt from 'bcrypt';
 import { differenceInYears } from 'date-fns';
 import { UserRepository } from '../../repositories/user.repository';
-import { UpdateUserDto } from '../../dtos';
+import { UpdateUserProfileDto } from '../../dtos';
 import { RpcException, ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 
@@ -16,7 +16,7 @@ export class UserService {
 
   async updateProfile(
     userId: string,
-    dto: UpdateUserDto,
+    dto: UpdateUserProfileDto,
     file?: {
       buffer: string;
       originalName: string;
@@ -42,10 +42,6 @@ export class UserService {
       updateData.username = dto.username;
     }
 
-    if (dto.password) {
-      updateData.password = await bcrypt.hash(dto.password, 10);
-    }
-
     if (dto.birth_date) {
       const age = differenceInYears(new Date(), new Date(dto.birth_date));
       if (age < 18)
@@ -56,25 +52,34 @@ export class UserService {
       updateData.birth_date = new Date(dto.birth_date);
     }
 
-    if (dto.social_name !== undefined) updateData.social_name = dto.social_name;
-    if (dto.phone_number !== undefined)
+    if (dto.social_name !== undefined) {
+      updateData.social_name = dto.social_name;
+    }
+
+    if (dto.phone_number !== undefined) {
       updateData.phone_number = dto.phone_number;
+    }
+
+    if (dto.cpf !== undefined) {
+      updateData.cpf = dto.cpf;
+    }
+
+    if (dto.remove_profile_picture === true) {
+      updateData.profile_picture_url = null;
+    }
 
     if (file) {
       try {
-        console.log('AuthService → Recebeu base64 size:', file.buffer.length);
-
         const imageUrl = await firstValueFrom(
-          this.mediaClient.send<string>('upload_profile_image', {
-            fileBuffer: file.buffer, // já é base64
+          this.mediaClient.send<string>('upload-profile-image', {
+            userId,
+            fileBuffer: file.buffer,
             originalName: file.originalName,
           }),
         );
 
         updateData.profile_picture_url = imageUrl;
       } catch (err) {
-        console.log('❌ Erro do Media Service recebido no Auth Service:', err);
-
         if (
           typeof err === 'object' &&
           err !== null &&
@@ -102,6 +107,55 @@ export class UserService {
     return {
       success: true,
       message: 'Perfil atualizado com sucesso',
+    };
+  }
+
+  async getProfile(userId: string) {
+    const user = await this.users.findById(userId);
+
+    if (!user) {
+      throw new RpcException({
+        statusCode: 404,
+        message: 'Usuário não encontrado',
+      });
+    }
+
+    const { password, refreshTokenHash, ...safeUser } = user;
+
+    return safeUser;
+  }
+
+  async removeProfilePicture(userId: string) {
+    const user = await this.users.findById(userId);
+
+    if (!user) {
+      throw new RpcException({
+        statusCode: 404,
+        message: 'Usuário não encontrado',
+      });
+    }
+
+    if (!user.profile_picture_url) {
+      return {
+        success: true,
+        message: 'Usuário não possui foto de perfil',
+      };
+    }
+
+    await firstValueFrom(
+      this.mediaClient.send('remove-profile-image', {
+        userId,
+        imagePath: user.profile_picture_url,
+      }),
+    );
+
+    await this.users.updateProfile(userId, {
+      profile_picture_url: null,
+    });
+
+    return {
+      success: true,
+      message: 'Foto de perfil removida',
     };
   }
 }

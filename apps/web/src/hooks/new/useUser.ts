@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { api } from '@/services/api';
 import { toast } from 'sonner';
 import { authStore } from '@/store/auth.store';
@@ -25,10 +25,45 @@ export function useUser() {
   const hasWarnedRef = useRef(false);
   const navigate = useNavigate();
 
+  const getProfile = async () => {
+    setLoading(true);
+
+    try {
+      const res = await api.get('/api/user');
+      setUser(res.data);
+    } catch (e: any) {
+      if (e.response?.status === 401 || e.response?.status === 403) {
+        clearUser();
+      }
+    } finally {
+      setLoading(false);
+      setHydrated();
+    }
+  };
+
+  const updateProfile = async (formData: FormData) => {
+    setLoading(true);
+
+    try {
+      await api.patch('/api/user/update', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      await getProfile();
+      toast.success('Perfil atualizado com sucesso');
+    } catch (e: any) {
+      toast.error(e.response?.data?.message ?? 'Erro ao atualizar perfil');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const bootstrapSession = async () => {
     try {
-      const res = await api.post('/api/auth/refresh');
-      setUser(res.data.user);
+      await api.post('/api/auth/refresh');
+      await getProfile();
     } catch {
       clearUser();
     } finally {
@@ -39,8 +74,8 @@ export function useUser() {
   const register = async (data: RegisterPayload) => {
     setLoading(true);
     try {
-      const res = await api.post('/api/auth/register', data);
-      setUser(res.data.user);
+      await api.post('/api/auth/register', data);
+      await getProfile();
       toast.success('Registro realizado com sucesso!');
       navigate('/');
     } catch (e: any) {
@@ -53,8 +88,8 @@ export function useUser() {
   const login = async (data: LoginPayload) => {
     setLoading(true);
     try {
-      const res = await api.post('/api/auth/login', data);
-      setUser(res.data.user);
+      await api.post('/api/auth/login', data);
+      await getProfile();
       toast.success('Login realizado com sucesso!');
       navigate('/');
     } catch (e: any) {
@@ -88,6 +123,8 @@ export function useUser() {
     user,
     loading,
     hydrated,
+    getProfile,
+    updateProfile,
     login,
     register,
     logout,

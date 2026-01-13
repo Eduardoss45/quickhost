@@ -9,8 +9,8 @@ import {
 
 type FloatingMenuProps = {
   isAuthenticated: boolean;
-  profilePicture?: string;
-  name?: string;
+  profilePicture?: string | undefined;
+  name?: string | undefined;
   onLoginClick?: () => void;
   onSignUpClick?: () => void;
   onLogout?: () => void;

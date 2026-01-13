@@ -14,32 +14,53 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-
+import { useUser } from '@/hooks/new/useUser';
 import { PasswordField } from '@/components/custom/PasswordField';
 import { ProfileImageField } from '@/components/custom/ProfileImageField';
-
 import { configurationsSchema, ConfigurationsFormData } from '@/schemas/configurations.schema';
 
-import useEdit from '../hooks/useEdit';
-
 function Configurations() {
-  const id_user = localStorage.getItem('id_user');
-  const token = localStorage.getItem('token');
-
-  const { fetchUserData, editUser } = useEdit(id_user, token);
+  const { user, updateProfile } = useUser();
 
   const form = useForm<ConfigurationsFormData>({
     resolver: zodResolver(configurationsSchema),
+    defaultValues: {
+      username: '',
+      email: '',
+      cpf: '',
+      birth_date: '',
+      social_name: '',
+      phone_number: '',
+      password: '',
+      profile_picture: undefined,
+    },
   });
 
   useEffect(() => {
-    fetchUserData().then(data => form.reset(data));
-  }, []);
+    if (!user) return;
+
+    form.reset({
+      username: user.username ?? '',
+      email: user.email ?? '',
+      cpf: user.cpf ?? '',
+      birth_date: user.birth_date ?? '',
+      social_name: user.social_name ?? '',
+      phone_number: user.phone_number ?? '',
+      password: '',
+      profile_picture: undefined,
+    });
+  }, [user, form]);
 
   const onSubmit = async (data: ConfigurationsFormData) => {
     const formData = new FormData();
-    Object.entries(data).forEach(([k, v]) => v && formData.append(k, v));
-    await editUser(formData);
+
+    Object.entries(data).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        formData.append(key, value as any);
+      }
+    });
+
+    await updateProfile(formData);
   };
 
   return (

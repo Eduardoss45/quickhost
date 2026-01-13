@@ -2,6 +2,8 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { ApiGatewayModule } from './api-gateway.module';
 import cookieParser from 'cookie-parser';
+import * as express from 'express';
+import { resolve } from 'path';
 
 async function bootstrap() {
   const app = await NestFactory.create(ApiGatewayModule);
@@ -15,6 +17,16 @@ async function bootstrap() {
     }),
   );
   app.use(cookieParser());
+
+  const uploadsDir = resolve(__dirname, '..', '..', '..', '..', 'uploads');
+
+  app.use(
+    '/uploads',
+    express.static(uploadsDir, {
+      maxAge: '30d',
+      immutable: true,
+    }),
+  );
   await app.listen(process.env.PORT || 3000);
 }
 bootstrap();

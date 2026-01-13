@@ -26,6 +26,7 @@ coverage
 out/
 build
 dist
+uploads/
 
 
 # Debug
@@ -36,5 +37,3 @@ yarn-error.log*
 # Misc
 .DS_Store
 *.pem
-
-# ! incluir a pasta uploads aqui para não subir para o repositorio

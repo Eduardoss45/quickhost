@@ -5,6 +5,8 @@ import {
   UseGuards,
   UploadedFile,
   UseInterceptors,
+  Get,
+  Delete,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UpdateUserDto } from '../dtos';
@@ -14,11 +16,11 @@ import type { JwtUser } from 'src/types';
 import { FileInterceptor } from '@nestjs/platform-express';
 import multer from 'multer';
 
-@Controller('users')
+@UseGuards(JwtAuthGuard)
+@Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @UseGuards(JwtAuthGuard)
   @Patch('update')
   @UseInterceptors(
     FileInterceptor('file', {
@@ -35,6 +37,21 @@ export class UserController {
     return {
       status: 200,
       message: 'Perfil atualizado com sucesso',
+    };
+  }
+
+  @Get()
+  async getProfile(@CurrentUser() user: JwtUser) {
+    return this.userService.getProfile(user.userId);
+  }
+
+  @Delete('profile-picture')
+  async removeProfilePicture(@CurrentUser() user: JwtUser) {
+    await this.userService.removeProfilePicture(user.userId);
+
+    return {
+      status: 200,
+      message: 'Foto de perfil removida com sucesso',
     };
   }
 }

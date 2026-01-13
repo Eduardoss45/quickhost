@@ -6,13 +6,12 @@ import { MediaService } from '../services/media.service';
 export class MediaController {
   constructor(private readonly mediaService: MediaService) {}
 
-  @MessagePattern('upload_profile_image')
+  @MessagePattern('upload-profile-image')
   async mediaUploadProfileImage(data: {
+    userId: string;
     fileBuffer: string;
     originalName: string;
   }) {
-    console.log('📩 MediaController recebeu payload:', data);
-    
     if (!data.fileBuffer || typeof data.fileBuffer !== 'string') {
       throw new RpcException({
         statusCode: 400,
@@ -29,9 +28,25 @@ export class MediaController {
       });
     }
 
-    return await this.mediaService.uploadProfileImage(
+    if (!data.originalName) {
+      throw new RpcException({
+        statusCode: 400,
+        message: 'Nome do arquivo ausente',
+      });
+    }
+
+    return await this.mediaService.uploadUserProfileImage(
+      data.userId,
       buffer,
       data.originalName,
+    );
+  }
+
+  @MessagePattern('remove-profile-image')
+  async removeProfileImage(data: { userId: string; imagePath: string }) {
+    return this.mediaService.removeUserProfileImage(
+      data.userId,
+      data.imagePath,
     );
   }
 }

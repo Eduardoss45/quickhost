@@ -1,9 +1,9 @@
-export class UpdateUserDto {
-  social_name?: string;
+export class UpdateUserProfileDto {
   username?: string;
-  password?: string;
+  social_name?: string;
   cpf?: string;
   birth_date?: string;
   phone_number?: string;
-  profile_picture_url?: string;
+
+  remove_profile_picture?: boolean;
 }
