@@ -1,22 +1,15 @@
 import { NestFactory } from '@nestjs/core';
-import { Module } from '@nestjs/common';
-import { AuthModule } from './modules/auth/auth.module';
-import { UserModule } from './modules/user/users.module';
+import { MediaModule } from './media/media.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
-
-@Module({
-  imports: [AuthModule, UserModule],
-})
-class AppModule {}
 
 async function bootstrap() {
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
-    AppModule,
+    MediaModule,
     {
       transport: Transport.RMQ,
       options: {
         urls: [process.env.RMQ_URL!],
-        queue: 'qk_auth_queue',
+        queue: 'qk_media_queue',
         prefetchCount: 10,
         queueOptions: {
           durable: false,
@@ -24,7 +17,6 @@ async function bootstrap() {
       },
     },
   );
-
   await app.listen();
 }
 bootstrap();

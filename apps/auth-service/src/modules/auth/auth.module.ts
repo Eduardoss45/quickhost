@@ -3,10 +3,9 @@ import { AuthController } from './controllers/auth.controller';
 import { AuthService } from './services/auth.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserRepository } from './repositories/user.repository';
-import { User } from './entities/user.entity';
+import { UserRepository } from '../repositories/user.repository';
+import { User } from '../entities/user.entity';
 import { JwtModule } from '@nestjs/jwt';
-import { UserService } from './services/user.service';
 
 @Module({
   imports: [
@@ -29,7 +28,7 @@ import { UserService } from './services/user.service';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, UserService, UserRepository],
+  providers: [AuthService, UserRepository],
   exports: [],
 })
 export class AuthModule {}

@@ -10,9 +10,25 @@ export class UserService {
     private readonly client: ClientProxy,
   ) {}
 
-  updateProfile(userId: string, dto: UpdateUserDto) {
-    return firstValueFrom(
-      this.client.send('user.update-profile', { userId, dto }),
+  async updateProfile(
+    userId: string,
+    dto: UpdateUserDto,
+    file?: Express.Multer.File,
+  ) {
+    const safeFile = file
+      ? {
+          buffer: file.buffer.toString('base64'),
+          originalName: file.originalname,
+          mimetype: file.mimetype,
+        }
+      : undefined;
+
+    return await firstValueFrom(
+      this.client.send('update-profile', {
+        userId,
+        dto,
+        file: safeFile,
+      }),
     );
   }
 }
