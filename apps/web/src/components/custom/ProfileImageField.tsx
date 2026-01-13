@@ -1,6 +1,8 @@
 import { useDropzone } from 'react-dropzone';
 import { CiCamera } from 'react-icons/ci';
+import { Button } from '../ui/button';
 import { FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
+import { useUser } from '@/hooks/new/useUser';
 
 interface Props {
   value?: File;
@@ -9,6 +11,8 @@ interface Props {
 }
 
 export function ProfileImageField({ value, onChange, error }: Props) {
+  const { removeProfilePicture } = useUser();
+
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: { 'image/*': [] },
     multiple: false,
@@ -19,9 +23,15 @@ export function ProfileImageField({ value, onChange, error }: Props) {
     },
   });
 
+  const handleRemove = async () => {
+    await removeProfilePicture();
+    onChange(undefined);
+  };
+
   return (
     <FormItem className="w-full">
       <FormLabel>Foto de Perfil</FormLabel>
+
       <FormControl>
         <div
           {...getRootProps()}
@@ -34,7 +44,17 @@ export function ProfileImageField({ value, onChange, error }: Props) {
           </p>
         </div>
       </FormControl>
+
       {error && <FormMessage>{error}</FormMessage>}
+
+      <Button
+        className="py-4 bg-red-400 border-none text-white"
+        type="button"
+        variant="destructive"
+        onClick={handleRemove}
+      >
+        Remover foto
+      </Button>
     </FormItem>
   );
 }

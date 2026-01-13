@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { subYears, isAfter } from 'date-fns';
+import { subYears, isAfter, parse } from 'date-fns';
 
 export const registerSchema = z
   .object({
@@ -11,14 +11,21 @@ export const registerSchema = z
       .regex(/^\d+$/, 'CPF deve conter apenas números'),
 
     birth_date: z
-      // A propriedade 'message' aqui cobre tanto "Required" quanto "Invalid Type"
-      .date({ message: 'Data de nascimento é obrigatória' })
-      .refine(date => !isAfter(date, new Date()), {
-        message: 'A data não pode estar no futuro',
-      })
-      .refine(date => date <= subYears(new Date(), 18), {
-        message: 'Você deve ter pelo menos 18 anos',
-      }),
+      .string()
+      .refine(
+        val => {
+          const date = parse(val, 'yyyy-MM-dd', new Date());
+          return !isAfter(date, new Date());
+        },
+        { message: 'A data não pode estar no futuro' }
+      )
+      .refine(
+        val => {
+          const date = parse(val, 'yyyy-MM-dd', new Date());
+          return date <= subYears(new Date(), 18);
+        },
+        { message: 'Você deve ter pelo menos 18 anos' }
+      ),
 
     password: z.string().min(6, 'Senha deve ter no mínimo 6 caracteres'),
     confirm_password: z.string(),

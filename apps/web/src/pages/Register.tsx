@@ -13,14 +13,12 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
 import { useUser } from '@/hooks/new/useUser';
-import { CalendarIcon } from 'lucide-react';
-import { format } from 'date-fns';
-import { cn } from '@/lib/utils';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { registerSchema } from '@/schemas/register.schema';
 import type { RegisterFormData } from '@/schemas/register.schema';
 import { Link } from 'react-router-dom';
+import { BirthDatePicker } from '@/components/custom/BirthDatePicker';
 
 import bg from '../image/login.png';
 
@@ -30,7 +28,7 @@ function Register() {
   const form = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
-      birth_date: undefined as unknown as Date,
+      birth_date: undefined as unknown as string,
       username: '',
       email: '',
       cpf: '',
@@ -109,37 +107,10 @@ function Register() {
                 <FormItem>
                   <FormLabel className="font-medium text-1xl">Data de nascimento</FormLabel>
 
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <div className="flex items-center rounded-md border border-input focus-within:ring-2 focus-within:ring-ring shadow-xs">
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            className="flex-1 justify-start text-left font-normal p-6 shadow-none hover:bg-transparent"
-                          >
-                            {field.value
-                              ? format(new Date(field.value), 'dd/MM/yyyy')
-                              : 'Selecione uma data'}
-                          </Button>
+                  <FormControl>
+                    <BirthDatePicker field={field} />
+                  </FormControl>
 
-                          <CalendarIcon className="mx-3 h-4 w-4 text-muted-foreground" />
-                        </div>
-                      </FormControl>
-                    </PopoverTrigger>
-
-                    <PopoverContent className="w-auto p-0 bg-white shadow-md z-50" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={field.value}
-                        onSelect={field.onChange}
-                        initialFocus
-                        fromYear={1900}
-                        toYear={new Date().getFullYear()}
-                        captionLayout="dropdown"
-                      />
-                    </PopoverContent>
-                  </Popover>
                   <div className="mb-6">
                     <FormMessage />
                   </div>

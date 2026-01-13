@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '@/services/api';
 import { toast } from 'sonner';
 import { authStore } from '@/store/auth.store';
+import { UpdateUserPayload } from '@/types/user';
 
 interface LoginPayload {
   email: string;
@@ -15,7 +16,7 @@ interface RegisterPayload {
   password: string;
   confirm_password: string;
   cpf: string;
-  birth_date: Date;
+  birth_date: string;
 }
 
 export function useUser() {
@@ -41,10 +42,22 @@ export function useUser() {
     }
   };
 
-  const updateProfile = async (formData: FormData) => {
+  const updateProfile = async (payload: UpdateUserPayload, file?: File) => {
     setLoading(true);
 
     try {
+      const formData = new FormData();
+
+      Object.entries(payload).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+          formData.append(key, value as string);
+        }
+      });
+
+      if (file) {
+        formData.append('file', file);
+      }
+
       await api.patch('/api/user/update', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -59,6 +72,17 @@ export function useUser() {
       setLoading(false);
     }
   };
+
+  async function removeProfilePicture() {
+    setLoading(true);
+    try {
+      await api.delete('/api/user/profile-picture');
+
+      await getProfile();
+    } finally {
+      setLoading(false);
+    }
+  }
 
   const bootstrapSession = async () => {
     try {
@@ -125,6 +149,7 @@ export function useUser() {
     hydrated,
     getProfile,
     updateProfile,
+    removeProfilePicture,
     login,
     register,
     logout,

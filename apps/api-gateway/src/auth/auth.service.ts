@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { AuthLoginDto } from 'src/dtos'; // ! remover depois de criar o comando
+import { AuthLoginDto } from 'src/dtos';
 import { firstValueFrom } from 'rxjs';
 import { RegisterCommand } from 'src/types';
 

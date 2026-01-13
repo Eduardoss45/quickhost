@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const configurationsSchema = z.object({
   username: z.string().min(3, 'Nome muito curto'),
-  cpf: z.string().length(14),
+  cpf: z.string().length(11),
   birth_date: z.string(),
   social_name: z.string().optional(),
   email: z.email(),

@@ -1,7 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { User } from '../../entities/user.entity';
-import * as bcrypt from 'bcrypt';
-import { differenceInYears } from 'date-fns';
+import { differenceInYears, parse } from 'date-fns';
 import { UserRepository } from '../../repositories/user.repository';
 import { UpdateUserProfileDto } from '../../dtos';
 import { RpcException, ClientProxy } from '@nestjs/microservices';
@@ -43,13 +42,17 @@ export class UserService {
     }
 
     if (dto.birth_date) {
-      const age = differenceInYears(new Date(), new Date(dto.birth_date));
+      const parsedDate = parse(dto.birth_date, 'yyyy-MM-dd', new Date());
+
+      const age = differenceInYears(new Date(), parsedDate);
+
       if (age < 18)
         throw new RpcException({
           statusCode: 400,
           message: 'Usuário deve ter no mínimo 18 anos',
         });
-      updateData.birth_date = new Date(dto.birth_date);
+
+      updateData.birth_date = parsedDate;
     }
 
     if (dto.social_name !== undefined) {

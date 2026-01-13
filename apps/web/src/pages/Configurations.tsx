@@ -1,23 +1,29 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { PiArrowCircleLeftThin } from 'react-icons/pi';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-
+import { UpdateUserPayload } from '@/types/user';
+import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
+import { DayPicker } from 'react-day-picker';
+import 'react-day-picker/dist/style.css';
 import {
-  Form,
   FormField,
   FormItem,
   FormLabel,
   FormControl,
   FormMessage,
+  Form,
 } from '@/components/ui/form';
+
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useUser } from '@/hooks/new/useUser';
 import { PasswordField } from '@/components/custom/PasswordField';
+import { BirthDatePicker } from '@/components/custom/BirthDatePicker';
 import { ProfileImageField } from '@/components/custom/ProfileImageField';
 import { configurationsSchema, ConfigurationsFormData } from '@/schemas/configurations.schema';
+import { TfiClose } from 'react-icons/tfi';
 
 function Configurations() {
   const { user, updateProfile } = useUser();
@@ -52,22 +58,22 @@ function Configurations() {
   }, [user, form]);
 
   const onSubmit = async (data: ConfigurationsFormData) => {
-    const formData = new FormData();
-
-    Object.entries(data).forEach(([key, value]) => {
-      if (value !== undefined && value !== null && value !== '') {
-        formData.append(key, value as any);
-      }
+    const payload: UpdateUserPayload = {};
+    (['username', 'cpf', 'birth_date', 'social_name', 'phone_number'] as const).forEach(key => {
+      const value = data[key];
+      if (value) payload[key] = value;
     });
 
-    await updateProfile(formData);
+    await updateProfile(
+      payload,
+      data.profile_picture instanceof File ? data.profile_picture : undefined
+    );
   };
 
   return (
     <div className="w-full max-w-3xl mx-auto p-6">
       <Link to="/" className="flex items-center gap-2 mb-4">
-        <PiArrowCircleLeftThin />
-        Voltar
+        <TfiClose className="text-3xl" />
       </Link>
 
       <h2 className="text-2xl font-bold mb-6">Minhas informações</h2>
@@ -77,9 +83,7 @@ function Configurations() {
           {[
             ['username', 'Nome Completo'],
             ['cpf', 'CPF'],
-            ['birth_date', 'Data de Nascimento'],
             ['social_name', 'Nome Social'],
-            ['email', 'Email'],
             ['phone_number', 'Telefone'],
           ].map(([name, label]) => (
             <FormField
@@ -100,11 +104,45 @@ function Configurations() {
 
           <FormField
             control={form.control}
-            name="password"
+            name="birth_date"
             render={({ field }) => (
-              <PasswordField label="Senha" placeholder="Digite sua nova senha" field={field} />
+              <FormItem>
+                <FormLabel>Data de nascimento</FormLabel>
+                <FormControl>
+                  <BirthDatePicker field={field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
           />
+
+          <FormField
+            control={form.control}
+            name="email"
+            render={() => (
+              <FormItem className="w-full">
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input
+                    value={user?.email ?? ''}
+                    disabled
+                    className="p-6 w-full opacity-70 cursor-not-allowed"
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+
+          <FormItem>
+            <FormLabel>Senha</FormLabel>
+            <Button
+              className="py-4 bg-orange-400 border-none text-white"
+              type="button"
+              variant="outline"
+            >
+              Solicitar redefinição de senha
+            </Button>
+          </FormItem>
 
           <FormField
             control={form.control}
@@ -115,10 +153,17 @@ function Configurations() {
           />
 
           <div className="flex justify-end gap-4">
-            <Button type="reset" variant="outline" onClick={() => form.reset()}>
+            <Button
+              className="py-4 bg-blue-600 border-none text-white"
+              type="reset"
+              variant="outline"
+              onClick={() => form.reset()}
+            >
               Redefinir
             </Button>
-            <Button type="submit">Salvar alterações</Button>
+            <Button className="py-4 bg-green-600 border-none text-white" type="submit">
+              Salvar alterações
+            </Button>
           </div>
         </form>
       </Form>

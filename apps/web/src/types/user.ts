@@ -1,0 +1,13 @@
+export interface UpdateUserPayload {
+  username?: string;
+  social_name?: string;
+  cpf?: string;
+  birth_date?: string;
+  phone_number?: string;
+}
+
+export interface ProfileImageFile {
+  buffer: string;
+  originalName: string;
+  mimetype: string;
+}
