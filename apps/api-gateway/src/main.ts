@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { ApiGatewayModule } from './api-gateway.module';
+import { SocketIoAdapter } from './socket-io/socket-io.adapter';
 import cookieParser from 'cookie-parser';
 import * as express from 'express';
 import { resolve } from 'path';
@@ -17,6 +18,7 @@ async function bootstrap() {
     }),
   );
   app.use(cookieParser());
+  app.useWebSocketAdapter(new SocketIoAdapter(app, process.env.FRONTEND_URL!));
 
   const uploadsDir = resolve(__dirname, '..', '..', '..', '..', 'uploads');
 

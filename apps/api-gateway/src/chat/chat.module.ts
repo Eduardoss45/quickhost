@@ -3,6 +3,8 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ChatController } from './chat.controller';
 import { ChatService } from './chat.service';
 import { ConfigService } from '@nestjs/config';
+import { ChatGateway } from './chat.gateway';
+import { ChatEventsController } from './chat-events.controller';
 
 @Module({
   imports: [
@@ -15,15 +17,25 @@ import { ConfigService } from '@nestjs/config';
           options: {
             urls: [config.get<string>('RMQ_URL')!],
             queue: 'qk_chat_request_queue',
-            queueOptions: {
-              durable: false,
-            },
+            queueOptions: { durable: true },
+          },
+        }),
+      },
+      {
+        name: 'CHAT_GATEWAY_EVENTS',
+        inject: [ConfigService],
+        useFactory: (config: ConfigService) => ({
+          transport: Transport.RMQ,
+          options: {
+            urls: [config.get<string>('RMQ_URL')!],
+            queue: 'qk_chat_gateway_queue',
+            queueOptions: { durable: true },
           },
         }),
       },
     ]),
   ],
   controllers: [ChatController],
-  providers: [ChatService],
+  providers: [ChatService, ChatGateway, ChatEventsController],
 })
 export class ChatModule {}

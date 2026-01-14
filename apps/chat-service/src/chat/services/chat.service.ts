@@ -1,24 +1,28 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ChatRoom } from '../entities/chat-room.entity';
 import { Message } from '../entities/message.entity';
+import { ClientProxy } from '@nestjs/microservices';
 
 @Injectable()
 export class ChatService {
   constructor(
-    @InjectRepository(ChatRoom) private chatRoomRepo: Repository<ChatRoom>,
-    @InjectRepository(Message) private messageRepo: Repository<Message>,
+    @InjectRepository(ChatRoom)
+    private readonly chatRoomRepo: Repository<ChatRoom>,
+
+    @InjectRepository(Message)
+    private readonly messageRepo: Repository<Message>,
+
+    @Inject('CHAT_GATEWAY_CLIENT')
+    private readonly gatewayClient: ClientProxy,
   ) {}
 
-  async getOrCreateRoom(user1Id: string, user2Id: string): Promise<ChatRoom> {
+  async getOrCreateRoom(user1Id: string, user2Id: string) {
     let room = await this.chatRoomRepo.findOne({
       where: [
         { user1Id, user2Id },
-        {
-          user1Id: user2Id,
-          user2Id: user1Id,
-        },
+        { user1Id: user2Id, user2Id: user1Id },
       ],
     });
 
@@ -26,12 +30,21 @@ export class ChatService {
       room = this.chatRoomRepo.create({ user1Id, user2Id });
       await this.chatRoomRepo.save(room);
     }
+
     return room;
   }
 
   async sendMessage(chatRoomId: string, senderId: string, content: string) {
-    const message = this.messageRepo.create({ chatRoomId, senderId, content });
+    const message = this.messageRepo.create({
+      chatRoomId,
+      senderId,
+      content,
+    });
+
     await this.messageRepo.save(message);
+
+    this.gatewayClient.emit('chat.message.created', message);
+
     return message;
   }
 

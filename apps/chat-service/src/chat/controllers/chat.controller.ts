@@ -1,31 +1,31 @@
-import { ClientProxy, MessagePattern } from '@nestjs/microservices';
-import { Controller, Inject } from '@nestjs/common';
+import { MessagePattern } from '@nestjs/microservices';
+import { Controller } from '@nestjs/common';
 import { ChatService } from '../services/chat.service';
 
 @Controller()
 export class ChatController {
-  constructor(
-    private readonly chatService: ChatService,
-    @Inject('NOTIFICATIONS_CLIENT') private readonly client: ClientProxy,
-  ) {}
+  constructor(private readonly chatService: ChatService) {}
 
   @MessagePattern('chat.send_message')
-  async handleSendMessage(data: {
+  async sendMessage(data: {
     chatRoomId: string;
     senderId: string;
     content: string;
   }) {
-    const message = await this.chatService.sendMessage(
+    return this.chatService.sendMessage(
       data.chatRoomId,
       data.senderId,
       data.content,
     );
-    await this.client.emit('chat.message.created', message);
-    return message;
   }
 
   @MessagePattern('chat.get_or_create_room')
-  async handleGetOrCreateRoom(data: { user1Id: string; user2Id: string }) {
+  async getOrCreateRoom(data: { user1Id: string; user2Id: string }) {
     return this.chatService.getOrCreateRoom(data.user1Id, data.user2Id);
+  }
+
+  @MessagePattern('chat.get_messages_room')
+  async getMessages(data: { chatRoomId: string; limit?: number }) {
+    return this.chatService.getMessages(data.chatRoomId, data.limit);
   }
 }

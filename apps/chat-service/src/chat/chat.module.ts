@@ -22,13 +22,13 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
     TypeOrmModule.forFeature([ChatRoom, Message]),
     ClientsModule.registerAsync([
       {
-        name: 'NOTIFICATIONS_CLIENT',
+        name: 'CHAT_GATEWAY_CLIENT',
         inject: [ConfigService],
         useFactory: (config: ConfigService) => ({
           transport: Transport.RMQ,
           options: {
             urls: [config.get<string>('RMQ_URL')!],
-            queue: 'qk_notifications_queue',
+            queue: 'qk_chat_gateway_queue',
             queueOptions: { durable: true },
           },
         }),

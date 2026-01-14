@@ -1,15 +1,17 @@
 import { useEffect } from 'react';
-import { initSocket } from '@/services/socket';
+import { getChatSocket } from '@/services/chat.socket';
 
-export function useChatSocket(onMessage: (msg: any) => void) {
+export function useChatSocket(chatRoomId: string, onMessage: (msg: any) => void) {
   useEffect(() => {
-    const socket = initSocket();
+    const socket = getChatSocket();
     if (!socket) return;
+
+    socket.emit('chat.join', { chatRoomId });
 
     socket.on('chat.message', onMessage);
 
     return () => {
       socket.off('chat.message', onMessage);
     };
-  }, [onMessage]);
+  }, [chatRoomId, onMessage]);
 }

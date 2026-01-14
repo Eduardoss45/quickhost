@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useChatSocket } from '@/hooks/new/useChatSocket';
 import { authStore } from '@/store/auth.store';
-import { initSocket } from '@/services/socket';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -14,6 +13,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ChevronDown } from 'lucide-react';
+import { getChatSocket } from '@/services/chat.socket';
+import { ChatMessagePayload } from '@/types/chat';
 
 type Message = {
   id: string;
@@ -26,6 +27,8 @@ export default function ChatPage() {
   const [text, setText] = useState('');
 
   const user = authStore.getState().user;
+
+  const chatRoomId = 'a2c2e665-86fc-4e46-8735-961b5fbfe166';
 
   const conversations = [
     { id: 1, name: 'Gabriel Almeida' },
@@ -45,38 +48,32 @@ export default function ChatPage() {
     { id: '4', author: 'them', text: 'Desculpa, já vou enviar 👍' },
   ]);
 
-  // 🔥 Recebendo mensagens em tempo real
-  useChatSocket(msg => {
+  useChatSocket(chatRoomId, (msg: ChatMessagePayload) => {
     const currentUser = authStore.getState().user;
     if (!currentUser) return;
 
     setMessages(prev => [
       ...prev,
       {
-        id: crypto.randomUUID(),
-        author: msg.from === currentUser.id ? 'me' : 'them',
-        text: msg.content ?? msg.message,
+        id: msg.id,
+        author: msg.senderId === currentUser.userId ? 'me' : 'them',
+        text: msg.content,
       },
     ]);
   });
 
-  // 📤 Enviar mensagem pelo socket
   function handleSend() {
     if (!text.trim() || !user) return;
 
-    const socket = initSocket();
+    const socket = getChatSocket();
     if (!socket) return;
 
-    const payload = {
-      from: user.id,
-      to: 'UUID_DESTINO_TESTE', // depois você liga isso à conversa selecionada
+    socket.emit('chat.send', {
+      chatRoomId: 'room-test', // vem da conversa selecionada
       content: text,
-      chatRoomId: 'room-test',
-    };
+    });
 
-    socket.emit('chat.send', payload);
-
-    // otimista: já mostra na tela sem esperar backend
+    // otimista
     setMessages(prev => [
       ...prev,
       {

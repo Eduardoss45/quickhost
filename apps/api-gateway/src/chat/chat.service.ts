@@ -1,18 +1,30 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { SendMessageDto } from '../dtos/send-message.dto';
-import { GetOrCreateRoomDto } from '../dtos/get-or-create-room.dto';
 import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class ChatService {
-  constructor(@Inject('CHAT_CLIENT') private chatClient: ClientProxy) {}
+  constructor(
+    @Inject('CHAT_CLIENT') private readonly chatClient: ClientProxy,
+  ) {}
 
-  async sendMessage(dto: SendMessageDto) {
-    return firstValueFrom(this.chatClient.send('chat.send_message', dto));
+  sendMessage(payload: {
+    chatRoomId: string;
+    senderId: string;
+    content: string;
+  }) {
+    return firstValueFrom(this.chatClient.send('chat.send_message', payload));
   }
 
-  async getOrCreateRoom(dto: GetOrCreateRoomDto) {
-    return firstValueFrom(this.chatClient.send('chat.get_or_create_room', dto));
+  getOrCreateRoom(payload: { user1Id: string; user2Id: string }) {
+    return firstValueFrom(
+      this.chatClient.send('chat.get_or_create_room', payload),
+    );
+  }
+
+  getMessages(payload: { chatRoomId: string; limit?: number }) {
+    return firstValueFrom(
+      this.chatClient.send('chat.get_messages_room', payload),
+    );
   }
 }

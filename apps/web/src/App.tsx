@@ -3,7 +3,7 @@ import { useUser } from './hooks/new/useUser';
 import { Outlet } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
-import { initSocket } from '@/services/socket';
+import { initSocket } from '@/services/notification.socket';
 
 function App() {
   const { bootstrapSession, hydrated, user } = useUser();

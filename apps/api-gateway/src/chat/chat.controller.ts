@@ -1,10 +1,8 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/guards/jwt.guard';
 import { CurrentUser } from 'src/decorators/current-user.decorator';
 import type { JwtUser } from 'src/types';
 import { ChatService } from './chat.service';
-import { SendMessageDto } from '../dtos/send-message.dto';
-import { GetOrCreateRoomDto } from '../dtos/get-or-create-room.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('chat')
@@ -14,24 +12,30 @@ export class ChatController {
   @Post('send-message')
   async sendMessage(
     @CurrentUser() user: JwtUser,
-    @Body() dto: Omit<SendMessageDto, 'senderId'>,
+    @Body() body: { chatRoomId: string; content: string },
   ) {
     return this.chatService.sendMessage({
-      ...dto,
+      chatRoomId: body.chatRoomId,
+      content: body.content,
       senderId: user.userId,
-    } as any);
+    });
   }
 
   @Post('room')
   async getOrCreateRoom(
     @CurrentUser() user: JwtUser,
-    @Body() dto: Omit<GetOrCreateRoomDto, 'user1Id'>,
+    @Body() body: { user2Id: string },
   ) {
-    const backendDto = {
+    return this.chatService.getOrCreateRoom({
       user1Id: user.userId,
-      user2Id: dto.user2Id,
-    };
+      user2Id: body.user2Id,
+    });
+  }
 
-    return this.chatService.getOrCreateRoom(backendDto);
+  @Get('room/:roomId/messages')
+  async getMessages(@Param('roomId') roomId: string) {
+    return this.chatService.getMessages({
+      chatRoomId: roomId,
+    });
   }
 }
