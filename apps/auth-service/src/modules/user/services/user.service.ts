@@ -166,4 +166,17 @@ export class UserService {
       message: 'Foto de perfil removida',
     };
   }
+
+  async getPublicUser(userId: string) {
+    const user = await this.users.findPublicById(userId);
+
+    if (!user) {
+      throw new RpcException({
+        statusCode: 404,
+        message: 'Usuário não encontrado',
+      });
+    }
+
+    return user;
+  }
 }

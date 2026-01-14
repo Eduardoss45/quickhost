@@ -27,4 +27,8 @@ export class ChatService {
       this.chatClient.send('chat.get_messages_room', payload),
     );
   }
+
+  getUserRooms(payload: { userId: string }) {
+    return firstValueFrom(this.chatClient.send('chat.get_user_rooms', payload));
+  }
 }

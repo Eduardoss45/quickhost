@@ -38,4 +38,11 @@ export class ChatController {
       chatRoomId: roomId,
     });
   }
+
+  @Get('rooms')
+  async getMyRooms(@CurrentUser() user: JwtUser) {
+    return this.chatService.getUserRooms({
+      userId: user.userId,
+    });
+  }
 }

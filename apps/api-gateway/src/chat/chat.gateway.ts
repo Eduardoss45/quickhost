@@ -25,9 +25,14 @@ export class ChatGateway {
   ) {}
 
   handleConnection(client: Socket) {
+    console.log('handshake auth:', client.handshake.auth);
+
     const userId = client.handshake.auth?.userId;
     if (!userId) {
+      console.log('❌ desconectando: sem userId');
       client.disconnect();
+    } else {
+      console.log('✅ conectado user:', userId);
     }
   }
 
@@ -54,11 +59,6 @@ export class ChatGateway {
         content: payload.content,
       }),
     );
-  }
-
-  @MessagePattern('chat.message.created')
-  handleMessageCreated(message: any) {
-    this.server.to(message.chatRoomId).emit('chat.message', message);
   }
 
   emitToRoom(roomId: string, message: any) {

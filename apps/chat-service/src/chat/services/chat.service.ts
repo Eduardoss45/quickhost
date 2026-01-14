@@ -55,4 +55,15 @@ export class ChatService {
       take: limit,
     });
   }
+
+  async getUserRooms(userId: string) {
+    const rooms = await this.chatRoomRepo.find({
+      where: [{ user1Id: userId }, { user2Id: userId }],
+    });
+
+    return rooms.map((room) => ({
+      roomId: room.id,
+      otherUserId: room.user1Id === userId ? room.user2Id : room.user1Id,
+    }));
+  }
 }

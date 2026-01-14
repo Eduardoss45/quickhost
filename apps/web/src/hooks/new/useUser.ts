@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '@/services/api';
 import { toast } from 'sonner';
 import { authStore } from '@/store/auth.store';
-import { UpdateUserPayload } from '@/types/user';
+import { PublicUser, UpdateUserPayload } from '@/types/user';
 
 interface LoginPayload {
   email: string;
@@ -84,6 +84,15 @@ export function useUser() {
     }
   }
 
+  const getPublicUser = async (userId: string) => {
+    try {
+      const res = await api.get<PublicUser>(`/api/user/${userId}`);
+      return res.data;
+    } catch {
+      return null;
+    }
+  };
+
   const bootstrapSession = async () => {
     try {
       await api.post('/api/auth/refresh');
@@ -150,6 +159,7 @@ export function useUser() {
     getProfile,
     updateProfile,
     removeProfilePicture,
+    getPublicUser,
     login,
     register,
     logout,

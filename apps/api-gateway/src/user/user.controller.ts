@@ -7,6 +7,7 @@ import {
   UseInterceptors,
   Get,
   Delete,
+  Param,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UpdateUserDto } from '../dtos';
@@ -53,5 +54,10 @@ export class UserController {
       status: 200,
       message: 'Foto de perfil removida com sucesso',
     };
+  }
+
+  @Get('/:userId')
+  getPublicUser(@Param('userId') userId: string) {
+    return this.userService.getPublicUser(userId);
   }
 }

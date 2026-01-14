@@ -32,7 +32,7 @@ function App() {
       <main className="flex flex-1 justify-center container mx-auto px-4 bg-zinc-100">
         <Outlet />
       </main>
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 }

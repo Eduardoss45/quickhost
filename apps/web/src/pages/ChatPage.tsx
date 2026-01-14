@@ -1,6 +1,14 @@
-import { useState } from 'react';
-import { useChatSocket } from '@/hooks/new/useChatSocket';
+import { useEffect, useState } from 'react';
 import { authStore } from '@/store/auth.store';
+
+import { useUser } from '@/hooks/new/useUser';
+import { useChat } from '@/hooks/new/useChat';
+import { useChatSocket } from '@/hooks/new/useChatSocket';
+
+import { getChatSocket } from '@/services/chat.socket';
+
+import type { ChatMessagePayload, ChatRoom } from '@/types/chat';
+import type { PublicUser } from '@/types/user';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -12,122 +20,133 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { ChevronDown } from 'lucide-react';
-import { getChatSocket } from '@/services/chat.socket';
-import { ChatMessagePayload } from '@/types/chat';
 
-type Message = {
+import { ChevronDown } from 'lucide-react';
+
+type UiMessage = {
   id: string;
   author: 'me' | 'them';
   text: string;
 };
 
 export default function ChatPage() {
+  const user = authStore(state => state.user);
+  const userId = user?.id;
+
+  const { getPublicUser } = useUser();
+  const { getRooms, getMessages, sendMessage } = useChat();
+
   const [mode, setMode] = useState<'anfitriao' | 'hospede'>('anfitriao');
   const [text, setText] = useState('');
 
-  const user = authStore.getState().user;
+  const [rooms, setRooms] = useState<(ChatRoom & { otherUser?: PublicUser | null })[]>([]);
 
-  const chatRoomId = 'a2c2e665-86fc-4e46-8735-961b5fbfe166';
+  const [activeRoomId, setActiveRoomId] = useState<string | null>(null);
+  const [messages, setMessages] = useState<UiMessage[]>([]);
 
-  const conversations = [
-    { id: 1, name: 'Gabriel Almeida' },
-    { id: 2, name: 'Simone Andrade' },
-    { id: 3, name: 'Bruno Carvalho' },
-    { id: 4, name: 'Marina Cardoso' },
-  ];
+  useEffect(() => {
+    if (!userId) return;
 
-  const [messages, setMessages] = useState<Message[]>([
-    { id: '1', author: 'them', text: 'Boa tarde' },
-    { id: '2', author: 'me', text: 'Boa tarde senhora Simone' },
-    {
-      id: '3',
-      author: 'me',
-      text: 'Está faltando ainda a ultima parcela do pagamento',
-    },
-    { id: '4', author: 'them', text: 'Desculpa, já vou enviar 👍' },
-  ]);
+    (async () => {
+      const data = await getRooms();
 
-  useChatSocket(chatRoomId, (msg: ChatMessagePayload) => {
-    const currentUser = authStore.getState().user;
-    if (!currentUser) return;
+      const hydrated = await Promise.all(
+        data.map(async room => ({
+          ...room,
+          otherUser: await getPublicUser(room.otherUserId),
+        }))
+      );
+
+      setRooms(hydrated);
+
+      if (hydrated.length > 0) {
+        setActiveRoomId(hydrated[0]!.roomId);
+      }
+    })();
+  }, [userId]);
+
+  useEffect(() => {
+    if (!activeRoomId || !userId) return;
+
+    (async () => {
+      const history = await getMessages(activeRoomId);
+
+      setMessages(
+        history.map(msg => ({
+          id: msg.id,
+          author: msg.senderId === userId ? 'me' : 'them',
+          text: msg.content,
+        }))
+      );
+    })();
+  }, [activeRoomId, userId]);
+
+  useChatSocket(activeRoomId, (msg: ChatMessagePayload) => {
+    if (!userId) return;
 
     setMessages(prev => [
       ...prev,
       {
         id: msg.id,
-        author: msg.senderId === currentUser.userId ? 'me' : 'them',
+        author: msg.senderId === userId ? 'me' : 'them',
         text: msg.content,
       },
     ]);
   });
 
-  function handleSend() {
-    if (!text.trim() || !user) return;
+  async function handleSend() {
+    if (!text.trim() || !userId || !activeRoomId) return;
 
-    const socket = getChatSocket();
-    if (!socket) return;
-
-    socket.emit('chat.send', {
-      chatRoomId: 'room-test', // vem da conversa selecionada
-      content: text,
-    });
-
-    // otimista
-    setMessages(prev => [
-      ...prev,
-      {
-        id: crypto.randomUUID(),
-        author: 'me',
-        text,
-      },
-    ]);
+    await sendMessage(activeRoomId, text);
 
     setText('');
   }
 
+  const activeRoom = rooms.find(r => r.roomId === activeRoomId);
+
   return (
     <div className="h-screen w-full bg-white flex">
-      {/* Sidebar */}
       <aside className="w-[320px] border-r flex flex-col">
         <div className="p-4 flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button className="bg-blue-500 hover:bg-blue-600 rounded-full flex items-center gap-1">
+              <Button className="rounded-full flex items-center gap-1">
                 {mode === 'anfitriao' ? 'Sou Anfitrião' : 'Sou Hóspede'}
                 <ChevronDown className="w-4 h-4" />
               </Button>
             </DropdownMenuTrigger>
 
-            <DropdownMenuContent align="start" className="w-48">
+            <DropdownMenuContent>
               <DropdownMenuItem onClick={() => setMode('hospede')}>Sou hóspede</DropdownMenuItem>
               <DropdownMenuItem onClick={() => setMode('anfitriao')}>
                 Sou anfitrião
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-
-          <Button variant="outline" className="rounded-full">
-            Hóspedes
-          </Button>
         </div>
 
         <ScrollArea className="flex-1 px-3">
           <div className="space-y-3">
-            {conversations.map((c, i) => (
+            {rooms.map(room => (
               <div
-                key={c.id}
+                key={room.roomId}
+                onClick={() => setActiveRoomId(room.roomId)}
                 className={`flex items-center gap-3 p-3 rounded-2xl cursor-pointer transition ${
-                  i === 1 ? 'bg-orange-400/20 border border-orange-400' : 'hover:bg-gray-100'
+                  room.roomId === activeRoomId
+                    ? 'bg-orange-400/20 border border-orange-400'
+                    : 'hover:bg-gray-100'
                 }`}
               >
                 <Avatar>
-                  <AvatarImage src="https://i.pravatar.cc/100" />
-                  <AvatarFallback>{c.name[0]}</AvatarFallback>
+                  <AvatarImage src={room.otherUser?.profile_picture_url ?? ''} />
+                  <AvatarFallback>{room.otherUser?.username?.[0] ?? '?'}</AvatarFallback>
                 </Avatar>
+
                 <div>
                   <p className="text-sm text-gray-500">Cliente:</p>
-                  <p className="font-medium">{c.name}</p>
+                  <p className="font-medium">
+                    {room.otherUser?.social_name ?? room.otherUser?.username ?? 'Usuário'}
+                  </p>
                 </div>
               </div>
             ))}
@@ -135,14 +154,13 @@ export default function ChatPage() {
         </ScrollArea>
       </aside>
 
-      {/* Chat Area */}
       <main className="flex-1 flex flex-col">
-        <div className="border-b p-4 text-center font-medium">Mensagens</div>
+        <div className="border-b p-4 text-center font-medium">
+          {activeRoom?.otherUser?.username ?? 'Mensagens'}
+        </div>
 
         <ScrollArea className="flex-1 p-6">
           <div className="space-y-6">
-            <p className="text-center text-sm text-gray-400">Hoje</p>
-
             {messages.map(msg => (
               <div
                 key={msg.id}
@@ -152,14 +170,13 @@ export default function ChatPage() {
               >
                 {msg.author === 'them' && (
                   <Avatar className="h-8 w-8">
-                    <AvatarImage src="https://i.pravatar.cc/100?img=47" />
-                    <AvatarFallback>S</AvatarFallback>
+                    <AvatarFallback>{activeRoom?.otherUser?.username?.[0] ?? 'U'}</AvatarFallback>
                   </Avatar>
                 )}
 
                 <div
-                  className={`max-w-[60%] px-4 py-2 rounded-2xl text-sm leading-relaxed ${
-                    msg.author === 'me' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-900'
+                  className={`max-w-[60%] px-4 py-2 rounded-2xl text-sm ${
+                    msg.author === 'me' ? 'bg-blue-500 text-white' : 'bg-gray-100'
                   }`}
                 >
                   {msg.text}
@@ -167,7 +184,6 @@ export default function ChatPage() {
 
                 {msg.author === 'me' && (
                   <Avatar className="h-8 w-8">
-                    <AvatarImage src="https://i.pravatar.cc/100?img=12" />
                     <AvatarFallback>EU</AvatarFallback>
                   </Avatar>
                 )}
@@ -185,7 +201,7 @@ export default function ChatPage() {
               className="rounded-full"
               onKeyDown={e => e.key === 'Enter' && handleSend()}
             />
-            <Button onClick={handleSend} className="bg-orange-400 hover:bg-orange-500 rounded-full">
+            <Button onClick={handleSend} className="rounded-full">
               Enviar
             </Button>
           </div>

@@ -35,7 +35,7 @@ import { ChatEventsController } from './chat-events.controller';
       },
     ]),
   ],
-  controllers: [ChatController],
+  controllers: [ChatController, ChatEventsController],
   providers: [ChatService, ChatGateway, ChatEventsController],
 })
 export class ChatModule {}

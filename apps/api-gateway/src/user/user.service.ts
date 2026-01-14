@@ -45,4 +45,10 @@ export class UserService {
       this.client.send('remove-profile-picture', { userId }),
     );
   }
+
+  getPublicUser(userId: string) {
+    return firstValueFrom(
+      this.client.send('user.get_public_profile', { userId }),
+    );
+  }
 }

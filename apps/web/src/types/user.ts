@@ -11,3 +11,10 @@ export interface ProfileImageFile {
   originalName: string;
   mimetype: string;
 }
+
+export interface PublicUser {
+  id: string;
+  username: string;
+  social_name?: string;
+  profile_picture_url?: string | null;
+}

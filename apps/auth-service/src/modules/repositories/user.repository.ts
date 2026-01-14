@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
+import { PublicUserDto } from '../dtos';
 
 @Injectable()
 export class UserRepository {
@@ -49,5 +50,20 @@ export class UserRepository {
     return this.repo.update(userId, {
       refreshTokenHash: hash ?? undefined,
     });
+  }
+
+  async findPublicById(userId: string): Promise<PublicUserDto | null> {
+    const user = await this.repo
+      .createQueryBuilder('user')
+      .select([
+        'user.id AS id',
+        'user.username AS username',
+        'user.social_name AS social_name',
+        'user.profile_picture_url AS profile_picture_url',
+      ])
+      .where('user.id = :userId', { userId })
+      .getRawOne<PublicUserDto>();
+
+    return user ?? null;
   }
 }

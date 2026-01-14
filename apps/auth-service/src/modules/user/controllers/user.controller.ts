@@ -23,4 +23,9 @@ export class UserController {
   async removeProfilePicture(data: { userId: string }) {
     return this.userService.removeProfilePicture(data.userId);
   }
+
+  @MessagePattern('user.get_public_profile')
+  getPublicProfile(data: { userId: string }) {
+    return this.userService.getPublicUser(data.userId);
+  }
 }

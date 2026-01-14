@@ -28,4 +28,9 @@ export class ChatController {
   async getMessages(data: { chatRoomId: string; limit?: number }) {
     return this.chatService.getMessages(data.chatRoomId, data.limit);
   }
+
+  @MessagePattern('chat.get_user_rooms')
+  async getUserRooms(data: { userId: string }) {
+    return this.chatService.getUserRooms(data.userId);
+  }
 }

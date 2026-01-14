@@ -11,8 +11,20 @@ export function getChatSocket() {
 
   chatSocket = io(`${import.meta.env.VITE_API_BASE_URL}/chat`, {
     auth: {
-      userId: user.userId,
+      userId: user.id,
     },
+  });
+
+  chatSocket.on('connect', () => {
+    console.log('🟢 Socket conectado:', chatSocket?.id);
+  });
+
+  chatSocket.on('disconnect', () => {
+    console.log('🔴 Socket desconectado');
+  });
+
+  chatSocket.on('connect_error', err => {
+    console.error('❌ Erro socket:', err.message);
   });
 
   return chatSocket;
