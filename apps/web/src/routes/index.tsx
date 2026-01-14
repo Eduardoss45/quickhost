@@ -4,6 +4,7 @@ import { Route, Routes } from 'react-router-dom';
 import App from '@/App';
 import Home from '@/pages/Home';
 import Configurations from '@/pages/Configurations';
+import ChatPage from '@/pages/ChatPage';
 
 export function AppRoutes() {
   return (
@@ -13,6 +14,7 @@ export function AppRoutes() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/configurations" element={<Configurations />} />
+        <Route path="/chat" element={<ChatPage />} />
       </Route>
     </Routes>
   );

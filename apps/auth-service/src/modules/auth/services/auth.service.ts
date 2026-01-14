@@ -1,3 +1,4 @@
+import { mapDatabaseError } from '../../common/errors/database-error.mapper';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import { UserRepository } from '../../repositories/user.repository';
@@ -61,18 +62,27 @@ export class AuthService {
 
     const passwordHash = await bcrypt.hash(data.password, 10);
 
-    const user = await this.users.createUser({
-      email: data.email,
-      username: data.username,
-      password: passwordHash,
-      cpf: data.cpf,
-      birth_date: data.birdth_date,
-    });
+    let user;
+    try {
+      user = await this.users.createUser({
+        email: data.email,
+        username: data.username,
+        password: passwordHash,
+        cpf: data.cpf,
+        birth_date: data.birdth_date,
+      });
+    } catch (err) {
+      mapDatabaseError(err);
+    }
 
     const tokens = await this.generateTokens(user);
 
-    const refreshHash = await bcrypt.hash(tokens.refreshToken, 10);
-    await this.users.updateRefreshToken(user.id, refreshHash);
+    try {
+      const refreshHash = await bcrypt.hash(tokens.refreshToken, 10);
+      await this.users.updateRefreshToken(user.id, refreshHash);
+    } catch (err) {
+      mapDatabaseError(err);
+    }
 
     return {
       status: 'created',

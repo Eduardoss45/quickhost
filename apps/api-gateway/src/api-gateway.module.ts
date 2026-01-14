@@ -5,7 +5,9 @@ import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { AccommodationModule } from './accommodations/accommodations.module';
-import { SecurityModule } from 'strategies/security.module';
+import { ChatModule } from './chat/chat.module';
+import { NotificationsModule } from './notifications/notifications.module';
+import { SecurityModule } from './strategies/security.module';
 import { RmqExceptionInterceptor } from './exception/rmq-exception.interceptor';
 
 @Module({
@@ -23,6 +25,8 @@ import { RmqExceptionInterceptor } from './exception/rmq-exception.interceptor';
     UserModule,
     SecurityModule,
     AccommodationModule,
+    NotificationsModule,
+    ChatModule,
   ],
   providers: [
     {

@@ -1,3 +1,4 @@
+import { mapDatabaseError } from '../../common/errors/database-error.mapper';
 import { Injectable, Inject } from '@nestjs/common';
 import { User } from '../../entities/user.entity';
 import { differenceInYears, parse } from 'date-fns';
@@ -105,7 +106,11 @@ export class UserService {
       }
     }
 
-    await this.users.updateProfile(userId, updateData);
+    try {
+      await this.users.updateProfile(userId, updateData);
+    } catch (err) {
+      mapDatabaseError(err);
+    }
 
     return {
       success: true,

@@ -3,12 +3,24 @@ import { useUser } from './hooks/new/useUser';
 import { Outlet } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
+import { initSocket } from '@/services/socket';
 
 function App() {
-  const { bootstrapSession, hydrated } = useUser();
+  const { bootstrapSession, hydrated, user } = useUser();
+
   useEffect(() => {
     bootstrapSession();
   }, []);
+
+  useEffect(() => {
+    if (!hydrated || !user) return;
+
+    const socket = initSocket();
+
+    return () => {
+      socket?.disconnect();
+    };
+  }, [hydrated, user]);
 
   if (!hydrated) {
     return <p>Carregando...</p>;

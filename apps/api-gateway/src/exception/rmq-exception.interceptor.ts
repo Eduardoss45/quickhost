@@ -10,16 +10,15 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { Observable, catchError, throwError } from 'rxjs';
+import { RpcException } from '@nestjs/microservices';
 
 @Injectable()
 export class RmqExceptionInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     return next.handle().pipe(
       catchError((err) => {
-        if (err?.statusCode && err?.message) {
-          return throwError(() =>
-            this.mapException(err.statusCode, err.message),
-          );
+        if (err?.getStatus && err?.getResponse) {
+          return throwError(() => err);
         }
 
         if (err?.response?.statusCode && err?.response?.message) {
@@ -28,10 +27,28 @@ export class RmqExceptionInterceptor implements NestInterceptor {
           );
         }
 
-        if (typeof err?.message === 'string') {
-          return throwError(
-            () => new InternalServerErrorException(err.message),
+        if (err?.statusCode && err?.message) {
+          return throwError(() =>
+            this.mapException(err.statusCode, err.message),
           );
+        }
+
+        if (err instanceof RpcException) {
+          const error = err.getError();
+
+          if (
+            typeof error === 'object' &&
+            error !== null &&
+            'statusCode' in error &&
+            'message' in error
+          ) {
+            return throwError(() =>
+              this.mapException(
+                (error as any).statusCode,
+                (error as any).message,
+              ),
+            );
+          }
         }
 
         return throwError(
