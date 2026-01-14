@@ -33,6 +33,20 @@ import { ChatEventsController } from './chat-events.controller';
           },
         }),
       },
+      {
+        name: 'AUTH_CLIENT',
+        inject: [ConfigService],
+        useFactory: (config: ConfigService) => ({
+          transport: Transport.RMQ,
+          options: {
+            urls: [config.get<string>('RMQ_URL')!],
+            queue: 'qk_auth_queue',
+            queueOptions: {
+              durable: false,
+            },
+          },
+        }),
+      },
     ]),
   ],
   controllers: [ChatController, ChatEventsController],

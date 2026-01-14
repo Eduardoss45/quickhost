@@ -23,6 +23,9 @@ export class ChatGateway {
   constructor(
     @Inject('CHAT_CLIENT')
     private readonly chatClient: ClientProxy,
+
+    @Inject('AUTH_CLIENT')
+    private readonly authClient: ClientProxy,
   ) {}
 
   handleConnection(client: Socket) {
@@ -80,6 +83,16 @@ export class ChatGateway {
       }),
     );
 
+    const sender = await firstValueFrom(
+      this.authClient.send('user.get_public_profile', {
+        userId: message.senderId,
+      }),
+    );
+
+    const senderName =
+      sender?.social_name || sender?.username || 'Desconhecido';
+    const senderProfilePicture = sender?.profile_picture_url || null;
+
     for (const userId of participants) {
       if (userId === message.senderId) continue;
 
@@ -94,6 +107,9 @@ export class ChatGateway {
           socket.emit('chat.notification', {
             roomId,
             preview: message.content.slice(0, 60),
+            senderName,
+            senderProfilePicture,
+            message: message.content,
             deliveredAt: new Date().toISOString(),
           });
         }
