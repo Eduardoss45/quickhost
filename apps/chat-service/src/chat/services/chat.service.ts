@@ -66,4 +66,10 @@ export class ChatService {
       otherUserId: room.user1Id === userId ? room.user2Id : room.user1Id,
     }));
   }
+
+  async getRoomParticipants(chatRoomId: string) {
+    const room = await this.chatRoomRepo.findOneBy({ id: chatRoomId });
+    if (!room) return [];
+    return [room.user1Id, room.user2Id];
+  }
 }

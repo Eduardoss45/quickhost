@@ -4,6 +4,7 @@ import { Outlet } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import { initSocket } from '@/services/notification.socket';
+import { useChatNotifications } from './hooks/new/useNotifications';
 
 function App() {
   const { bootstrapSession, hydrated, user } = useUser();
@@ -21,6 +22,8 @@ function App() {
       socket?.disconnect();
     };
   }, [hydrated, user]);
+
+  useChatNotifications();
 
   if (!hydrated) {
     return <p>Carregando...</p>;

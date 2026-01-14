@@ -33,4 +33,9 @@ export class ChatController {
   async getUserRooms(data: { userId: string }) {
     return this.chatService.getUserRooms(data.userId);
   }
+
+  @MessagePattern('chat.get_room_participants')
+  async getRoomParticipants(data: { chatRoomId: string }) {
+    return this.chatService.getRoomParticipants(data.chatRoomId);
+  }
 }
