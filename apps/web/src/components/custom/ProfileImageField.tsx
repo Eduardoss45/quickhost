@@ -2,7 +2,7 @@ import { useDropzone } from 'react-dropzone';
 import { CiCamera } from 'react-icons/ci';
 import { Button } from '../ui/button';
 import { FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
-import { useUser } from '@/hooks/new/useUser';
+import { useUser } from '@/hooks/useUser';
 
 interface Props {
   value?: File;

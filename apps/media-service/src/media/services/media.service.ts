@@ -80,4 +80,78 @@ export class MediaService {
       });
     }
   }
+
+  async uploadAccommodationImages(
+    accommodationId: string,
+    images: {
+      fileBuffer: Buffer;
+      originalName: string;
+    }[],
+    coverOriginalName: string,
+  ): Promise<{
+    cover: string;
+    images: string[];
+  }> {
+    if (images.length === 0 || images.length > 10) {
+      throw new BadRequestException('Acomodação deve ter entre 1 e 10 imagens');
+    }
+
+    const coverIndex = images.findIndex(
+      (img) => img.originalName === coverOriginalName,
+    );
+
+    if (coverIndex === -1) {
+      throw new BadRequestException('Imagem de capa não encontrada');
+    }
+
+    // Move capa para a posição 0
+    const orderedImages = [
+      images[coverIndex],
+      ...images.filter((_, i) => i !== coverIndex),
+    ];
+
+    const dir = path.join(this.uploadDir, 'accommodations', accommodationId);
+
+    await fs.promises.mkdir(dir, { recursive: true });
+
+    const savedImages: string[] = [];
+
+    for (let i = 0; i < orderedImages.length; i++) {
+      const img = orderedImages[i];
+
+      const buffer = await sharp(img.fileBuffer)
+        .resize({ width: 1200, withoutEnlargement: true })
+        .jpeg({ quality: 90 })
+        .toBuffer();
+
+      const filename = `image${i}.jpeg`;
+      const filepath = path.join(dir, filename);
+
+      await fs.promises.writeFile(filepath, buffer);
+
+      savedImages.push(
+        `/uploads/accommodations/${accommodationId}/${filename}`,
+      );
+    }
+
+    return {
+      cover: savedImages[0],
+      images: savedImages,
+    };
+  }
+
+  async removeAccommodationImages(accommodationId: string) {
+    const dir = path.join(this.uploadDir, 'accommodations', accommodationId);
+
+    if (!fs.existsSync(dir)) return;
+
+    try {
+      await fs.promises.rm(dir, { recursive: true, force: true });
+    } catch {
+      throw new RpcException({
+        statusCode: 500,
+        message: 'Erro ao remover imagens da acomodação',
+      });
+    }
+  }
 }

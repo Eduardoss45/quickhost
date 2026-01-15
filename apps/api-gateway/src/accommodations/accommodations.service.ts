@@ -9,11 +9,37 @@ export class AccommodationsService {
     private readonly client: ClientProxy,
   ) {}
 
-  getAccommodationsService () {
-    return firstValueFrom(this.client.send('accommodations', {}))
+  findAll() {
+    return firstValueFrom(this.client.send('accommodation.find_all', {}));
   }
 
-  registerAccommodationsService() {
-    return firstValueFrom(this.client.send('register', {}));
+  findOne(id: string) {
+    return firstValueFrom(this.client.send('accommodation.find_one', id));
+  }
+
+  create(data: any) {
+    return firstValueFrom(this.client.send('accommodation.create', data));
+  }
+
+  update(id: string, data: any, userId: string) {
+    return firstValueFrom(
+      this.client.send('accommodation.update', {
+        id,
+        data,
+        creatorId: userId,
+      }),
+    );
+  }
+
+  remove(id: string) {
+    return firstValueFrom(this.client.send('accommodation.remove', id));
+  }
+
+  findMyAccommodations(userId: string) {
+    return firstValueFrom(
+      this.client.send('accommodation.find_by_creator', {
+        creatorId: userId,
+      }),
+    );
   }
 }

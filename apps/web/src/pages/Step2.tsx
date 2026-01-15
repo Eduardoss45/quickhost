@@ -5,7 +5,6 @@ import { MdBedroomParent, MdChalet } from 'react-icons/md';
 import { FaBuilding, FaHouse } from 'react-icons/fa6';
 import CustomButton from './CustomButton';
 
-
 const Step2 = ({ data, updateFieldHandler }) => {
   const labels = ['inn', 'chalet', 'apartment', 'home', 'room'];
   const translatedLabels = ['Pousada', 'Chalé', 'Apartamento', 'Casa', 'Quarto'];
@@ -67,10 +66,10 @@ const Step2 = ({ data, updateFieldHandler }) => {
     activeButton !== null ? translatedLabels[activeButton] : 'Nenhuma categoria selecionada';
 
   return (
-    <div >
-      <div >
+    <div>
+      <div>
         <h2>Selecione o tipo de hospedagem</h2>
-        <div >
+        <div>
           {labels.map((label, index) => (
             <CustomButton
               key={index}
@@ -87,14 +86,14 @@ const Step2 = ({ data, updateFieldHandler }) => {
           ))}
         </div>
         <h2>Adicione informações básicas</h2>
-        <div >
+        <div>
           {Object.keys(counts).map((key, index) => (
             <React.Fragment key={index}>
               <div>
                 <div>
                   <label>{values[index]}</label>
                 </div>
-                <div >
+                <div>
                   <span type="button" onClick={() => decrement(key)}>
                     <PiMinusThin />
                   </span>

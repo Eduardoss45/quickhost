@@ -1,10 +1,10 @@
 import { useEffect } from 'react';
-import { useUser } from './hooks/new/useUser';
+import { useUser } from './hooks/useUser';
 import { Outlet } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import { initSocket } from '@/services/notification.socket';
-import { useChatNotifications } from './hooks/new/useNotifications';
+import { useChatNotifications } from './hooks/useNotifications';
 
 function App() {
   const { bootstrapSession, hydrated, user } = useUser();
@@ -32,10 +32,10 @@ function App() {
   return (
     <div className="min-h-screen flex flex-col justify-center">
       <Navbar />
-      <main className="flex flex-1 justify-center container mx-auto px-4 bg-zinc-100">
+      <main className="flex flex-1 justify-center container mx-auto px-4">
         <Outlet />
       </main>
-      {/* <Footer /> */}
+      <Footer />
     </div>
   );
 }

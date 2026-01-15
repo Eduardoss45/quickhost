@@ -31,7 +31,7 @@ async function bootstrap() {
 
   await app.startAllMicroservices();
 
-  const uploadsDir = resolve(__dirname, '..', '..', '..', '..', 'uploads');
+  const uploadsDir = resolve(process.env.MONOREPO_ROOT!, 'uploads');
 
   app.use(
     '/uploads',
@@ -40,6 +40,7 @@ async function bootstrap() {
       immutable: true,
     }),
   );
+
   await app.listen(process.env.PORT || 3000);
 }
 bootstrap();

@@ -163,9 +163,7 @@ function CadastroAcomodacoes() {
         </div>
       </form>
       {isNovaAcomodacao && (
-        <div
-          
-        >
+        <div>
           <div>
             {currentStep >= 2 && (
               <div>

@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { SlDirections } from 'react-icons/sl';
 import { FaUser } from 'react-icons/fa';
 import { IoBedOutline, IoChatbubbleOutline } from 'react-icons/io5';
-import { useUser } from '@/hooks/new/useUser';
+import { useUser } from '@/hooks/useUser';
 
 import NavButton from '../custom/NavButton';
 import FloatingMenu from '../../pages/FloatingMenu';

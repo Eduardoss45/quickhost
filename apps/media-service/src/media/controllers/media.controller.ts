@@ -49,4 +49,39 @@ export class MediaController {
       data.imagePath,
     );
   }
+
+  @MessagePattern('upload-accommodation-images')
+  async uploadAccommodationImages(data: {
+    accommodationId: string;
+    images: {
+      fileBuffer: Buffer;
+      originalName: string;
+    }[];
+    coverOriginalName: string;
+  }) {
+    if (!data.images || !Array.isArray(data.images)) {
+      throw new RpcException({
+        statusCode: 400,
+        message: 'Imagens inválidas',
+      });
+    }
+
+    if (data.images.length > 10) {
+      throw new RpcException({
+        statusCode: 400,
+        message: 'Máximo de 10 imagens por acomodação',
+      });
+    }
+
+    return this.mediaService.uploadAccommodationImages(
+      data.accommodationId,
+      data.images,
+      data.coverOriginalName,
+    );
+  }
+
+  @MessagePattern('remove-accommodation-images')
+  async removeAccommodationImages(data: { accommodationId: string }) {
+    return this.mediaService.removeAccommodationImages(data.accommodationId);
+  }
 }

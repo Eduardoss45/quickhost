@@ -1,12 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { PiArrowCircleLeftThin } from 'react-icons/pi';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { UpdateUserPayload } from '@/types/user';
-import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
-import { DayPicker } from 'react-day-picker';
-import 'react-day-picker/dist/style.css';
+import { UpdateUserPayload } from '@/types';
+
 import {
   FormField,
   FormItem,
@@ -18,7 +15,7 @@ import {
 
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { useUser } from '@/hooks/new/useUser';
+import { useUser } from '@/hooks/useUser';
 import { PasswordField } from '@/components/custom/PasswordField';
 import { BirthDatePicker } from '@/components/custom/BirthDatePicker';
 import { ProfileImageField } from '@/components/custom/ProfileImageField';

@@ -4,7 +4,7 @@ import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-import { useUser } from '@/hooks/new/useUser';
+import { useUser } from '@/hooks/useUser';
 import { loginSchema, LoginFormData } from '@/schemas/login.schema';
 
 import {

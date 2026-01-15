@@ -111,7 +111,7 @@ const Step5 = ({ data, updateFieldHandler }) => {
         ))}
       </div>
       <h2>Possui algum item de segurança?</h2>
-      <div >
+      <div>
         {securityOptions.map(({ key, label, icon }) => (
           <CustomButton
             key={key}
