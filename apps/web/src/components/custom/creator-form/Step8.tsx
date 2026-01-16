@@ -1,53 +1,51 @@
-import React, { useState, useEffect } from "react";
-import "./css/Step8.css";
+import React, { useState, useEffect } from 'react';
 
 const Step8 = ({ updateFieldHandler, data }) => {
-  const [pricePerNight, setPricePerNight] = useState("");
-  const [cleaningFee, setCleaningFee] = useState("");
+  const [pricePerNight, setPricePerNight] = useState('');
+  const [cleaningFee, setCleaningFee] = useState('');
   const [discount, setDiscount] = useState(false);
 
-  // Verificando se os valores estão presentes em data e inicializando os estados
   useEffect(() => {
     if (data) {
-      setPricePerNight(data.price_per_night || "");
-      setCleaningFee(data.cleaning_fee || "");
+      setPricePerNight(data.price_per_night || '');
+      setCleaningFee(data.cleaning_fee || '');
       setDiscount(data.discount || false);
     }
   }, [data]);
 
-  const handlePriceChange = (e) => {
+  const handlePriceChange = e => {
     const newPrice = parseFloat(e.target.value) || 0;
     if (newPrice >= 0) {
       setPricePerNight(newPrice);
       updateFieldHandler({
-        target: { name: "price_per_night", value: newPrice },
+        target: { name: 'price_per_night', value: newPrice },
       });
     }
   };
 
-  const handleCleaningFee = (e) => {
+  const handleCleaningFee = e => {
     const newCleaningFee = parseFloat(e.target.value) || 0;
     if (newCleaningFee >= 0) {
       setCleaningFee(newCleaningFee);
       updateFieldHandler({
-        target: { name: "cleaning_fee", value: newCleaningFee },
+        target: { name: 'cleaning_fee', value: newCleaningFee },
       });
     }
   };
 
-  const handleDiscountChange = (e) => {
+  const handleDiscountChange = e => {
     const isChecked = e.target.checked;
     setDiscount(isChecked);
     updateFieldHandler({
-      target: { name: "discount", value: isChecked },
+      target: { name: 'discount', value: isChecked },
     });
   };
 
   return (
-    <div >
+    <div>
       <h2>Determine o valor da sua diária</h2>
       <h3>Valor</h3>
-      <div >
+      <div>
         <strong>
           R$
           <input
@@ -59,9 +57,7 @@ const Step8 = ({ updateFieldHandler, data }) => {
           />
         </strong>
       </div>
-      <p>
-        * Será cobrada uma taxa de serviço de 10% sobre o valor da acomodação.
-      </p>
+      <p>* Será cobrada uma taxa de serviço de 10% sobre o valor da acomodação.</p>
 
       <h2>Determine a taxa de limpeza</h2>
       <h3>Valor</h3>
@@ -80,11 +76,7 @@ const Step8 = ({ updateFieldHandler, data }) => {
 
       <h2>Selecione um desconto</h2>
       <div>
-        <input
-          type="checkbox"
-          checked={discount}
-          onChange={handleDiscountChange}
-        />
+        <input type="checkbox" checked={discount} onChange={handleDiscountChange} />
         <div>
           <span>Novos anúncios</span>
           <p>Desconto de 20% em sua primeira reserva</p>

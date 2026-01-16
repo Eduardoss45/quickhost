@@ -19,20 +19,21 @@ export default function AccommodationPricingForm() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 m-10">
       <div>
-        <h2 className="text-lg font-semibold">Determine o valor da sua diária</h2>
+        <h2 className="text-2xl">Determine o valor da sua diária</h2>
 
         <FormField
           control={control}
           name="price_per_night"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Valor da diária</FormLabel>
+              <FormLabel className="mt-3">Valor da diária</FormLabel>
               <FormControl>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 border-0 rounded-md my-3 px-6 py-2 outline w-1/2">
                   <span className="font-semibold">R$</span>
-                  <Input
+                  <input
+                    className="border-none outline-none w-1/2"
                     type="text"
                     value={field.value ?? ''}
                     onChange={e => {
@@ -54,18 +55,19 @@ export default function AccommodationPricingForm() {
       </div>
 
       <div>
-        <h2 className="text-lg font-semibold">Taxa de limpeza</h2>
+        <h2 className="text-2xl">Taxa de limpeza</h2>
 
         <FormField
           control={control}
           name="cleaning_fee"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Valor</FormLabel>
+              <FormLabel className="mt-3">Valor</FormLabel>
               <FormControl>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 border-0 rounded-md my-3 px-6 py-2 outline w-1/2">
                   <span className="font-semibold">R$</span>
-                  <Input
+                  <input
+                    className="border-none outline-none w-1/2"
                     type="text"
                     value={field.value ?? ''}
                     onChange={e => {
@@ -83,13 +85,13 @@ export default function AccommodationPricingForm() {
       </div>
 
       <div>
-        <h2 className="text-lg font-semibold">Desconto</h2>
+        <h2 className="text-2xl">Desconto</h2>
 
         <FormField
           control={control}
           name="discount"
           render={({ field }) => (
-            <FormItem className="flex items-start gap-3 space-y-0">
+            <FormItem className="flex items-center gap-3 my-3 space-y-0">
               <FormControl>
                 <Checkbox
                   checked={field.value ?? false}

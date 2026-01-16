@@ -4,6 +4,7 @@ import { api } from '@/services/api';
 import { toast } from 'sonner';
 import { authStore } from '@/store/auth.store';
 import { PublicUser, UpdateUserPayload } from '@/types';
+import { setBootstrapped } from '@/services/api';
 
 interface LoginPayload {
   email: string;
@@ -32,13 +33,9 @@ export function useUser() {
     try {
       const res = await api.get('/api/user');
       setUser(res.data);
-    } catch (e: any) {
-      if (e.response?.status === 401 || e.response?.status === 403) {
-        clearUser();
-      }
+    } catch {
     } finally {
       setLoading(false);
-      setHydrated();
     }
   };
 
@@ -58,13 +55,9 @@ export function useUser() {
         formData.append('file', file);
       }
 
-      await api.patch('/api/user/update', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-
+      await api.patch('/api/user/update', formData);
       await getProfile();
+
       toast.success('Perfil atualizado com sucesso');
     } catch (e: any) {
       toast.error(e.response?.data?.message ?? 'Erro ao atualizar perfil');
@@ -77,7 +70,6 @@ export function useUser() {
     setLoading(true);
     try {
       await api.delete('/api/user/profile-picture');
-
       await getProfile();
     } finally {
       setLoading(false);
@@ -94,20 +86,18 @@ export function useUser() {
   }, []);
 
   const bootstrapSession = async () => {
-    const { sessionInvalidated } = authStore.getState();
-
-    if (sessionInvalidated) {
-      setHydrated();
-      return;
-    }
-
     try {
-      await api.post('/api/auth/refresh');
-      await getProfile();
+      const res = await api.get('/api/user');
+      setUser(res.data);
+
+      // sessão válida → desbloqueia store
+      authStore.getState().restoreSession();
     } catch {
+      // se falhar, aí sim marca como inválida
       authStore.getState().invalidateSession();
     } finally {
       setHydrated();
+      setBootstrapped(); // 🔥 libera o interceptor para funcionar normalmente
     }
   };
 
@@ -154,7 +144,6 @@ export function useUser() {
 
     if (!user && !hasWarnedRef.current) {
       hasWarnedRef.current = true;
-
       toast.warning('Algumas funcionalidades exigem login.');
     }
   }, [hydrated, user]);

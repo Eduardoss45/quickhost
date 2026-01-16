@@ -3,7 +3,7 @@ import { PiMinusThin, PiPlusThin } from 'react-icons/pi';
 import { LiaUmbrellaBeachSolid } from 'react-icons/lia';
 import { MdBedroomParent, MdChalet } from 'react-icons/md';
 import { FaBuilding, FaHouse } from 'react-icons/fa6';
-import CustomButton from './CustomButton';
+import CustomButton from '@/pages/CustomButton';
 
 const Step2 = ({ data, updateFieldHandler }) => {
   const labels = ['inn', 'chalet', 'apartment', 'home', 'room'];

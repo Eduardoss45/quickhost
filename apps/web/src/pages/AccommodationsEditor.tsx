@@ -6,9 +6,9 @@ import { useState, useEffect, useRef } from 'react';
 import { LiaPenSolid } from 'react-icons/lia';
 import { PiTrashSimple } from 'react-icons/pi';
 
-import EditorStep1 from '../components/edit-form/AccommodationDetailsForm';
-import EditorStep2 from '../components/edit-form/AccommodationAddressForm';
-import EditorStep3 from '../components/edit-form/AccommodationResourcesForm';
+import EditorStep1 from '../components/custom/edit-form/AccommodationDetailsForm';
+import EditorStep2 from '../components/custom/edit-form/AccommodationAddressForm';
+import EditorStep3 from '../components/custom/edit-form/AccommodationResourcesForm';
 
 import Cabecalho11 from './Cabecalho11';
 import Cabecalho12 from './Cabecalho12';

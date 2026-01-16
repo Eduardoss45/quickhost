@@ -1,5 +1,5 @@
 import React from "react";
-import "./css/Step4.css";
+
 
 const Step4 = ({ data, updateFieldHandler }) => {
   return (

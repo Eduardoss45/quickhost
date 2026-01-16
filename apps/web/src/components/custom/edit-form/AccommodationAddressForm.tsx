@@ -6,8 +6,8 @@ export default function AccommodationAddressForm() {
   const { control } = useFormContext();
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-lg font-semibold">Informe o endereço de sua acomodação</h2>
+    <div className="space-y-6 m-10">
+      <h2 className="text-3xl">Informe o endereço de sua acomodação</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {[
@@ -27,7 +27,12 @@ export default function AccommodationAddressForm() {
               name={field.name}
               control={control}
               render={({ field: f }) => (
-                <Input {...f} id={field.name} placeholder={field.placeholder} />
+                <Input
+                  className="my-3 py-5"
+                  {...f}
+                  id={field.name}
+                  placeholder={field.placeholder}
+                />
               )}
             />
           </div>

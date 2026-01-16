@@ -25,6 +25,7 @@ type AuthState = {
   clearUser: () => void;
   setHydrated: () => void;
   invalidateSession: () => void;
+  restoreSession: () => void;
 };
 
 export const authStore = create<AuthState>()(
@@ -38,6 +39,7 @@ export const authStore = create<AuthState>()(
       clearUser: () => set({ user: null }),
       setHydrated: () => set({ hydrated: true }),
       invalidateSession: () => set({ user: null, sessionInvalidated: true, hydrated: true }),
+      restoreSession: () => set({ sessionInvalidated: false }),
     }),
     {
       name: 'auth-store',

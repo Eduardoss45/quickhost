@@ -6,19 +6,21 @@ import Home from '@/pages/Home';
 import Configurations from '@/pages/Configurations';
 import Chat from '@/pages/Chat';
 import Host from '@/pages/Host';
-import MultStepForm from '@/pages/MultStepForm';
+import EditMultiStepForm from '@/pages/EditMultiStepForm';
+import CreatorMultiStepForm from '@/pages/CreatorMultiStepForm';
 
 export function AppRoutes() {
   return (
     <Routes>
       <Route element={<App />}>
-        <Route path="/" element={<Home accommodations={[]} />} />
+        <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/configurations" element={<Configurations />} />
         <Route path="/chat" element={<Chat />} />
         <Route path="/host" element={<Host />} />
-        <Route path="/editor-accommodation/:id" element={<MultStepForm />} />
+        <Route path="/editor-accommodation/:id" element={<EditMultiStepForm />} />
+        <Route path="/creator-accommodation" element={<CreatorMultiStepForm />} />
       </Route>
     </Routes>
   );

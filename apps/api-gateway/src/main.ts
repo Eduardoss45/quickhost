@@ -36,8 +36,9 @@ async function bootstrap() {
   app.use(
     '/uploads',
     express.static(uploadsDir, {
-      maxAge: '30d',
-      immutable: true,
+      setHeaders(res) {
+        res.setHeader('Cache-Control', 'public, max-age=60, must-revalidate');
+      },
     }),
   );
 

@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useAccommodation } from '@/hooks/useAccommodation';
 import CardHospedagens from '@/components/custom/CardHospedagens';
 import type { Accommodation } from '@/types/accommodation';
+import { TfiClose } from 'react-icons/tfi';
 
 export default function Host() {
   const { getMyRecords, loading } = useAccommodation();
@@ -17,9 +18,17 @@ export default function Host() {
   return (
     <div className="space-y-6 my-3">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl">Minhas Hospedagens</h1>
+        <div className="px-4 mx-10 flex gap-2 items-center">
+          <Link to="/" className="flex items-center gap-2 ">
+            <TfiClose className="text-3xl" />
+          </Link>
 
-        <Link to="/new-accommodation">
+          <div>
+            <h2 className="text-2xl">Minhas Hospedagens</h2>
+          </div>
+        </div>
+
+        <Link to="/creator-accommodation">
           <button className="flex p-2 gap-2 items-center justify-center rounded-sm bg-orange-400 text-white">
             <span className="text-2xl">
               <BiPlus />
@@ -43,9 +52,7 @@ export default function Host() {
       {!loading && accommodations.length > 0 && (
         <div className="flex w-full m-3 gap-10 justify-center flex-wrap">
           {accommodations.map(acc => (
-            <>
-              <CardHospedagens key={acc.id} accommodationData={acc} />
-            </>
+            <CardHospedagens key={acc.id} accommodationData={acc} />
           ))}
         </div>
       )}

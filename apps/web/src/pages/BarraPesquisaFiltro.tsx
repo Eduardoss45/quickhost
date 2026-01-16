@@ -56,7 +56,7 @@ const BarraPesquisaFiltro: React.FC<BarraPesquisaFiltroProps> = ({
 
   return (
     <div className="flex flex-col md:flex-row items-center my-5 gap-2 justify-center w-full">
-      <div className="flex items-center gap-2 w-full md:w-1/2 border-b px-2 py-2">
+      <div className="flex items-center gap-2 w-full md:w-1/2 border-b border-0 px-2 py-2">
         <IoSearchOutline className="text-3xl" />
         <input
           placeholder="Digite o nome da localidade..."
@@ -70,7 +70,10 @@ const BarraPesquisaFiltro: React.FC<BarraPesquisaFiltroProps> = ({
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="flex flex-row items-center gap-2 border px-3 py-2">
+            <Button
+              variant="outline"
+              className="flex flex-row items-center gap-2 border px-3 py-2"
+            >
               {tipoHospedagem} <HiChevronDown />
             </Button>
           </DropdownMenuTrigger>

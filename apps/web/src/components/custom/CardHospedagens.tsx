@@ -12,16 +12,18 @@ type Props = {
 
 const CardHospedagens = ({ accommodationData }: Props) => {
   return (
-    <Card className="overflow-hidden shadow-md p-0 border-none">
-      <img
-        src={
-          accommodationData.main_cover_image
-            ? `${import.meta.env.VITE_API_BASE_URL}${accommodationData.main_cover_image}`
-            : '/placeholder.jpg'
-        }
-        alt={accommodationData.title}
-        className="h-48 w-full object-cover"
-      />
+    <Card className="overflow-hidden shadow-md p-0 border-none min-w-60">
+      <div className="relative w-full aspect-4/3 overflow-hidden">
+        <img
+          src={
+            accommodationData.main_cover_image
+              ? `${import.meta.env.VITE_API_BASE_URL}${accommodationData.main_cover_image}?v=${accommodationData.id}`
+              : '/placeholder.jpg'
+          }
+          alt={accommodationData.title}
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      </div>
 
       <CardContent className="px-4 py-2 space-y-4">
         <div>

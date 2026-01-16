@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MdBedroomParent } from 'react-icons/md';
 import { FaHouse } from 'react-icons/fa6';
-import './css/Step3.css';
+
 
 const Step3 = ({ data, updateFieldHandler }) => {
   const [selectedOption, setSelectedOption] = useState(null);

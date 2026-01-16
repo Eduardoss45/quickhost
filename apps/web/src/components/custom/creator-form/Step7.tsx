@@ -1,47 +1,45 @@
-import React, { useState, useEffect } from "react";
-import "./css/Step7.css";
+import React, { useState, useEffect } from 'react';
 
 const Step7 = ({ updateFieldHandler, data }) => {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [consecutiveDaysLimit, setConsecutiveDaysLimit] = useState("1");
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [consecutiveDaysLimit, setConsecutiveDaysLimit] = useState('1');
 
   // Verificando se title, description e consecutive_days_limit estão em data e inicializando os estados
   useEffect(() => {
     if (data) {
-      setTitle(data.title || ""); // Se title estiver em data, inicializa com ele
-      setDescription(data.description || ""); // Se description estiver em data, inicializa com ele
+      setTitle(data.title || ''); // Se title estiver em data, inicializa com ele
+      setDescription(data.description || ''); // Se description estiver em data, inicializa com ele
       setConsecutiveDaysLimit(
         data.consecutive_days_limit === -1
-          ? "indeterminado"
-          : String(data.consecutive_days_limit || "1")
+          ? 'indeterminado'
+          : String(data.consecutive_days_limit || '1')
       );
     }
   }, [data]);
 
-  const handleTitleChange = (e) => {
+  const handleTitleChange = e => {
     const newTitle = e.target.value;
     setTitle(newTitle);
     updateFieldHandler({
-      target: { name: "title", value: newTitle },
+      target: { name: 'title', value: newTitle },
     });
   };
 
-  const handleDescriptionChange = (e) => {
+  const handleDescriptionChange = e => {
     const newDescription = e.target.value;
     setDescription(newDescription);
     updateFieldHandler({
-      target: { name: "description", value: newDescription },
+      target: { name: 'description', value: newDescription },
     });
   };
 
-  const handleDaysLimitChange = (e) => {
+  const handleDaysLimitChange = e => {
     const selectedValue = e.target.value;
-    const newLimit =
-      selectedValue === "indeterminado" ? -1 : parseInt(selectedValue, 10);
+    const newLimit = selectedValue === 'indeterminado' ? -1 : parseInt(selectedValue, 10);
     setConsecutiveDaysLimit(selectedValue);
     updateFieldHandler({
-      target: { name: "consecutive_days_limit", value: newLimit },
+      target: { name: 'consecutive_days_limit', value: newLimit },
     });
   };
 
@@ -73,7 +71,7 @@ const Step7 = ({ updateFieldHandler, data }) => {
       <h3>Indique o número máximo de dias consecutivos em uma reserva</h3>
       <div>
         <select value={consecutiveDaysLimit} onChange={handleDaysLimitChange}>
-          {[...Array(30).keys()].map((num) => (
+          {[...Array(30).keys()].map(num => (
             <option key={num + 1} value={num + 1}>
               {num + 1}
             </option>

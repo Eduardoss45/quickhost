@@ -7,7 +7,7 @@ import { TbAirConditioning, TbBeach } from 'react-icons/tb';
 import { MdHotTub, MdOutdoorGrill, MdFitnessCenter } from 'react-icons/md';
 import { WiSmoke } from 'react-icons/wi';
 import { PiFireExtinguisherBold, PiSecurityCameraThin } from 'react-icons/pi';
-import CustomButton from './CustomButton';
+import CustomButton from '@/pages/CustomButton';
 
 const Step5 = ({ data, updateFieldHandler }) => {
   const [resources, setResources] = useState({

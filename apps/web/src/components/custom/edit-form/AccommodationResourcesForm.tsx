@@ -53,6 +53,7 @@ export default function AccommodationResourcesForm() {
       key={key}
       name={key}
       control={control}
+      defaultValue={false}
       render={({ field }) => (
         <button
           type="button"
@@ -71,16 +72,16 @@ export default function AccommodationResourcesForm() {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 m-10">
       <div>
-        <h2 className="text-lg font-semibold">Comodidades</h2>
+        <h2 className="text-2xl mb-3">Comodidades</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
           {resourcesOptions.map(r => renderCheckbox(r.key, r.label, r.icon))}
         </div>
       </div>
 
       <div>
-        <h2 className="text-lg font-semibold">Itens de Segurança</h2>
+        <h2 className="text-2xl mb-3">Itens de Segurança</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
           {securityOptions.map(s => renderCheckbox(s.key, s.label, s.icon))}
         </div>

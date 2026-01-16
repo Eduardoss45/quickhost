@@ -1,4 +1,3 @@
-import './css/Step9.css';
 
 const Step9 = ({ data, bank, updateFieldHandler, updateFieldBankHandler }) => {
   const handleInputChange = e => {
