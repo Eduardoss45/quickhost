@@ -141,7 +141,11 @@ export class AuthService {
       const valid = await bcrypt.compare(refreshToken, user.refreshTokenHash);
 
       if (!valid) {
-        throw new UnauthorizedException('Invalid refresh token');
+        await this.users.updateRefreshToken(user.id, null);
+        throw new UnauthorizedException({
+          code: 'SESSION_REVOKED',
+          message: 'Sessão revogada por novo login.',
+        });
       }
 
       const tokens = await this.generateTokens(user);
@@ -156,8 +160,11 @@ export class AuthService {
         },
         ...tokens,
       };
-    } catch {
-      throw new UnauthorizedException('Invalid token');
+    } catch (err) {
+      throw new UnauthorizedException({
+        code: 'SESSION_REVOKED',
+        message: 'Sessão revogada. Faça login novamente.',
+      });
     }
   }
 

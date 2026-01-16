@@ -94,11 +94,18 @@ export function useUser() {
   }, []);
 
   const bootstrapSession = async () => {
+    const { sessionInvalidated } = authStore.getState();
+
+    if (sessionInvalidated) {
+      setHydrated();
+      return;
+    }
+
     try {
       await api.post('/api/auth/refresh');
       await getProfile();
     } catch {
-      clearUser();
+      authStore.getState().invalidateSession();
     } finally {
       setHydrated();
     }

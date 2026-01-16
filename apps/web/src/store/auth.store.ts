@@ -19,10 +19,12 @@ export type User = {
 type AuthState = {
   user: User | null;
   hydrated: boolean;
+  sessionInvalidated: boolean;
 
   setUser: (user: User) => void;
   clearUser: () => void;
   setHydrated: () => void;
+  invalidateSession: () => void;
 };
 
 export const authStore = create<AuthState>()(
@@ -30,14 +32,19 @@ export const authStore = create<AuthState>()(
     set => ({
       user: null,
       hydrated: false,
+      sessionInvalidated: false,
 
       setUser: user => set({ user }),
       clearUser: () => set({ user: null }),
       setHydrated: () => set({ hydrated: true }),
+      invalidateSession: () => set({ user: null, sessionInvalidated: true, hydrated: true }),
     }),
     {
       name: 'auth-store',
-      partialize: state => ({ user: state.user }),
+      partialize: state => ({
+        user: state.user,
+        sessionInvalidated: state.sessionInvalidated,
+      }),
     }
   )
 );

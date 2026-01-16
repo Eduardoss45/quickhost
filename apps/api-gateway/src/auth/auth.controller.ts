@@ -29,6 +29,22 @@ export class AuthController {
     });
   }
 
+  private clearAuthCookies(res: Response) {
+    res.clearCookie('accessToken', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+    });
+
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/api/auth/refresh',
+    });
+  }
+
   @Post('register')
   async register(
     @Body() dto: AuthRegisterDto,
@@ -69,8 +85,7 @@ export class AuthController {
       await this.authService.logoutAuthService(refreshToken);
     }
 
-    res.clearCookie('accessToken', { path: '/' });
-    res.clearCookie('refreshToken', { path: '/api/auth/refresh' });
+    this.clearAuthCookies(res);
 
     return {
       status: 200,
@@ -89,15 +104,18 @@ export class AuthController {
       throw new UnauthorizedException('Refresh token não encontrado');
     }
 
-    const result = await this.authService.refreshAuthService(refreshToken);
-
-    this.setAuthCookies(res, result);
-
-    return {
-      status: 200,
-      message: 'Tokens atualizados com sucesso',
-      user: result.user,
-    };
+    try {
+      const result = await this.authService.refreshAuthService(refreshToken);
+      this.setAuthCookies(res, result);
+      return {
+        status: 200,
+        message: 'Tokens atualizados com sucesso',
+        user: result.user,
+      };
+    } catch (err) {
+      this.clearAuthCookies(res);
+      throw err;
+    }
   }
 
   @Post('forgot-password')
