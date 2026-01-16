@@ -30,9 +30,9 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col justify-center">
+    <div className="min-h-screen flex flex-col">
       <Navbar />
-      <main className="flex flex-1 justify-center container mx-auto px-4">
+      <main className="flex-1 px-4 container mx-auto shadow-sm">
         <Outlet />
       </main>
       <Footer />

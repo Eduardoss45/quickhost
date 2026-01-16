@@ -1,118 +1,167 @@
 import { useEffect } from 'react';
-import { useDropzone } from 'react-dropzone';
-import { CiCamera } from 'react-icons/ci';
-import { FiImage } from 'react-icons/fi';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { useFormContext, Controller } from 'react-hook-form';
-import { AccommodationFormValues } from '@/schemas/accommodation-form.schema';
+import { useParams } from 'react-router-dom';
+import { useForm, FormProvider } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useAccommodation } from '@/hooks/useAccommodation';
+import {
+  accommodationFormSchema,
+  AccommodationFormValues,
+} from '@/schemas/accommodation-form.schema';
+import { useMultiStepForm } from '@/hooks/useMultiStepForm';
+import { accommodationToForm } from '@/mappers/accommodation.mapper';
+import AccommodationDetailsForm from '@/components/edit-form/AccommodationDetailsForm';
+import AccommodationAddressForm from '@/components/edit-form/AccommodationAddressForm';
+import Steps from '@/components/custom/Steps';
+import AccommodationResourcesForm from '@/components/edit-form/AccommodationResourcesForm';
+import AccommodationPricingForm from '@/components/edit-form/AccommodationPricingForm';
+import { toast } from 'sonner';
 
-type PreviewFile = File & { preview: string };
+export default function MultStepForm() {
+  const { id } = useParams<{ id: string }>();
+  const { getById, update, loading } = useAccommodation();
 
-export default function AccommodationDetailsForm() {
-  const { control, setValue, watch } = useFormContext<AccommodationFormValues>();
+  const methods = useForm<AccommodationFormValues>({
+    resolver: zodResolver(accommodationFormSchema),
+    mode: 'onTouched',
+    defaultValues: {
+      title: '',
+      description: '',
+      price_per_night: 0,
+      cleaning_fee: 0,
 
-  const photos = watch('internal_images') || [];
-  const mainCoverIndex = watch('main_cover_index');
+      category: null,
+      space_type: null,
 
-  const onDrop = (acceptedFiles: File[]) => {
-    const newFiles: PreviewFile[] = acceptedFiles.map(file =>
-      Object.assign(file, {
-        preview: URL.createObjectURL(file),
-      })
-    );
+      internal_images: [],
+      main_cover_index: undefined,
 
-    setValue('internal_images', [...photos, ...newFiles], {
-      shouldDirty: true,
-    });
-  };
+      address: '',
+      city: '',
+      neighborhood: '',
+      postal_code: '',
+      uf: '',
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    accept: {
-      'image/*': [],
+      wifi: false,
+      tv: false,
+      kitchen: false,
+      washing_machine: false,
+      parking_included: false,
+      air_conditioning: false,
+      pool: false,
+      jacuzzi: false,
+      grill: false,
+      private_gym: false,
+      beach_access: false,
+
+      smoke_detector: false,
+      fire_extinguisher: false,
+      first_aid_kit: false,
+      outdoor_camera: false,
     },
-    multiple: true,
-    disabled: photos.length >= 20,
   });
 
+  useEffect(() => {
+    if (!id) return;
+
+    async function loadAccommodation() {
+      const data = await getById(id!);
+      if (!data) return;
+
+      methods.reset(accommodationToForm(data));
+    }
+
+    loadAccommodation();
+  }, [id]);
+
+  const formComponents = [
+    <AccommodationDetailsForm key="details" />,
+    <AccommodationAddressForm key="address" />,
+    <AccommodationPricingForm />,
+    <AccommodationResourcesForm />,
+  ];
+
+  const stepFields: (keyof AccommodationFormValues)[][] = [
+    ['title', 'price_per_night', 'cleaning_fee'],
+    ['address', 'city', 'postal_code'],
+    [],
+  ];
+
+  const { currentStep, currentComponent, changeStep, isLastStep, isFirstStep } =
+    useMultiStepForm(formComponents);
+
   return (
-    <div className="space-y-6">
-      <div className="space-y-2">
-        <h2 className="text-lg font-semibold">
-          Adicione fotos de sua acomodação (mínimo 5 imagens)
-        </h2>
-        <p className="text-sm text-muted-foreground">
-          Você pode selecionar mais imagens posteriormente
-        </p>
-      </div>
+    <FormProvider {...methods}>
+      <Steps currentStep={currentStep} />
 
-      <div
-        {...getRootProps()}
-        className="flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-6 cursor-pointer hover:border-orange-400 transition"
+      <form
+        onSubmit={async e => {
+          e.preventDefault();
+
+          const fields = stepFields[currentStep];
+          const isValid = await methods.trigger(fields);
+          if (!isValid) return;
+
+          if (!isLastStep) {
+            changeStep(currentStep + 1);
+            return;
+          }
+
+          if (!id) {
+            toast.error('ID da acomodação inválido');
+            return;
+          }
+
+          const data = methods.getValues();
+          const formData = new FormData();
+
+          Object.entries(data).forEach(([key, value]) => {
+            if (key !== 'internal_images' && key !== 'main_cover_index') {
+              if (value !== null && value !== undefined) {
+                formData.append(key, String(value));
+              }
+            }
+          });
+
+          const newFiles: File[] = data.internal_images.filter(
+            (file: File | string): file is File => file instanceof File
+          );
+
+          if (newFiles.length === 0) {
+            toast.error('Você deve remover as imagens antigas e enviar todas novamente.');
+            return;
+          }
+
+          if (data.main_cover_index === undefined || !newFiles[data.main_cover_index]) {
+            toast.error('Selecione uma imagem de capa válida');
+            return;
+          }
+
+          const coverFile = newFiles[data.main_cover_index];
+          formData.append('coverOriginalName', coverFile!.name);
+
+          newFiles.forEach(file => formData.append('images', file));
+
+          await update(id, formData);
+        }}
       >
-        <input {...getInputProps()} />
-        <CiCamera size={50} className="text-orange-500 mb-2" />
-        <p className="text-center text-sm">
-          {isDragActive ? 'Solte as imagens aqui...' : 'Selecione do computador ou arraste para cá'}
-        </p>
-      </div>
+        {currentComponent}
 
-      {photos.length < 5 && (
-        <p className="text-sm text-red-500">Você precisa adicionar pelo menos 5 fotos.</p>
-      )}
+        <div className="flex justify-between mt-4">
+          {!isFirstStep && (
+            <button
+              type="button"
+              onClick={() => changeStep(currentStep - 1)}
+              className="px-4 py-2 border rounded"
+            >
+              Voltar
+            </button>
+          )}
 
-      {photos.length > 0 && (
-        <div className="space-y-2">
-          <h3 className="font-medium">Imagens escolhidas</h3>
-          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
-            {photos.map((photo, index) => (
-              <div
-                key={index}
-                className={`relative border rounded overflow-hidden cursor-pointer ${mainCoverIndex === index ? 'border-2 border-orange-500' : 'border-gray-200'}`}
-                onClick={() => setValue('main_cover_index', index)}
-              >
-                <img
-                  src={photo.preview}
-                  alt={`Preview ${index}`}
-                  className="object-cover w-full h-24"
-                />
-                <FiImage className="absolute top-1 right-1 text-orange-500" />
-              </div>
-            ))}
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              setValue('internal_images', []);
-              setValue('main_cover_index', undefined);
-            }}
-          >
-            Limpar imagens
-          </Button>
+          <button type="submit" className="px-4 py-2 bg-orange-500 text-white rounded">
+            {isLastStep ? 'Salvar' : 'Avançar'}
+          </button>
         </div>
-      )}
-
-      <div className="space-y-2">
-        <Label htmlFor="title">Nome da Acomodação</Label>
-        <Controller
-          name="title"
-          control={control}
-          render={({ field }) => <Input {...field} id="title" maxLength={32} />}
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="description">Descrição da Acomodação</Label>
-        <Controller
-          name="description"
-          control={control}
-          render={({ field }) => <Textarea {...field} id="description" maxLength={400} rows={4} />}
-        />
-      </div>
-    </div>
+      </form>
+    </FormProvider>
   );
 }

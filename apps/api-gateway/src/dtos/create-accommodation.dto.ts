@@ -5,6 +5,8 @@ import {
   IsEnum,
   IsNumber,
   IsArray,
+  Min,
+  Max,
 } from 'class-validator';
 
 import { Category, SpaceType } from '../enums';
@@ -35,15 +37,19 @@ export class CreateAccommodationDto {
   @Transform(({ value }) => Number(value))
   @IsOptional()
   @IsNumber()
+  @Min(100)
+  @Max(50_000)
   price_per_night?: number;
 
   @Transform(({ value }) => Number(value))
   @IsOptional()
   @IsNumber()
+  @Min(50)
+  @Max(5_000)
   cleaning_fee?: number;
 
+  @Transform(({ value }) => value === 'true' || value === true)
   @IsOptional()
-  @Transform(({ value }) => value === 'true')
   @IsBoolean()
   discount?: boolean;
 

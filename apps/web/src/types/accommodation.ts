@@ -14,7 +14,6 @@ export interface Accommodation {
 
   price_per_night: string;
   cleaning_fee: string;
-  final_price: string | null;
   discount: boolean;
 
   average_rating: string;

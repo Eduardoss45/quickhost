@@ -1,92 +1,78 @@
-import { useMemo } from 'react';
-import { useState } from 'react';
-import Detalhes from './Detalhes';
-import Anuncio from './Anuncio';
-import BarraPesquisaFiltro from './BarraPesquisaFiltro';
+import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import BarraPesquisaFiltro from './BarraPesquisaFiltro';
+import Details from './Details';
+import { useAccommodation } from '@/hooks/useAccommodation';
+import { Accommodation } from '@/types';
+import { Category } from '@/enums';
 
-const Home = ({ accommodations }) => {
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const [selectedAccommodation, setSelectedAccommodation] = useState(null);
+const Home: React.FC = () => {
+  const { getAll } = useAccommodation();
+  const [accommodations, setAccommodations] = useState<Accommodation[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const [selectedCategory, setSelectedCategory] = useState<Category | ''>('');
   const [searchTerm, setSearchTerm] = useState('');
   const [sortOption, setSortOption] = useState('');
 
-  const handleFilterClick = category => {
-    setSelectedCategory(category);
-  };
+  useEffect(() => {
+    const fetchAccommodations = async () => {
+      setLoading(true);
+      const data = await getAll();
+      setAccommodations(data);
+      setLoading(false);
+    };
+    fetchAccommodations();
+  }, []);
 
-  const handleSearch = term => {
-    setSearchTerm(term);
-  };
-
-  const handleSort = option => {
-    setSortOption(option);
-  };
-
-  const handleDetalhesClick = accommodation => {
-    setSelectedAccommodation(accommodation);
-  };
-
-  const handleBackToList = () => {
-    setSelectedAccommodation(null);
-  };
-
-  const filteredAccommodations = accommodations.filter(item => {
-    const matchesCategory = selectedCategory ? item.category === selectedCategory : true;
-    const matchesSearchTerm = item.city.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesCategory && matchesSearchTerm;
-  });
+  const filteredAccommodations = useMemo(() => {
+    return accommodations.filter(item => {
+      const matchesCategory = selectedCategory ? item.category === selectedCategory : true;
+      const matchesSearchTerm = item.city
+        ? item.city.toLowerCase().includes(searchTerm.toLowerCase())
+        : false;
+      return matchesCategory && matchesSearchTerm;
+    });
+  }, [accommodations, selectedCategory, searchTerm]);
 
   const sortedAccommodations = useMemo(() => {
-    if (!filteredAccommodations || filteredAccommodations.length === 0) {
-      return [];
-    }
+    if (!sortOption) return filteredAccommodations;
 
-    if (!sortOption) {
-      return filteredAccommodations;
-    }
+    return [...filteredAccommodations].sort((a, b) => {
+      if (sortOption === 'rating')
+        return parseFloat(b.average_rating) - parseFloat(a.average_rating);
+      if (sortOption === 'newest')
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      if (sortOption === 'oldest')
+        return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+      return 0;
+    });
+  }, [filteredAccommodations, sortOption]);
 
-    return [...filteredAccommodations].sort(
-      (a, b) => {
-        if (sortOption === 'rating') {
-          return b.rating - a.rating;
-        } else if (sortOption === 'newest') {
-          return new Date(b.created_at) - new Date(a.created_at);
-        } else if (sortOption === 'oldest') {
-          return new Date(a.created_at) - new Date(b.created_at);
-        } else if (sortOption === '') {
-          return 0;
-        }
-        return 0;
-      },
-      [filteredAccommodations, sortOption]
-    );
-  });
+  if (loading) return <div>Carregando...</div>;
+
   return (
-    <>
-      <div id="filtros">
-        <BarraPesquisaFiltro
-          onSearch={handleSearch}
-          onFilterClick={handleFilterClick}
-          onSort={handleSort}
-        />
-      </div>
-      <div id="area-anuncio">
+    <div className="m-3">
+      <BarraPesquisaFiltro
+        onSearch={setSearchTerm}
+        onFilterClick={cat => setSelectedCategory(cat ? (cat as Category) : '')}
+        onSort={setSortOption}
+      />
+
+      <div className="flex w-full m-3 gap-10 justify-center flex-wrap">
         {sortedAccommodations.map(item => (
-          <Link key={item.id_accommodation} to={`/acomodacao/${item?.id_accommodation}`}>
-            <Detalhes
-              key={item.id_accommodation}
-              image={item?.main_cover_image || 'media/default-image.jpg'}
+          <Link key={item.id} to={`/acomodacao/${item.id}`}>
+            <Details
+              image={item.main_cover_image || 'media/default-image.jpg'}
               title={item.title}
-              creator={item.creator}
-              price_per_night={item.price}
-              city={item.city}
-              onClick={() => handleDetalhesClick(item)}
+              creator_id={item.creator_id}
+              price_per_night={item.price_per_night}
+              city={item.city || ''}
             />
           </Link>
         ))}
       </div>
-    </>
+    </div>
   );
 };
 

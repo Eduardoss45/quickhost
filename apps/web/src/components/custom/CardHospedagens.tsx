@@ -12,7 +12,7 @@ type Props = {
 
 const CardHospedagens = ({ accommodationData }: Props) => {
   return (
-    <Card className="overflow-hidden hover:shadow-md transition">
+    <Card className="overflow-hidden shadow-md p-0 border-none">
       <img
         src={
           accommodationData.main_cover_image
@@ -23,9 +23,9 @@ const CardHospedagens = ({ accommodationData }: Props) => {
         className="h-48 w-full object-cover"
       />
 
-      <CardContent className="p-4 space-y-4">
+      <CardContent className="px-4 py-2 space-y-4">
         <div>
-          <h2 className="font-semibold text-lg">{accommodationData.title}</h2>
+          <h2 className="font-semibold text-2xl">{accommodationData.title}</h2>
           <p className="text-sm text-muted-foreground">
             R$ {accommodationData.price_per_night} / noite
           </p>
@@ -38,17 +38,17 @@ const CardHospedagens = ({ accommodationData }: Props) => {
 
         <div className="flex gap-2 pt-2">
           <Link to={`/details/${accommodationData.id}`} className="flex-1">
-            <Button variant="outline" className="w-full gap-2">
+            <button className="flex p-2 items-center justify-center rounded-sm w-full gap-2 bg-blue-500 text-white">
               <Eye size={16} />
               Ver
-            </Button>
+            </button>
           </Link>
 
           <Link to={`/editor-accommodation/${accommodationData.id}`} className="flex-1">
-            <Button className="w-full gap-2">
+            <button className="flex p-2 items-center justify-center rounded-sm w-full gap-2 bg-orange-500 text-white">
               <Pencil size={16} />
               Editar
-            </Button>
+            </button>
           </Link>
         </div>
       </CardContent>

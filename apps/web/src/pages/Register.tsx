@@ -42,7 +42,7 @@ function Register() {
   };
 
   return (
-    <div className="flex flex-1 justify-around flex-row gap-24">
+    <div className="flex flex-1 justify-center flex-row gap-24">
       <div className="w-full my-6">
         <h1 className="text-2xl font-bold">Cadastro</h1>
         <p>

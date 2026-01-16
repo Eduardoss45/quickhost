@@ -7,12 +7,13 @@ import {
   accommodationFormSchema,
   AccommodationFormValues,
 } from '@/schemas/accommodation-form.schema';
+import { useMultiStepForm } from '@/hooks/useMultiStepForm';
 import { accommodationToForm } from '@/mappers/accommodation.mapper';
 import AccommodationDetailsForm from '@/components/edit-form/AccommodationDetailsForm';
 import AccommodationAddressForm from '@/components/edit-form/AccommodationAddressForm';
 import Steps from '@/components/custom/Steps';
-import { useMultiStepForm } from '@/hooks/useMultiStepForm';
 import AccommodationResourcesForm from '@/components/edit-form/AccommodationResourcesForm';
+import AccommodationPricingForm from '@/components/edit-form/AccommodationPricingForm';
 import { toast } from 'sonner';
 
 export default function MultStepForm() {
@@ -75,6 +76,7 @@ export default function MultStepForm() {
   const formComponents = [
     <AccommodationDetailsForm key="details" />,
     <AccommodationAddressForm key="address" />,
+    <AccommodationPricingForm />,
     <AccommodationResourcesForm />,
   ];
 
@@ -97,7 +99,6 @@ export default function MultStepForm() {
 
           const fields = stepFields[currentStep];
           const isValid = await methods.trigger(fields);
-
           if (!isValid) return;
 
           if (!isLastStep) {
@@ -112,6 +113,7 @@ export default function MultStepForm() {
 
           const data = methods.getValues();
           const formData = new FormData();
+
           Object.entries(data).forEach(([key, value]) => {
             if (key !== 'internal_images' && key !== 'main_cover_index') {
               if (value !== null && value !== undefined) {
@@ -120,18 +122,36 @@ export default function MultStepForm() {
             }
           });
 
-          data.internal_images.forEach(file => {
-            formData.append('images', file);
-          });
+          const newFiles: File[] = data.internal_images.filter(
+            (file: File | string): file is File => file instanceof File
+          );
 
-          if (data.main_cover_index === undefined || !data.internal_images[data.main_cover_index]) {
-            throw new Error('Imagem de capa não selecionada');
+          if (newFiles.length > 0) {
+            const coverFile = newFiles[data.main_cover_index ?? -1];
+            if (!coverFile) {
+              toast.error('Selecione uma imagem de capa válida');
+              return;
+            }
+
+            formData.append('coverOriginalName', coverFile.name);
+
+            newFiles.forEach(file => formData.append('images', file));
+          } else {
+            if (data.main_cover_index === undefined) {
+              toast.error('Selecione uma imagem de capa antes de continuar');
+              return;
+            }
+
+            const selected = data.internal_images[data.main_cover_index];
+            if (typeof selected !== 'string') {
+              toast.error('Selecione uma imagem de capa válida');
+              return;
+            }
+
+            formData.append('main_cover_image', selected);
           }
 
-          const coverFile = data.internal_images[data.main_cover_index];
-          formData.append('coverOriginalName', coverFile.name);
-
-          await update(id!, formData);
+          await update(id, formData);
         }}
       >
         {currentComponent}

@@ -37,9 +37,6 @@ export class Accommodation {
   @Column({ type: 'decimal', precision: 10, scale: 2, default: 0 })
   cleaning_fee: number;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
-  final_price?: number;
-
   @Column({ default: false })
   discount: boolean;
 

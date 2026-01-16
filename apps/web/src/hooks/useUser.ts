@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '@/services/api';
 import { toast } from 'sonner';
@@ -84,14 +84,14 @@ export function useUser() {
     }
   }
 
-  const getPublicUser = async (userId: string) => {
+  const getPublicUser = useCallback(async (userId: string) => {
     try {
       const res = await api.get<PublicUser>(`/api/user/${userId}`);
       return res.data;
     } catch {
       return null;
     }
-  };
+  }, []);
 
   const bootstrapSession = async () => {
     try {

@@ -50,3 +50,12 @@
 ::-webkit-scrollbar-thumb:hover {
   background: rgb(var(--paleta-sete) / 0.5);
 }
+
+.scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}

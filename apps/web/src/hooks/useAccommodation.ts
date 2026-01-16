@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { api } from '@/services/api';
 import { toast } from 'sonner';
-import { Accommodation, CreateAccommodationPayload, UpdateAccommodationPayload } from '@/types';
+import { Accommodation, CreateAccommodationPayload } from '@/types';
+import { useNavigate } from 'react-router-dom';
 
 export function useAccommodation() {
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const getAll = async (): Promise<Accommodation[]> => {
     try {
@@ -55,6 +57,7 @@ export function useAccommodation() {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       toast.success('Acomodação atualizada com sucesso');
+      navigate('/host');
     } catch (e: any) {
       toast.error(e.response?.data?.message ?? 'Erro ao atualizar acomodação');
     } finally {

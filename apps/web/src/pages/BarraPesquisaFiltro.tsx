@@ -1,15 +1,30 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { CiFilter } from 'react-icons/ci';
 import { IoSearchOutline } from 'react-icons/io5';
 import { HiChevronDown } from 'react-icons/hi2';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@radix-ui/react-dropdown-menu';
+import { Button } from '@/components/ui/button';
 
-const BarraPesquisaFiltro = ({ onSearch, onFilterClick, onSort }) => {
-  const [openTipoHospedagem, setOpenTipoHospedagem] = useState(false);
-  const [openOrdenarPor, setOpenOrdenarPor] = useState(false);
+interface BarraPesquisaFiltroProps {
+  onSearch: (term: string) => void;
+  onFilterClick: (filter: string) => void;
+  onSort: (sort: string) => void;
+}
+
+const BarraPesquisaFiltro: React.FC<BarraPesquisaFiltroProps> = ({
+  onSearch,
+  onFilterClick,
+  onSort,
+}) => {
   const [tipoHospedagem, setTipoHospedagem] = useState('Tipo de Hospedagem');
   const [ordenarPor, setOrdenarPor] = useState('Ordenar por');
 
-  const categoryMapping = {
+  const categoryMapping: Record<string, string> = {
     Pousada: 'inn',
     Chalé: 'chalet',
     Apartamento: 'apartment',
@@ -18,106 +33,76 @@ const BarraPesquisaFiltro = ({ onSearch, onFilterClick, onSort }) => {
     Todos: '',
   };
 
-  const orderMapping = {
+  const orderMapping: Record<string, string> = {
     Avaliação: 'rating',
     'Mais recentes': 'newest',
     'Mais antigos': 'oldest',
     Todos: '',
   };
 
-  const dropdownRef = useRef(null);
-
-  const handleTipoHospedagemClick = tipo => {
+  const handleTipoHospedagemClick = (tipo: string) => {
     setTipoHospedagem(tipo);
-    setOpenTipoHospedagem(false);
     onFilterClick(categoryMapping[tipo] || '');
   };
 
-  const handleOrdenarPorClick = ordenacao => {
+  const handleOrdenarPorClick = (ordenacao: string) => {
     setOrdenarPor(ordenacao);
-    setOpenOrdenarPor(false);
     onSort(orderMapping[ordenacao] || '');
   };
 
-  const handleSearchChange = e => {
-    const searchTerm = e.target.value;
-    onSearch(searchTerm);
-  };
-
-  useEffect(() => {
-    const handleClickOutside = event => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setOpenTipoHospedagem(false);
-        setOpenOrdenarPor(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
-
-  const renderDropdownMenu = (options, handleClick, currentOption) => {
-    return (
-      <div >
-        {options.map(option => (
-          <div
-            key={option}
-            onClick={() => handleClick(option)}
-            
-          >
-            {option}
-          </div>
-        ))}
-      </div>
-    );
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onSearch(e.target.value);
   };
 
   return (
-    <div ref={dropdownRef}>
-      <IoSearchOutline />
-      <div>
+    <div className="flex flex-col md:flex-row items-center my-5 gap-2 justify-center w-full">
+      <div className="flex items-center gap-2 w-full md:w-1/2 border-b px-2 py-2">
+        <IoSearchOutline className="text-3xl" />
         <input
-          type="text"
           placeholder="Digite o nome da localidade..."
+          className="border-none w-full focus:outline-none focus:ring-0"
           onChange={handleSearchChange}
         />
       </div>
-      <CiFilter />
-      <div>
-        <button
-          onClick={() => setOpenTipoHospedagem(!openTipoHospedagem)}
-          
-          aria-expanded={openTipoHospedagem}
-          aria-haspopup="listbox"
-        >
-          {tipoHospedagem}
-          <HiChevronDown />
-        </button>
-        {openTipoHospedagem &&
-          renderDropdownMenu(
-            Object.keys(categoryMapping),
-            handleTipoHospedagemClick,
-            tipoHospedagem
-          )}
-      </div>
-      <div>
-        <button
-          onClick={() => setOpenOrdenarPor(!openOrdenarPor)}
-          
-          aria-expanded={openOrdenarPor}
-          aria-haspopup="listbox"
-        >
-          {ordenarPor}
-          <HiChevronDown />
-        </button>
-        {openOrdenarPor &&
-          renderDropdownMenu(
-            ['Avaliação', 'Mais recentes', 'Mais antigos', 'Todos'],
-            handleOrdenarPorClick,
-            ordenarPor
-          )}
+
+      <div className="flex items-center gap-2">
+        <CiFilter className="text-3xl" />
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="flex flex-row items-center gap-2 border px-3 py-2">
+              {tipoHospedagem} <HiChevronDown />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            className="max-h-60 overflow-y-auto shadow-sm rounded-md p-3 mt-2 bg-white"
+            align="start"
+          >
+            {Object.keys(categoryMapping).map(tipo => (
+              <DropdownMenuItem key={tipo} onClick={() => handleTipoHospedagemClick(tipo)}>
+                {tipo}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="flex flex-row items-center gap-2 border px-3 py-2">
+              {ordenarPor} <HiChevronDown />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            className="max-h-60 overflow-y-auto shadow-sm rounded-md p-3 mt-2 bg-white"
+            align="start"
+          >
+            {['Avaliação', 'Mais recentes', 'Mais antigos', 'Todos'].map(opcao => (
+              <DropdownMenuItem key={opcao} onClick={() => handleOrdenarPorClick(opcao)}>
+                {opcao}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );

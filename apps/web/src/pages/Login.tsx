@@ -41,7 +41,7 @@ function Login() {
   };
 
   return (
-    <div className="flex justify-around flex-row gap-24">
+    <div className="flex justify-center flex-row gap-24">
       <div className="w-1/2 my-6">
         <h1 className="text-2xl font-bold">Bem vindo(a) de volta!</h1>
         <p>
