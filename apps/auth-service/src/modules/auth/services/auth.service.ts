@@ -4,6 +4,7 @@ import { RpcException } from '@nestjs/microservices';
 import { UserRepository } from '../../repositories/user.repository';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class AuthService {
@@ -176,5 +177,76 @@ export class AuthService {
     } catch {
       return { success: true };
     }
+  }
+
+  async forgotPassword(email: string) {
+    try {
+      const user = await this.users.findByEmail(email);
+
+      if (!user) {
+        return {
+          success: true,
+          resetToken: null,
+        };
+      }
+
+      const token = uuidv4();
+      const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+
+      await this.users.setPasswordResetToken(user.id, token, expiresAt);
+
+      return {
+        success: true,
+        resetToken: token,
+        expiresIn: 300,
+      };
+    } catch (err) {
+      throw new RpcException({
+        statusCode: 500,
+        code: 'FORGOT_PASSWORD_FAILED',
+        message: 'Erro ao gerar token de redefinição de senha.',
+      });
+    }
+  }
+
+  async resetPassword(data: {
+    token: string;
+    password: string;
+    confirm_password: string;
+  }) {
+    if (data.password !== data.confirm_password) {
+      throw new RpcException({
+        statusCode: 400,
+        message: 'Passwords do not match',
+      });
+    }
+
+    const user = await this.users.findByPasswordResetToken(data.token);
+
+    if (!user || !user.passwordResetExpiresAt) {
+      throw new RpcException({
+        statusCode: 400,
+        message: 'Invalid or expired token',
+      });
+    }
+
+    if (user.passwordResetExpiresAt < new Date()) {
+      await this.users.clearPasswordResetToken(user.id);
+      throw new RpcException({
+        statusCode: 400,
+        message: 'Token expired',
+      });
+    }
+
+    const passwordHash = await bcrypt.hash(data.password, 10);
+
+    await this.users.updateProfile(user.id, {
+      password: passwordHash,
+    });
+
+    await this.users.updateRefreshToken(user.id, null);
+    await this.users.clearPasswordResetToken(user.id);
+
+    return { success: true };
   }
 }

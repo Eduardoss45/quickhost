@@ -37,8 +37,14 @@ export class User {
   })
   profile_picture_url?: string | null;
 
-  @Column({ nullable: true })
-  refreshTokenHash?: string;
+  @Column({ type: 'varchar', nullable: true })
+  refreshTokenHash: string | null = null;
+
+  @Column({ type: 'varchar', nullable: true })
+  passwordResetToken: string | null = null;
+
+  @Column({ type: 'timestamp', nullable: true })
+  passwordResetExpiresAt: Date | null = null;
 
   @CreateDateColumn()
   created_at!: Date;

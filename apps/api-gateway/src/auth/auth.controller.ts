@@ -119,17 +119,30 @@ export class AuthController {
   }
 
   @Post('forgot-password')
-  async forgotPassword() {
+  async forgotPassword(@Body() body: { email: string }) {
+    const result = await this.authService.forgotPasswordAuthService(body.email);
+
     return {
-      status: 200,
-      message: 'Instruções enviadas para o e-mail do usuário',
+      statusCode: 200,
+      message: 'Token de redefinição gerado com sucesso',
+      ...result,
     };
   }
 
   @Post('reset-password')
-  async resetPassword() {
+  async resetPassword(
+    @Body()
+    body: {
+      token: string;
+      password: string;
+      confirm_password: string;
+    },
+  ) {
+    console.log('chegou aqui');
+    await this.authService.resetPasswordAuthService(body);
+
     return {
-      status: 200,
+      statusCode: 200,
       message: 'Senha alterada com sucesso',
     };
   }

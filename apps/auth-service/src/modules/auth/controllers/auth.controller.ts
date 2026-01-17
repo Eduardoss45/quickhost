@@ -27,12 +27,19 @@ export class AuthController {
   }
 
   @MessagePattern('forgot-password')
-  async authForgotPassword(@Payload() {}) {
-    return 'forgot-password';
+  async authForgotPassword(@Payload() data: { email: string }) {
+    return this.authService.forgotPassword(data.email);
   }
 
   @MessagePattern('reset-password')
-  async authResetPassword(@Payload() {}) {
-    return 'reset-password';
+  async authResetPassword(
+    @Payload()
+    data: {
+      token: string;
+      password: string;
+      confirm_password: string;
+    },
+  ) {
+    return this.authService.resetPassword(data);
   }
 }

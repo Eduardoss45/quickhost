@@ -27,11 +27,15 @@ export class AuthService {
     return firstValueFrom(this.client.send('refresh', data));
   }
 
-  forgotPasswordAuthService() {
-    return firstValueFrom(this.client.send('forgot-password', {}));
+  forgotPasswordAuthService(email: string) {
+    return firstValueFrom(this.client.send('forgot-password', { email }));
   }
 
-  resetPasswordAuthService() {
-    return firstValueFrom(this.client.send('reset-password', {}));
+  resetPasswordAuthService(data: {
+    token: string;
+    password: string;
+    confirm_password: string;
+  }) {
+    return firstValueFrom(this.client.send('reset-password', data));
   }
 }

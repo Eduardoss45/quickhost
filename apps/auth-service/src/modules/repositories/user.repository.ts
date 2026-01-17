@@ -48,7 +48,7 @@ export class UserRepository {
 
   updateRefreshToken(userId: string, hash: string | null) {
     return this.repo.update(userId, {
-      refreshTokenHash: hash ?? undefined,
+      refreshTokenHash: hash,
     });
   }
 
@@ -65,5 +65,25 @@ export class UserRepository {
       .getRawOne<PublicUserDto>();
 
     return user ?? null;
+  }
+
+  async setPasswordResetToken(userId: string, token: string, expiresAt: Date) {
+    await this.repo.update(userId, {
+      passwordResetToken: token,
+      passwordResetExpiresAt: expiresAt,
+    });
+  }
+
+  async findByPasswordResetToken(token: string): Promise<User | null> {
+    return this.repo.findOne({
+      where: { passwordResetToken: token },
+    });
+  }
+
+  async clearPasswordResetToken(userId: string) {
+    await this.repo.update(userId, {
+      passwordResetToken: null,
+      passwordResetExpiresAt: null,
+    });
   }
 }
