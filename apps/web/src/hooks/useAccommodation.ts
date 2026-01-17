@@ -50,6 +50,20 @@ export function useAccommodation() {
     }
   };
 
+  const createWithFiles = async (payload: FormData) => {
+    setLoading(true);
+    try {
+      await api.post('/api/accommodations', payload, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      toast.success('Acomodação criada com sucesso');
+    } catch (e: any) {
+      toast.error(e.response?.data?.message ?? 'Erro ao criar acomodação');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const update = async (id: string, payload: FormData) => {
     setLoading(true);
     try {
@@ -83,6 +97,7 @@ export function useAccommodation() {
     getMyRecords,
     getById,
     create,
+    createWithFiles,
     update,
     remove,
   };

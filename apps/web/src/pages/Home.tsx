@@ -1,10 +1,10 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import BarraPesquisaFiltro from './BarraPesquisaFiltro';
-import Details from './Details';
 import { useAccommodation } from '@/hooks/useAccommodation';
 import { Accommodation } from '@/types';
 import { Category } from '@/enums';
+import AccommodationCard from '@/components/custom/AccommodationCard';
 
 const Home: React.FC = () => {
   const { getAll } = useAccommodation();
@@ -62,12 +62,10 @@ const Home: React.FC = () => {
       <div className="flex w-full m-3 gap-10 justify-center flex-wrap">
         {sortedAccommodations.map(item => (
           <Link key={item.id} to={`/acomodacao/${item.id}`}>
-            <Details
-              image={item.main_cover_image || 'media/default-image.jpg'}
-              title={item.title}
-              creator_id={item.creator_id}
-              price_per_night={item.price_per_night}
-              city={item.city || ''}
+            <AccommodationCard
+              accommodation={item}
+              showCreator={true} // mostra nome do criador
+              showActions={false} // sem botões "editar/ver"
             />
           </Link>
         ))}

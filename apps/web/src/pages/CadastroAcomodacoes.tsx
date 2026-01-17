@@ -3,16 +3,16 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from '../hooks/useForm';
 import { useState, useEffect, useRef } from 'react';
 
-import Step1 from '../components/custom/creator-form/Step1';
-import Step2 from '../components/custom/creator-form/Step2';
-import Step3 from '../components/custom/creator-form/Step3';
-import Step4 from '../components/custom/creator-form/Step4';
-import Step5 from '../components/custom/creator-form/Step5';
-import Step6 from '../components/custom/creator-form/Step6';
-import Step7 from '../components/custom/creator-form/Step7';
-import Step8 from '../components/custom/creator-form/Step8';
-import Step9 from '../components/custom/creator-form/Step9';
-import Step10 from '../components/custom/creator-form/Step10';
+import Step1 from '../components/custom/creator-form/AccommodationInformationForm';
+import Step2 from '../components/custom/creator-form/AccommodationBasicsDetailsForm';
+import Step3 from '../components/custom/creator-form/AccommodationSpaceTypeForm';
+import Step4 from '../components/custom/creator-form/AccommodationLocationForm';
+import Step5 from '../components/custom/creator-form/AccommodationAmenitiesForm';
+import Step6 from '../components/custom/creator-form/AccommodationMediaForm';
+import Step7 from '../components/custom/creator-form/AccommodationDescriptionForm';
+import Step8 from '../components/custom/creator-form/AccommodationPricingForm';
+import Step9 from '../components/custom/creator-form/AccommodationBankForm';
+import Step10 from '../components/custom/creator-form/AccommodationReviewStep';
 
 import Cabecalho1 from './';
 import Cabecalho2 from './Cabecalho2';

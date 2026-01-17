@@ -12,20 +12,20 @@ import { accommodationToForm } from '@/mappers/accommodation.mapper';
 import { toast } from 'sonner';
 
 import FormHeader from './FormHeader';
-import Step1 from '@/components/custom/creator-form/Step1';
-import Step2 from '@/components/custom/creator-form/Step2';
-import Step3 from '@/components/custom/creator-form/Step3';
-import Step4 from '@/components/custom/creator-form/Step4';
-import Step5 from '@/components/custom/creator-form/Step5';
-import Step6 from '@/components/custom/creator-form/Step6';
-import Step7 from '@/components/custom/creator-form/Step7';
-import Step8 from '@/components/custom/creator-form/Step8';
-import Step9 from '@/components/custom/creator-form/Step9';
-import Step10 from '@/components/custom/creator-form/Step10';
+import AccommodationInformationForm from '@/components/custom/creator-form/AccommodationInformationForm';
+import AccommodationBasicsDetailsForm from '@/components/custom/creator-form/AccommodationBasicsDetailsForm';
+import AccommodationSpaceTypeForm from '@/components/custom/creator-form/AccommodationSpaceTypeForm';
+import AccommodationLocationForm from '@/components/custom/creator-form/AccommodationLocationForm';
+import AccommodationAmenitiesForm from '@/components/custom/creator-form/AccommodationAmenitiesForm';
+import AccommodationMediaForm from '@/components/custom/creator-form/AccommodationMediaForm';
+import AccommodationDescriptionForm from '@/components/custom/creator-form/AccommodationDescriptionForm';
+import AccommodationPricingForm from '@/components/custom/creator-form/AccommodationPricingForm';
+import AccommodationBankForm from '@/components/custom/creator-form/AccommodationBankForm';
+import AccommodationReviewStep from '@/components/custom/creator-form/AccommodationReviewStep';
 
 export default function CreatorMultiStepForm() {
   const { id } = useParams<{ id: string }>();
-  const { getById, update, loading } = useAccommodation();
+  const { getById, createWithFiles, loading } = useAccommodation();
 
   const methods = useForm<AccommodationFormValues>({
     resolver: zodResolver(accommodationFormSchema),
@@ -33,29 +33,21 @@ export default function CreatorMultiStepForm() {
     defaultValues: {
       title: '',
       description: '',
-
       internal_images: [],
-      main_cover_index: undefined,
-      images_replaced: false,
-
       category: null,
       space_type: null,
-
       price_per_night: 0,
       cleaning_fee: 0,
       discount: false,
-
       room_count: 1,
       bed_count: 1,
       bathroom_count: 1,
       guest_capacity: 1,
-
       address: '',
       city: '',
       neighborhood: '',
       postal_code: '',
       uf: '',
-
       wifi: false,
       tv: false,
       kitchen: false,
@@ -67,7 +59,6 @@ export default function CreatorMultiStepForm() {
       grill: false,
       private_gym: false,
       beach_access: false,
-
       smoke_detector: false,
       fire_extinguisher: false,
       first_aid_kit: false,
@@ -75,13 +66,13 @@ export default function CreatorMultiStepForm() {
     },
   });
 
+  // Carrega dados da acomodação se houver ID
   useEffect(() => {
     if (!id) return;
 
     async function loadAccommodation() {
       const data = await getById(id!);
       if (!data) return;
-
       methods.reset(accommodationToForm(data));
     }
 
@@ -89,16 +80,16 @@ export default function CreatorMultiStepForm() {
   }, [id]);
 
   const formComponents = [
-    <Step1 />,
-    <Step2 />,
-    <Step3 />,
-    <Step4 />,
-    <Step5 />,
-    <Step6 />,
-    <Step7 />,
-    <Step8 />,
-    <Step9 />,
-    <Step10 />,
+    <AccommodationInformationForm />,
+    <AccommodationBasicsDetailsForm />,
+    <AccommodationSpaceTypeForm />,
+    <AccommodationLocationForm />,
+    <AccommodationAmenitiesForm />,
+    <AccommodationMediaForm />,
+    <AccommodationDescriptionForm />,
+    <AccommodationPricingForm />,
+    <AccommodationBankForm />,
+    <AccommodationReviewStep />,
   ];
 
   const stepFields: (keyof AccommodationFormValues)[][] = Array.from({ length: 10 }, () => []);
@@ -107,6 +98,12 @@ export default function CreatorMultiStepForm() {
     useMultiStepForm(formComponents);
 
   const title = methods.watch('title');
+
+  // Watch de todo o formulário para debug
+  const watchedValues = methods.watch();
+  useEffect(() => {
+    console.log('📦 FORM DATA ATUALIZADO:', watchedValues);
+  }, [watchedValues]);
 
   return (
     <FormProvider {...methods}>
@@ -117,7 +114,6 @@ export default function CreatorMultiStepForm() {
 
           const fields = stepFields[currentStep];
           const isValid = await methods.trigger(fields);
-
           if (!isValid) return;
 
           if (!isLastStep) {
@@ -125,14 +121,12 @@ export default function CreatorMultiStepForm() {
             return;
           }
 
-          if (!id) {
-            toast.error('ID da acomodação inválido');
-            return;
-          }
-
           const data = methods.getValues();
+          console.log('📦 FORM DATA COMPLETO:', data);
+
           const formData = new FormData();
 
+          // Campos simples
           const allowedKeys: (keyof AccommodationFormValues)[] = [
             'title',
             'description',
@@ -174,28 +168,22 @@ export default function CreatorMultiStepForm() {
             }
           });
 
-          if (data.images_replaced) {
-            const newFiles = data.internal_images.filter(
-              (file): file is File => file instanceof File
-            );
-
-            newFiles.forEach(file => formData.append('images', file));
-          } else {
-            if (data.main_cover_index !== undefined) {
-              const selected = data.internal_images[data.main_cover_index];
-              if (typeof selected === 'string') {
-                formData.append('main_cover_image', selected);
-              }
+          // Adiciona imagens
+          data.internal_images.forEach((fileOrUrl, index) => {
+            if (fileOrUrl instanceof File) {
+              formData.append('images', fileOrUrl);
+              if (index === 0) formData.append('coverOriginalName', fileOrUrl.name);
+            } else if (typeof fileOrUrl === 'string') {
+              formData.append('internal_images', fileOrUrl);
+              if (index === 0) formData.append('main_cover_image', fileOrUrl);
             }
-          }
+          });
 
-          await update(id, formData);
+          await createWithFiles(formData);
         }}
       >
         <FormHeader step={currentStep} name={title} />
-
         <div className="flex-1 px-4">{currentComponent}</div>
-
         <div className="sticky bottom-0 bg-white p-4 flex justify-between">
           {!isFirstStep && (
             <button
@@ -206,7 +194,6 @@ export default function CreatorMultiStepForm() {
               Voltar
             </button>
           )}
-
           <button
             className="mx-10 mb-5 px-6 py-2 bg-orange-400 text-white rounded-md"
             type="submit"

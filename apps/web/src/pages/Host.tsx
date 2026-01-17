@@ -1,11 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { BiPlus } from 'react-icons/bi';
 import { Card, CardContent } from '@/components/ui/card';
 import { useAccommodation } from '@/hooks/useAccommodation';
-import CardHospedagens from '@/components/custom/CardHospedagens';
-import type { Accommodation } from '@/types/accommodation';
+import { Accommodation } from '@/types/accommodation';
 import { TfiClose } from 'react-icons/tfi';
+import AccommodationCard from '@/components/custom/AccommodationCard';
 
 export default function Host() {
   const { getMyRecords, loading } = useAccommodation();
@@ -52,7 +52,12 @@ export default function Host() {
       {!loading && accommodations.length > 0 && (
         <div className="flex w-full m-3 gap-10 justify-center flex-wrap">
           {accommodations.map(acc => (
-            <CardHospedagens key={acc.id} accommodationData={acc} />
+            <AccommodationCard
+              key={acc.id}
+              accommodation={acc}
+              showActions={true} // mostra botões "ver" e "editar"
+              showCreator={false} // não mostra o nome do criador
+            />
           ))}
         </div>
       )}

@@ -52,7 +52,7 @@ const Details: React.FC<DetalhesProps> = ({
       style={{ cursor: onClick ? 'pointer' : 'default' }}
       className="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border overflow-hidden shadow-md p-0 border-none min-w-60"
     >
-      <div className="w-full h-48 overflow-hidden">
+      <div className="w-full h-48 min-h-32 overflow-hidden">
         <img
           src={imageUrl}
           alt={title || 'Imagem da acomodação'}

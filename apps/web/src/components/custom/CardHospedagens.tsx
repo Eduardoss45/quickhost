@@ -13,7 +13,7 @@ type Props = {
 const CardHospedagens = ({ accommodationData }: Props) => {
   return (
     <Card className="overflow-hidden shadow-md p-0 border-none min-w-60">
-      <div className="relative w-full aspect-4/3 overflow-hidden">
+      <div className="relative w-full min-h-32 aspect-4/3 overflow-hidden">
         <img
           src={
             accommodationData.main_cover_image

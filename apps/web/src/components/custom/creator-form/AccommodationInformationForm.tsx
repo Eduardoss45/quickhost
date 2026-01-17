@@ -5,7 +5,7 @@ import card_1 from '@/image/card-1.png';
 import card_2 from '@/image/card-2.png';
 import card_3 from '@/image/card-3.png';
 
-const Step1 = () => {
+export default function AccommodationInformationForm() {
   return (
     <div>
       <div className="flex flex-row items-center gap-2 justify-center">
@@ -38,14 +38,17 @@ const Step1 = () => {
       </div>
     </div>
   );
+}
+
+type ImageType = {
+  image: string;
+  altText: string;
 };
 
-const Step = ({ altText, image }) => {
+function Step({ altText, image }: ImageType) {
   return (
     <div>
       <img src={image} alt={altText} />
     </div>
   );
-};
-
-export default Step1;
+}
