@@ -1,24 +1,50 @@
+import { useEffect, useMemo, useState } from 'react';
 import { useUser } from '@/hooks/useUser';
-import { commentToList } from '@/mappers/comment.mapper';
 import CommentsForm from './CommentsForm';
 import CommentsList from './CommentsList';
 import { useComments } from '@/hooks/useComments';
+import { Comment } from '@/types';
 
 export default function CommentsSection({ accommodationId }: { accommodationId: string }) {
-  const { user } = useUser();
+  const { getPublicUser, user } = useUser();
   const { comments, createComment } = useComments(accommodationId);
+
+  const [enrichedComments, setEnrichedComments] = useState<Comment[]>([]);
 
   const canComment = !!user;
 
-  const listComments = comments.map(commentToList);
+  useEffect(() => {
+    async function enrich() {
+      const result = await Promise.all(
+        comments.map(async comment => {
+          if (comment.user) return comment;
+
+          const publicUser = await getPublicUser(comment.authorId);
+
+          return {
+            ...comment,
+            user: publicUser,
+          };
+        })
+      );
+
+      setEnrichedComments(result);
+    }
+
+    if (comments.length > 0) {
+      enrich();
+    } else {
+      setEnrichedComments([]);
+    }
+  }, [comments, getPublicUser]);
 
   return (
     <section>
-      <h2 className="text-2xl">Avaliações ({comments.length})</h2>
+      <h2 className="text-2xl">Avaliações ({enrichedComments.length})</h2>
 
       {canComment && <CommentsForm onSubmit={createComment} />}
 
-      <CommentsList comments={listComments} />
+      <CommentsList comments={enrichedComments} />
     </section>
   );
 }

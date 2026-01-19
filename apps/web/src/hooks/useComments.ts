@@ -27,7 +27,6 @@ export function useComments(
           size: options.size,
         },
       });
-
       setComments(res.data);
       setHasMore(res.data.length === options.size);
     } catch {

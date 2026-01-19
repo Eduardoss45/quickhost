@@ -1,13 +1,10 @@
 import { RpcException } from '@nestjs/microservices';
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { AccommodationRepository } from '../repositories/accommodation.repository';
 import { Accommodation } from '../entities/accommodation.entity';
+import { Comment } from '../entities/comment.entity';
 import { validate as isUUID } from 'uuid';
-import { CreateCommentDto } from 'src/dtos/create.comment.dto';
+import { CommentRepository } from '../repositories/comments.repository';
 
 @Injectable()
 export class AccommodationService {
@@ -19,6 +16,7 @@ export class AccommodationService {
 
   constructor(
     private readonly accommodationRepository: AccommodationRepository,
+    private readonly commentRepository: CommentRepository,
   ) {}
 
   async create(data: Partial<Accommodation>) {
@@ -69,36 +67,34 @@ export class AccommodationService {
     await this.accommodationRepository.remove(accommodation);
   }
 
-  async createComment(
-    accommodationId: string,
-    comment: CreateCommentDto & { authorId?: string; authorName?: string },
-  ) {
-    this.assertUUID(accommodationId, 'Task ID');
+  async createComment(comment: {
+    content: string;
+    rating: number;
+    authorId: string;
+    authorName: string;
+    accommodationId: string;
+  }) {
+    this.assertUUID(comment.accommodationId, 'Accommodation ID');
 
-    const taskExists = await this.accommodationRepository.findOne({
-      where: { id: accommodationId },
-    });
-    if (!taskExists) throw new NotFoundException('Task not found');
+    console.log(comment.rating); // ! valor 5
 
-    const createdComment = await this.accommodationRepository.createComment({
-      content: comment.content,
-      authorId: comment.authorId!,
-      authorName: comment.authorName!,
-      accommodation: taskExists,
-    });
+    const created =
+      await this.commentRepository.createCommentWithRatingUpdate(comment);
 
-    return createdComment;
+    if (!created) {
+      throw new RpcException({
+        statusCode: 404,
+        message: 'Acomodação não encontrada',
+      });
+    }
+
+    return created;
   }
 
   async getComments(accommodationId: string, page?: number, size?: number) {
-    this.assertUUID(accommodationId, 'Task ID');
+    this.assertUUID(accommodationId, 'Accommodation ID');
 
-    const task = await this.accommodationRepository.findOne({
-      where: { id: accommodationId },
-    });
-    if (!task) {
-      throw new NotFoundException('Task not found');
-    }
+    const accommodation = await this.findOne(accommodationId);
 
     const MAX_PAGE_SIZE = 10;
 
@@ -106,8 +102,8 @@ export class AccommodationService {
     const resolvedSize =
       size && size > 0 && size <= MAX_PAGE_SIZE ? size : MAX_PAGE_SIZE;
 
-    return this.accommodationRepository.findComments(
-      accommodationId,
+    return this.commentRepository.findComments(
+      accommodation.id,
       resolvedPage,
       resolvedSize,
     );

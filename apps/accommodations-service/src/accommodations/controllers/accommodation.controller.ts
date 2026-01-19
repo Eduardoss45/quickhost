@@ -1,8 +1,8 @@
-import { CreateCommentDto } from '../../dtos/create.comment.dto';
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { AccommodationService } from '../services/accommodation.service';
 import { Accommodation } from '../entities/accommodation.entity';
+import { CreateCommentCommand } from 'src/dtos';
 
 @Controller()
 export class AccommodationController {
@@ -50,18 +50,14 @@ export class AccommodationController {
   }
 
   @MessagePattern({ cmd: 'createComment' })
-  createComment(data: {
-    taskId: string;
-    authorName: string;
-    comment: CreateCommentDto;
-  }) {
-    return this.accommodationService.createComment(data.taskId, data.comment);
+  createComment(command: CreateCommentCommand) {
+    return this.accommodationService.createComment(command);
   }
 
   @MessagePattern({ cmd: 'getComments' })
-  getComments(data: { taskId: string; page: number; size: number }) {
+  getComments(data: { accommodationId: string; page: number; size: number }) {
     return this.accommodationService.getComments(
-      data.taskId,
+      data.accommodationId,
       data.page,
       data.size,
     );

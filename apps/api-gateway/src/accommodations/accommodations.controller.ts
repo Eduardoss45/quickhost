@@ -15,7 +15,7 @@ import {
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/guards/jwt.guard';
 import { CurrentUser } from 'src/decorators/current-user.decorator';
-import type { JwtUser, CreateCommentCommand } from 'src/types';
+import type { JwtUser } from 'src/types';
 
 import { AccommodationsService } from './accommodations.service';
 import {
@@ -27,7 +27,6 @@ import { FilesInterceptor } from '@nestjs/platform-express';
 import path from 'path';
 import fs from 'fs';
 import sharp from 'sharp';
-
 
 @UseGuards(JwtAuthGuard)
 @Controller('accommodations')
@@ -178,16 +177,17 @@ export class AccommodationsController {
 
   @Post(':id/comments')
   async createComment(
-    @Param('id') id: string,
+    @Param('id') accommodationId: string,
     @Body() dto: CreateCommentDto,
     @Req() req: any,
   ) {
-    const command: CreateCommentCommand = {
-      ...dto,
+    return this.service.createComment({
+      accommodationId: accommodationId,
+      content: dto.content,
+      rating: dto.rating,
       authorId: req.user.userId,
       authorName: req.user.username,
-    };
-    return this.service.createComment(id, command);
+    });
   }
 
   @Get(':id/comments')

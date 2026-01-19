@@ -50,16 +50,16 @@ export default function Announcement() {
         )}
       />
 
-      <section>
-        <h2 className="text-2xl">Descrição</h2>
-        <p className="my-3">{accommodation.description}</p>
-      </section>
-
+      <div className="flex flex-row justify-between gap-2 my-4">
+        <section>
+          <h2 className="text-2xl">Descrição</h2>
+          <p className="my-3">{accommodation.description}</p>
+        </section>
+        <BookingCard accommodation={accommodation} />
+      </div>
       <AmenitiesList amenities={accommodation} />
 
       <CommentsSection accommodationId={accommodation.id} />
-
-      <BookingCard accommodation={accommodation} />
     </div>
   );
 }

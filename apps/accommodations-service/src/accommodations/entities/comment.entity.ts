@@ -4,7 +4,6 @@ import {
   Column,
   ManyToOne,
   CreateDateColumn,
-  RelationId,
   JoinColumn,
 } from 'typeorm';
 import { Accommodation } from './accommodation.entity';
@@ -23,14 +22,14 @@ export class Comment {
   @Column()
   authorName!: string;
 
+  @Column({ type: 'int' })
+  rating!: number;
+
   @ManyToOne(() => Accommodation, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'accommodationId' })
   accommodation!: Accommodation;
-
-  @Column('uuid')
-  accommodationId!: string;
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt!: Date;

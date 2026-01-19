@@ -6,6 +6,7 @@ import { AccommodationService } from './services/accommodation.service';
 import { Accommodation } from './entities/accommodation.entity';
 import { AccommodationRepository } from './repositories/accommodation.repository';
 import { Comment } from './entities/comment.entity';
+import { CommentRepository } from './repositories/comments.repository';
 
 @Module({
   imports: [
@@ -24,6 +25,6 @@ import { Comment } from './entities/comment.entity';
     TypeOrmModule.forFeature([Accommodation, Comment]),
   ],
   controllers: [AccommodationController],
-  providers: [AccommodationService, AccommodationRepository],
+  providers: [AccommodationService, AccommodationRepository, CommentRepository],
 })
 export class AccommodationModule {}
