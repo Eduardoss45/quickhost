@@ -7,7 +7,7 @@ import { FaBuilding, FaHouse } from 'react-icons/fa6';
 import { Category } from '@/enums';
 
 import type { AccommodationFormValues } from '@/schemas/accommodation-form.schema';
-import CustomButton from '@/pages/CustomButton';
+import CustomButton from '@/components/custom/buttons/CustomButton';
 
 type CountFields = 'room_count' | 'bed_count' | 'bathroom_count' | 'guest_capacity';
 

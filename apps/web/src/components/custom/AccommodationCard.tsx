@@ -1,13 +1,16 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, Eye, Pencil } from 'lucide-react';
 import type { Accommodation } from '@/types/accommodation';
 import { useUser } from '@/hooks/useUser';
+import { useFavoritesStore } from '@/store/favorites.store';
+import { FaRegTrashAlt } from 'react-icons/fa';
 
 interface Props {
   accommodation: Accommodation;
-  showActions?: boolean; // ex: Host -> true, Home -> false
-  showCreator?: boolean; // ex: Home -> true, Host -> false
+  showActions?: boolean;
+  showCreator?: boolean;
+  enableFavoritesActions?: boolean;
   className?: string;
 }
 
@@ -16,8 +19,10 @@ const AccommodationCard: React.FC<Props> = ({
   showActions = false,
   showCreator = false,
   className = '',
+  enableFavoritesActions = false,
 }) => {
-  const { getPublicUser } = useUser();
+  const { getPublicUser, isAuthenticated } = useUser();
+  const { removeFavorite, isFavorited } = useFavoritesStore();
   const [creatorName, setCreatorName] = useState<string>('Criador desconhecido');
 
   const cacheBuster = useMemo(() => Date.now(), [accommodation.id]);
@@ -28,7 +33,6 @@ const AccommodationCard: React.FC<Props> = ({
       : '/placeholder.jpg';
   }, [accommodation.main_cover_image, cacheBuster]);
 
-  // Busca nome do criador
   useEffect(() => {
     let isMounted = true;
     if (!accommodation.creator_id) return;
@@ -51,7 +55,6 @@ const AccommodationCard: React.FC<Props> = ({
     <div
       className={`flex flex-col rounded-xl overflow-hidden shadow-md border bg-card text-card-foreground w-60 ${className}`}
     >
-      {/* imagem proporcional */}
       <div className="w-full aspect-4/3 overflow-hidden">
         <img src={imageUrl} alt={accommodation.title} className="w-full h-full object-cover" />
       </div>
@@ -86,6 +89,25 @@ const AccommodationCard: React.FC<Props> = ({
           </div>
         )}
       </div>
+
+      {enableFavoritesActions && isAuthenticated && (
+        <div className="p-2 flex justify-center">
+          <button
+            disabled={!isFavorited(accommodation.id)}
+            onClick={() => removeFavorite(accommodation.id)}
+            className={`
+        px-6 py-2 text-sm rounded-sm transition flex items-center gap-2
+        ${
+          isFavorited(accommodation.id)
+            ? 'bg-red-500 text-white hover:bg-red-600'
+            : 'bg-muted text-muted-foreground cursor-not-allowed'
+        }
+      `}
+          >
+            <FaRegTrashAlt className='text-2xl' /> Remover dos favoritos
+          </button>
+        </div>
+      )}
     </div>
   );
 };

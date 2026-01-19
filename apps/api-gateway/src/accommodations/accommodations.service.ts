@@ -1,6 +1,7 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
+import { CreateCommentDto } from 'src/dtos/create.comment.dto';
 
 @Injectable()
 export class AccommodationsService {
@@ -40,6 +41,18 @@ export class AccommodationsService {
       this.client.send('accommodation.find_by_creator', {
         creatorId: userId,
       }),
+    );
+  }
+
+  async createComment(taskId: string, comment: CreateCommentDto) {
+    return firstValueFrom(
+      this.client.send({ cmd: 'createComment' }, { taskId, comment }),
+    );
+  }
+
+  async getComments(taskId: string, page: number, size: number) {
+    return firstValueFrom(
+      this.client.send({ cmd: 'getComments' }, { taskId, page, size }),
     );
   }
 }

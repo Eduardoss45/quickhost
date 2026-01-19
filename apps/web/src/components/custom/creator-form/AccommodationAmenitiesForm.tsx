@@ -1,6 +1,14 @@
 import { useFormContext } from 'react-hook-form';
 import type { AccommodationFormValues } from '@/schemas/accommodation-form.schema';
-import CustomButton from '@/pages/CustomButton';
+import CustomButton from '@/components/custom/buttons/CustomButton';
+import { FaWifi, FaCar, FaSwimmingPool, FaMedkit } from 'react-icons/fa';
+import { LuMonitor } from 'react-icons/lu';
+import { GrRestaurant } from 'react-icons/gr';
+import { CgSmartHomeWashMachine } from 'react-icons/cg';
+import { TbAirConditioning, TbBeach } from 'react-icons/tb';
+import { MdHotTub, MdOutdoorGrill, MdFitnessCenter } from 'react-icons/md';
+import { WiSmoke } from 'react-icons/wi';
+import { PiFireExtinguisherBold, PiSecurityCameraThin } from 'react-icons/pi';
 
 export default function AccommodationAmenitiesForm() {
   const { watch, setValue } = useFormContext<AccommodationFormValues>();
@@ -9,36 +17,37 @@ export default function AccommodationAmenitiesForm() {
     setValue(key, !watch(key), { shouldValidate: true });
   };
 
-  const resources: (keyof AccommodationFormValues)[] = [
-    'wifi',
-    'tv',
-    'kitchen',
-    'washing_machine',
-    'parking_included',
-    'air_conditioning',
-    'pool',
-    'jacuzzi',
-    'grill',
-    'private_gym',
-    'beach_access',
-  ];
+  const resourcesOptions = [
+    { key: 'wifi', label: 'Wi-Fi', icon: <FaWifi /> },
+    { key: 'tv', label: 'TV', icon: <LuMonitor /> },
+    { key: 'kitchen', label: 'Cozinha', icon: <GrRestaurant /> },
+    { key: 'washing_machine', label: 'Máquina de lavar', icon: <CgSmartHomeWashMachine /> },
+    { key: 'parking_included', label: 'Estacionamento incluído', icon: <FaCar /> },
+    { key: 'air_conditioning', label: 'Ar-condicionado', icon: <TbAirConditioning /> },
+    { key: 'pool', label: 'Piscina', icon: <FaSwimmingPool /> },
+    { key: 'jacuzzi', label: 'Jacuzzi', icon: <MdHotTub /> },
+    { key: 'grill', label: 'Churrasqueira', icon: <MdOutdoorGrill /> },
+    { key: 'private_gym', label: 'Academia privativa', icon: <MdFitnessCenter /> },
+    { key: 'beach_access', label: 'Acesso à praia', icon: <TbBeach /> },
+  ] as const;
 
-  const security: (keyof AccommodationFormValues)[] = [
-    'smoke_detector',
-    'fire_extinguisher',
-    'first_aid_kit',
-    'outdoor_camera',
-  ];
+  const securityOptions = [
+    { key: 'smoke_detector', label: 'Detector de fumaça', icon: <WiSmoke /> },
+    { key: 'fire_extinguisher', label: 'Extintor de incêndio', icon: <PiFireExtinguisherBold /> },
+    { key: 'first_aid_kit', label: 'Kit de primeiros socorros', icon: <FaMedkit /> },
+    { key: 'outdoor_camera', label: 'Câmera externa', icon: <PiSecurityCameraThin /> },
+  ] as const;
 
   return (
     <div className="space-y-8">
       <div>
         <h2 className="text-xl font-semibold mb-2">Comodidades</h2>
         <div className="flex flex-wrap gap-3">
-          {resources.map(key => (
+          {resourcesOptions.map(({ key, label, icon }) => (
             <CustomButton
               key={key}
-              label={key}
+              label={label}
+              icon={icon}
               isActive={!!watch(key)}
               onClick={() => toggle(key)}
             />
@@ -49,10 +58,11 @@ export default function AccommodationAmenitiesForm() {
       <div>
         <h2 className="text-xl font-semibold mb-2">Segurança</h2>
         <div className="flex flex-wrap gap-3">
-          {security.map(key => (
+          {securityOptions.map(({ key, label, icon }) => (
             <CustomButton
               key={key}
-              label={key}
+              label={label}
+              icon={icon}
               isActive={!!watch(key)}
               onClick={() => toggle(key)}
             />

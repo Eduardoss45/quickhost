@@ -23,7 +23,7 @@ import { configurationsSchema, ConfigurationsFormData } from '@/schemas/configur
 import { TfiClose } from 'react-icons/tfi';
 
 function Configurations() {
-  const { user, updateProfile } = useUser();
+  const { user, updateProfile, resetPassword, forgotPassword, resetToken } = useUser();
 
   const form = useForm<ConfigurationsFormData>({
     resolver: zodResolver(configurationsSchema),
@@ -65,6 +65,14 @@ function Configurations() {
       payload,
       data.profile_picture instanceof File ? data.profile_picture : undefined
     );
+
+    if (resetToken && data.password && data.confirm_password) {
+      await resetPassword({
+        password: data.password,
+        confirm_password: data.confirm_password,
+      });
+      return;
+    }
   };
 
   return (
@@ -133,13 +141,41 @@ function Configurations() {
           <FormItem>
             <FormLabel>Senha</FormLabel>
             <Button
-              className="py-4 bg-orange-400 border-none text-white"
               type="button"
-              variant="outline"
+              className="py-4 bg-orange-400 text-white"
+              onClick={forgotPassword}
             >
-              Solicitar redefinição de senha
+              Gerar token de redefinição
             </Button>
           </FormItem>
+
+          {resetToken && (
+            <>
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <PasswordField
+                    label="Nova senha"
+                    placeholder="Digite a nova senha"
+                    field={field}
+                  />
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="confirm_password"
+                render={({ field }) => (
+                  <PasswordField
+                    label="Confirmar senha"
+                    placeholder="Repita a senha"
+                    field={field}
+                  />
+                )}
+              />
+            </>
+          )}
 
           <FormField
             control={form.control}

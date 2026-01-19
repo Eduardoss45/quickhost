@@ -10,17 +10,24 @@ import {
   UseInterceptors,
   UploadedFiles,
   BadRequestException,
+  Query,
+  Req,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/guards/jwt.guard';
 import { CurrentUser } from 'src/decorators/current-user.decorator';
-import type { JwtUser } from 'src/types';
+import type { JwtUser, CreateCommentCommand } from 'src/types';
 
 import { AccommodationsService } from './accommodations.service';
-import { CreateAccommodationDto, UpdateAccommodationDto } from '../dtos/';
+import {
+  CreateAccommodationDto,
+  UpdateAccommodationDto,
+  CreateCommentDto,
+} from '../dtos/';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import path from 'path';
 import fs from 'fs';
 import sharp from 'sharp';
+
 
 @UseGuards(JwtAuthGuard)
 @Controller('accommodations')
@@ -167,5 +174,28 @@ export class AccommodationsController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.service.remove(id);
+  }
+
+  @Post(':id/comments')
+  async createComment(
+    @Param('id') id: string,
+    @Body() dto: CreateCommentDto,
+    @Req() req: any,
+  ) {
+    const command: CreateCommentCommand = {
+      ...dto,
+      authorId: req.user.userId,
+      authorName: req.user.username,
+    };
+    return this.service.createComment(id, command);
+  }
+
+  @Get(':id/comments')
+  async getComments(
+    @Param('id') id: string,
+    @Query('page') page: number,
+    @Query('size') size: number,
+  ) {
+    return this.service.getComments(id, page, size);
   }
 }

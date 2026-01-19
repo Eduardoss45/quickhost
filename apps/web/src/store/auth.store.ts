@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { useFavoritesStore } from './favorites.store';
 
 export type User = {
   userId: any;
@@ -38,7 +39,10 @@ export const authStore = create<AuthState>()(
       setUser: user => set({ user }),
       clearUser: () => set({ user: null }),
       setHydrated: () => set({ hydrated: true }),
-      invalidateSession: () => set({ user: null, sessionInvalidated: true, hydrated: true }),
+      invalidateSession: () => {
+        useFavoritesStore.getState().clearFavorites();
+        set({ user: null, sessionInvalidated: true, hydrated: true });
+      },
       restoreSession: () => set({ sessionInvalidated: false }),
     }),
     {

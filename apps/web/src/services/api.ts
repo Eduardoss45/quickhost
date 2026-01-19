@@ -38,6 +38,11 @@ api.interceptors.response.use(
       console.log('[AUTH] Network error:', error);
       return Promise.reject(error);
     }
+    
+    if (authStore.getState().sessionInvalidated) {
+      console.warn('[AUTH] Session invalidated → blocking request');
+      return Promise.reject(error);
+    }
 
     const originalRequest = error.config as any;
     const status = error.response.status;

@@ -1,8 +1,8 @@
 import {
   Column,
+  CreateDateColumn,
   Entity,
   PrimaryGeneratedColumn,
-  CreateDateColumn,
 } from 'typeorm';
 
 @Entity('users')
@@ -31,10 +31,7 @@ export class User {
   @Column({ length: 20, nullable: true })
   phone_number?: string;
 
-  @Column({
-    type: 'varchar',
-    nullable: true,
-  })
+  @Column({ type: 'varchar', nullable: true })
   profile_picture_url?: string | null;
 
   @Column({ type: 'varchar', nullable: true })

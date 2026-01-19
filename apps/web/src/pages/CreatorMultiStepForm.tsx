@@ -9,7 +9,6 @@ import {
 } from '@/schemas/accommodation-form.schema';
 import { useMultiStepForm } from '@/hooks/useMultiStepForm';
 import { accommodationToForm } from '@/mappers/accommodation.mapper';
-import { toast } from 'sonner';
 
 import FormHeader from './FormHeader';
 import AccommodationInformationForm from '@/components/custom/creator-form/AccommodationInformationForm';
@@ -66,7 +65,6 @@ export default function CreatorMultiStepForm() {
     },
   });
 
-  // Carrega dados da acomodação se houver ID
   useEffect(() => {
     if (!id) return;
 
@@ -99,11 +97,8 @@ export default function CreatorMultiStepForm() {
 
   const title = methods.watch('title');
 
-  // Watch de todo o formulário para debug
   const watchedValues = methods.watch();
-  useEffect(() => {
-    console.log('📦 FORM DATA ATUALIZADO:', watchedValues);
-  }, [watchedValues]);
+  useEffect(() => {}, [watchedValues]);
 
   return (
     <FormProvider {...methods}>
@@ -122,11 +117,9 @@ export default function CreatorMultiStepForm() {
           }
 
           const data = methods.getValues();
-          console.log('📦 FORM DATA COMPLETO:', data);
 
           const formData = new FormData();
 
-          // Campos simples
           const allowedKeys: (keyof AccommodationFormValues)[] = [
             'title',
             'description',
@@ -168,7 +161,6 @@ export default function CreatorMultiStepForm() {
             }
           });
 
-          // Adiciona imagens
           data.internal_images.forEach((fileOrUrl, index) => {
             if (fileOrUrl instanceof File) {
               formData.append('images', fileOrUrl);

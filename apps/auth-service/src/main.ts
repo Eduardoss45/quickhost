@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { Module } from '@nestjs/common';
 import { AuthModule } from './modules/auth/auth.module';
-import { UserModule } from './modules/user/users.module';
+import { UserModule } from './modules/users.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 
 @Module({

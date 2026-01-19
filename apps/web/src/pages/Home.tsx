@@ -61,7 +61,7 @@ const Home: React.FC = () => {
 
       <div className="flex w-full m-3 gap-10 justify-center flex-wrap">
         {sortedAccommodations.map(item => (
-          <Link key={item.id} to={`/acomodacao/${item.id}`}>
+          <Link key={item.id} to={`/announcement/${item.id}`}>
             <AccommodationCard
               accommodation={item}
               showCreator={true} // mostra nome do criador

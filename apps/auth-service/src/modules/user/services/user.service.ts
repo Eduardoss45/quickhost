@@ -6,11 +6,13 @@ import { UserRepository } from '../../repositories/user.repository';
 import { UpdateUserProfileDto } from '../../dtos';
 import { RpcException, ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
+import { FavoritesRepository } from '../../repositories/favorites.repository';
 
 @Injectable()
 export class UserService {
   constructor(
     private readonly users: UserRepository,
+    private readonly favoritesRepo: FavoritesRepository,
     @Inject('MEDIA_CLIENT') private readonly mediaClient: ClientProxy,
   ) {}
 
@@ -178,5 +180,40 @@ export class UserService {
     }
 
     return user;
+  }
+
+  async add(userId: string, accommodationId: string): Promise<string> {
+    try {
+      await this.favoritesRepo.add(userId, accommodationId);
+      return 'added';
+    } catch (err: any) {
+      if (err?.code === '23505') {
+        throw new RpcException({
+          statusCode: 409,
+          message: 'Acomodação já está nos favoritos',
+        });
+      }
+
+      throw new RpcException({
+        statusCode: 500,
+        message: 'Erro ao adicionar favorito',
+      });
+    }
+  }
+
+  async remove(userId: string, accommodationId: string): Promise<void> {
+    try {
+      await this.favoritesRepo.remove(userId, accommodationId);
+    } catch (err) {
+      throw new RpcException({
+        statusCode: 500,
+        message: 'Erro ao remover favorito',
+        detail: err instanceof Error ? err.message : 'Unknown error',
+      });
+    }
+  }
+
+  async listByUser(userId: string) {
+    return this.favoritesRepo.listByUser(userId);
   }
 }

@@ -8,6 +8,8 @@ import Chat from '@/pages/Chat';
 import Host from '@/pages/Host';
 import EditMultiStepForm from '@/pages/EditMultiStepForm';
 import CreatorMultiStepForm from '@/pages/CreatorMultiStepForm';
+import Favorites from '@/pages/Favorites';
+import Announcement from '@/pages/Announcement';
 
 export function AppRoutes() {
   return (
@@ -21,6 +23,8 @@ export function AppRoutes() {
         <Route path="/host" element={<Host />} />
         <Route path="/editor-accommodation/:id" element={<EditMultiStepForm />} />
         <Route path="/creator-accommodation" element={<CreatorMultiStepForm />} />
+        <Route path="/favorites" element={<Favorites />} />
+        <Route path="/announcement/:id" element={<Announcement />} />
       </Route>
     </Routes>
   );

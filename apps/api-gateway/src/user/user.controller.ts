@@ -8,6 +8,7 @@ import {
   Get,
   Delete,
   Param,
+  Post,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UpdateUserDto } from '../dtos';
@@ -56,8 +57,42 @@ export class UserController {
     };
   }
 
+  @Get('favorites')
+  async list(@CurrentUser() user: JwtUser) {
+    const favorites = await this.userService.listByUser(user.userId);
+    return favorites.map(
+      (f: { accommodation_id: string }) => f.accommodation_id,
+    );
+  }
+
+  @Delete('favorites/:accommodationId')
+  async removeFavorite(
+    @CurrentUser() user: JwtUser,
+    @Param('accommodationId') accommodationId: string,
+  ) {
+    await this.userService.remove(user.userId, accommodationId);
+
+    return {
+      status: 200,
+      message: 'Removido dos favoritos',
+      accommodationId,
+    };
+  }
+
   @Get('/:userId')
   getPublicUser(@Param('userId') userId: string) {
     return this.userService.getPublicUser(userId);
+  }
+
+  @Post('favorites/:accommodationId')
+  async addFavorite(
+    @CurrentUser() user: JwtUser,
+    @Param('accommodationId') accommodationId: string,
+  ) {
+    const result = await this.userService.add(user.userId, accommodationId);
+
+    return {
+      favorited: result === 'added',
+    };
   }
 }

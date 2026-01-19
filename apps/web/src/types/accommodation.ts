@@ -49,6 +49,8 @@ export interface Accommodation {
   first_aid_kit: boolean;
   outdoor_camera: boolean;
 
+  comments?: Comment[];
+
   created_at: string;
   updated_at: string;
 }

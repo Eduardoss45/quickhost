@@ -1,10 +1,6 @@
+import { CreateCommentDto } from '../../dtos/create.comment.dto';
 import { Controller } from '@nestjs/common';
-import {
-  Ctx,
-  MessagePattern,
-  Payload,
-  RmqContext,
-} from '@nestjs/microservices';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 import { AccommodationService } from '../services/accommodation.service';
 import { Accommodation } from '../entities/accommodation.entity';
 
@@ -51,5 +47,23 @@ export class AccommodationController {
   @MessagePattern('accommodation.find_by_creator')
   findByCreator(@Payload() data: { creatorId: string }) {
     return this.accommodationService.findByCreator(data.creatorId);
+  }
+
+  @MessagePattern({ cmd: 'createComment' })
+  createComment(data: {
+    taskId: string;
+    authorName: string;
+    comment: CreateCommentDto;
+  }) {
+    return this.accommodationService.createComment(data.taskId, data.comment);
+  }
+
+  @MessagePattern({ cmd: 'getComments' })
+  getComments(data: { taskId: string; page: number; size: number }) {
+    return this.accommodationService.getComments(
+      data.taskId,
+      data.page,
+      data.size,
+    );
   }
 }

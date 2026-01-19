@@ -5,9 +5,11 @@ import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import { initSocket } from '@/services/notification.socket';
 import { useChatNotifications } from './hooks/useNotifications';
+import { useFavoritesStore } from './store/favorites.store';
 
 function App() {
   const { bootstrapSession, hydrated, user } = useUser();
+  const { fetchFavorites } = useFavoritesStore();
 
   useEffect(() => {
     bootstrapSession();
@@ -16,12 +18,14 @@ function App() {
   useEffect(() => {
     if (!hydrated || !user) return;
 
+    fetchFavorites();
+
     const socket = initSocket();
 
     return () => {
       socket?.disconnect();
     };
-  }, [hydrated, user]);
+  }, [hydrated, user, fetchFavorites]);
 
   useChatNotifications();
 

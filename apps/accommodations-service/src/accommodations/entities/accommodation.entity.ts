@@ -4,7 +4,10 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
+
+import { Comment } from './comment.entity';
 
 import { Category, SpaceType } from '../enums';
 
@@ -120,6 +123,9 @@ export class Accommodation {
 
   @Column({ default: false })
   outdoor_camera: boolean;
+
+  @OneToMany(() => Comment, (comment) => comment.accommodation)
+  comments!: Comment[];
 
   @CreateDateColumn()
   created_at: Date;

@@ -28,4 +28,25 @@ export class UserController {
   getPublicProfile(data: { userId: string }) {
     return this.userService.getPublicUser(data.userId);
   }
+
+  @MessagePattern('favorites.add')
+  add(@Payload() data: { userId: string; accommodationId: string }) {
+    return this.userService.add(data.userId, data.accommodationId);
+  }
+
+  @MessagePattern('favorites.remove')
+  async remove(@Payload() data: { userId: string; accommodationId: string }) {
+    await this.userService.remove(data.userId, data.accommodationId);
+
+    return {
+      success: true,
+      accommodationId: data.accommodationId,
+      message: 'Removido dos favoritos',
+    };
+  }
+
+  @MessagePattern('favorites.list_by_user')
+  list(@Payload() data: { userId: string }) {
+    return this.userService.listByUser(data.userId);
+  }
 }

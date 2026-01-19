@@ -5,3 +5,6 @@ export * from './change-step-handler';
 export * from './update-field-handler';
 export * from './use-multistep-form';
 export * from './bank-form';
+export * from './auth';
+export * from './comment';
+export * from './amenities';

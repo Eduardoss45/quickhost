@@ -25,7 +25,7 @@ export const accommodationFormSchema = z.object({
   address: z.string(),
   city: z.string(),
   neighborhood: z.string(),
-  postal_code: z.string(),
+  postal_code: z.string().regex(/^\d{5}-?\d{3}$/, 'CEP inválido'),
   uf: z.string(),
 
   wifi: z.boolean(),

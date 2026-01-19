@@ -1,6 +1,6 @@
-import { useFormContext, Controller } from 'react-hook-form';
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { useFormContext } from 'react-hook-form';
 
 export default function AccommodationAddressForm() {
   const { control } = useFormContext();
@@ -11,31 +11,26 @@ export default function AccommodationAddressForm() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {[
-          { name: 'address', label: 'Endereço', placeholder: 'Digite o endereço da acomodação' },
-          {
-            name: 'neighborhood',
-            label: 'Bairro/Distrito',
-            placeholder: 'Digite o bairro/distrito',
-          },
-          { name: 'city', label: 'Cidade', placeholder: 'Digite a cidade' },
-          { name: 'uf', label: 'UF', placeholder: 'Digite o estado/província' },
-          { name: 'postal_code', label: 'CEP', placeholder: 'Digite o CEP', colSpan: 2 },
+          { name: 'address', label: 'Endereço' },
+          { name: 'neighborhood', label: 'Bairro/Distrito' },
+          { name: 'city', label: 'Cidade' },
+          { name: 'uf', label: 'UF' },
+          { name: 'postal_code', label: 'CEP', colSpan: 2 },
         ].map(field => (
-          <div key={field.name} className={`space-y-1 ${field.colSpan ? 'md:col-span-2' : ''}`}>
-            <Label htmlFor={field.name}>{field.label}</Label>
-            <Controller
-              name={field.name}
-              control={control}
-              render={({ field: f }) => (
-                <Input
-                  className="my-3 py-5"
-                  {...f}
-                  id={field.name}
-                  placeholder={field.placeholder}
-                />
-              )}
-            />
-          </div>
+          <FormField
+            key={field.name}
+            control={control}
+            name={field.name as any}
+            render={({ field: f }) => (
+              <FormItem className={field.colSpan ? 'md:col-span-2' : ''}>
+                <FormLabel>{field.label}</FormLabel>
+                <FormControl>
+                  <Input {...f} className="py-5" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         ))}
       </div>
     </div>

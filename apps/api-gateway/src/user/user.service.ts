@@ -51,4 +51,28 @@ export class UserService {
       this.client.send('user.get_public_profile', { userId }),
     );
   }
+
+  add(userId: string, accommodationId: string) {
+    return firstValueFrom(
+      this.client.send('favorites.add', {
+        userId,
+        accommodationId,
+      }),
+    );
+  }
+
+  remove(userId: string, accommodationId: string) {
+    return firstValueFrom(
+      this.client.send('favorites.remove', {
+        userId,
+        accommodationId,
+      }),
+    );
+  }
+
+  async listByUser(userId: string) {
+    return firstValueFrom(
+      this.client.send('favorites.list_by_user', { userId }),
+    );
+  }
 }

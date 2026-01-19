@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '@/services/api';
 import { toast } from 'sonner';
 import { authStore } from '@/store/auth.store';
-import { PublicUser, UpdateUserPayload } from '@/types';
+import { PublicUser, UpdateUserPayload, ResetPasswordPayload } from '@/types';
 import { setBootstrapped } from '@/services/api';
 
 interface LoginPayload {
@@ -22,6 +22,7 @@ interface RegisterPayload {
 
 export function useUser() {
   const { user, setUser, clearUser, hydrated, setHydrated } = authStore();
+  const [resetToken, setResetToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const hasWarnedRef = useRef(false);
@@ -29,11 +30,9 @@ export function useUser() {
 
   const getProfile = async () => {
     setLoading(true);
-
     try {
       const res = await api.get('/api/user');
       setUser(res.data);
-    } catch {
     } finally {
       setLoading(false);
     }
@@ -41,7 +40,6 @@ export function useUser() {
 
   const updateProfile = async (payload: UpdateUserPayload, file?: File) => {
     setLoading(true);
-
     try {
       const formData = new FormData();
 
@@ -66,7 +64,7 @@ export function useUser() {
     }
   };
 
-  async function removeProfilePicture() {
+  const removeProfilePicture = async () => {
     setLoading(true);
     try {
       await api.delete('/api/user/profile-picture');
@@ -74,7 +72,7 @@ export function useUser() {
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   const getPublicUser = useCallback(async (userId: string) => {
     try {
@@ -84,22 +82,6 @@ export function useUser() {
       return null;
     }
   }, []);
-
-  const bootstrapSession = async () => {
-    try {
-      const res = await api.get('/api/user');
-      setUser(res.data);
-
-      // sessão válida → desbloqueia store
-      authStore.getState().restoreSession();
-    } catch {
-      // se falhar, aí sim marca como inválida
-      authStore.getState().invalidateSession();
-    } finally {
-      setHydrated();
-      setBootstrapped(); // 🔥 libera o interceptor para funcionar normalmente
-    }
-  };
 
   const register = async (data: RegisterPayload) => {
     setLoading(true);
@@ -132,10 +114,64 @@ export function useUser() {
   const logout = async () => {
     try {
       await api.post('/api/auth/logout');
-    } catch {
     } finally {
+      const { invalidateSession, clearUser } = authStore.getState();
+      invalidateSession();
       clearUser();
-      navigate('/');
+      window.location.replace('/login');
+    }
+  };
+
+  const forgotPassword = async () => {
+    if (!user?.email) {
+      toast.error('Usuário não identificado');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await api.post('/api/auth/forgot-password', {
+        email: user.email,
+      });
+
+      setResetToken(res.data.resetToken);
+      toast.success('Token gerado. Informe a nova senha.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const resetPassword = async ({ password, confirm_password }: ResetPasswordPayload) => {
+    if (!resetToken) {
+      toast.error('Token não encontrado');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await api.post('/api/auth/reset-password', {
+        token: resetToken,
+        password,
+        confirm_password,
+      });
+
+      toast.success('Senha atualizada com sucesso');
+      setResetToken(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const bootstrapSession = async () => {
+    try {
+      const res = await api.get('/api/user');
+      setUser(res.data);
+      authStore.getState().restoreSession();
+    } catch {
+      authStore.getState().invalidateSession();
+    } finally {
+      setHydrated();
+      setBootstrapped();
     }
   };
 
@@ -152,14 +188,21 @@ export function useUser() {
     user,
     loading,
     hydrated,
+    isAuthenticated: !!user,
+
     getProfile,
     updateProfile,
     removeProfilePicture,
     getPublicUser,
-    login,
+
     register,
+    login,
     logout,
+
+    forgotPassword,
+    resetPassword,
     bootstrapSession,
-    isAuthenticated: !!user,
+
+    resetToken,
   };
 }

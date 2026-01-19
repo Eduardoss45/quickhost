@@ -5,7 +5,7 @@ import { FaUser } from 'react-icons/fa';
 import { IoBedOutline, IoChatbubbleOutline } from 'react-icons/io5';
 import { useUser } from '@/hooks/useUser';
 
-import NavButton from '../custom/NavButton';
+import NavButton from '../custom/buttons/NavButton';
 import FloatingMenu from '../../pages/FloatingMenu';
 import useNavbar from '../../hooks/useNavbar';
 import { authStore } from '@/store/auth.store';
