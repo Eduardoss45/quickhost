@@ -10,7 +10,7 @@ import {
 import { useMultiStepForm } from '@/hooks/useMultiStepForm';
 import { accommodationToForm } from '@/mappers/accommodation.mapper';
 
-import FormHeader from './FormHeader';
+import FormHeader from '../custom/creator-form/FormHeader';
 import AccommodationInformationForm from '@/components/custom/creator-form/AccommodationInformationForm';
 import AccommodationBasicsDetailsForm from '@/components/custom/creator-form/AccommodationBasicsDetailsForm';
 import AccommodationSpaceTypeForm from '@/components/custom/creator-form/AccommodationSpaceTypeForm';

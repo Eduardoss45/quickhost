@@ -10,17 +10,13 @@ import {
 } from '@radix-ui/react-dropdown-menu';
 import { Button } from '@/components/ui/button';
 
-interface BarraPesquisaFiltroProps {
+interface SearchBarProps {
   onSearch: (term: string) => void;
   onFilterClick: (filter: string) => void;
   onSort: (sort: string) => void;
 }
 
-const BarraPesquisaFiltro: React.FC<BarraPesquisaFiltroProps> = ({
-  onSearch,
-  onFilterClick,
-  onSort,
-}) => {
+const SearchBar: React.FC<SearchBarProps> = ({ onSearch, onFilterClick, onSort }) => {
   const [tipoHospedagem, setTipoHospedagem] = useState('Tipo de Hospedagem');
   const [ordenarPor, setOrdenarPor] = useState('Ordenar por');
 
@@ -70,10 +66,7 @@ const BarraPesquisaFiltro: React.FC<BarraPesquisaFiltroProps> = ({
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button
-              variant="outline"
-              className="flex flex-row items-center gap-2 border px-3 py-2"
-            >
+            <Button variant="outline" className="flex flex-row items-center gap-2 border px-3 py-2">
               {tipoHospedagem} <HiChevronDown />
             </Button>
           </DropdownMenuTrigger>
@@ -111,4 +104,4 @@ const BarraPesquisaFiltro: React.FC<BarraPesquisaFiltroProps> = ({
   );
 };
 
-export default BarraPesquisaFiltro;
+export default SearchBar;

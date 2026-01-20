@@ -18,7 +18,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { registerSchema } from '@/schemas/register.schema';
 import type { RegisterFormData } from '@/schemas/register.schema';
 import { Link } from 'react-router-dom';
-import { BirthDatePicker } from '@/components/custom/BirthDatePicker';
+import { BirthDatePicker } from '@/components/custom/datapickers/BirthDatePicker';
 
 import bg from '../image/login.png';
 

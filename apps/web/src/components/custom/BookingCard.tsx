@@ -1,24 +1,109 @@
+import { Controller, useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Form } from '@/components/ui/form';
+import { bookingSchema, BookingFormData } from '@/schemas/booking.schema';
+import { ReservationDatePicker } from '@/components/custom/datapickers/ReservationDatePicker';
 import { Accommodation } from '@/types';
+import { differenceInCalendarDays } from 'date-fns';
 
 interface Props {
   accommodation: Accommodation;
 }
 
 export default function BookingCard({ accommodation }: Props) {
+  const form = useForm<BookingFormData>({
+    resolver: zodResolver(bookingSchema),
+  });
+
+  const {
+    control,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = form;
+
+  const SERVICE_FEE_MULTIPLIER = 1.15;
+
+  const checkIn = watch('checkIn');
+  const checkOut = watch('checkOut');
+
+  const pricePerNight = Number(accommodation.price_per_night);
+  const cleaningFee = Number(accommodation.cleaning_fee);
+
+  const nights = checkIn && checkOut ? Math.max(differenceInCalendarDays(checkOut, checkIn), 0) : 0;
+
+  const baseSubtotal = nights * pricePerNight;
+  const subtotalWithFee = baseSubtotal * SERVICE_FEE_MULTIPLIER;
+
+  const total = nights > 0 && Number.isFinite(subtotalWithFee) ? subtotalWithFee + cleaningFee : 0;
+
+  const onSubmit = (data: BookingFormData) => {
+    console.log(data);
+  };
+
   return (
-    <aside className="border rounded-lg p-4 sticky top-4">
-      <p className="text-lg font-semibold">R$ {accommodation.price_per_night} / noite</p>
+    <aside className="border rounded-lg p-4 sticky top-4 w-full">
+      <Form {...form}>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="flex flex-row justify-between gap-2">
+            <div className="w-1/2 border rounded-md py-3 mb-3 text-center">
+              <p className="font-bold">Check-in</p>
 
-      <p className="text-sm text-muted-foreground mt-1">
-        Taxa de limpeza: R$ {accommodation.cleaning_fee}
-      </p>
+              <Controller
+                control={control}
+                name="checkIn"
+                render={({ field }) => (
+                  <ReservationDatePicker field={field} placeholder="Selecionar" />
+                )}
+              />
 
-      <button
-        className="mt-4 w-full bg-primary text-white py-2 rounded-md"
-        disabled={!accommodation.is_active}
-      >
-        {accommodation.is_active ? 'Solicitar reserva' : 'Indisponível'}
-      </button>
+              {errors.checkIn && (
+                <p className="text-xs text-red-500 mt-1">{errors.checkIn.message}</p>
+              )}
+            </div>
+
+            <div className="w-1/2 border rounded-md py-3 mb-3 text-center">
+              <p className="font-bold">Check-out</p>
+
+              <Controller
+                control={control}
+                name="checkOut"
+                render={({ field }) => (
+                  <ReservationDatePicker field={field} placeholder="Selecionar" />
+                )}
+              />
+
+              {errors.checkOut && (
+                <p className="text-xs text-red-500 mt-1">{errors.checkOut.message}</p>
+              )}
+            </div>
+          </div>
+
+          <p className="text-lg font-semibold">R$ {pricePerNight.toFixed(2)} / noite</p>
+
+          <p className="text-sm text-muted-foreground mt-1">
+            Taxa de limpeza: R$ {cleaningFee.toFixed(2)}
+          </p>
+
+          {nights > 0 && Number.isFinite(total) && (
+            <p className="text-sm mt-2 font-medium">
+              Total ({nights} noites): R$ {total.toFixed(2)}
+            </p>
+          )}
+
+          <button
+            type="submit"
+            className="mt-4 w-full bg-blue-500 text-white py-2 my-2 rounded-md"
+            disabled={!accommodation.is_active}
+          >
+            {accommodation.is_active ? 'Solicitar reserva' : 'Indisponível'}
+          </button>
+
+          <button type="button" className="mt-2 w-full bg-orange-400 text-white py-2 rounded-md">
+            Enviar mensagem
+          </button>
+        </form>
+      </Form>
     </aside>
   );
 }

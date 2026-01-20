@@ -17,7 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useUser } from '@/hooks/useUser';
 import { PasswordField } from '@/components/custom/PasswordField';
-import { BirthDatePicker } from '@/components/custom/BirthDatePicker';
+import { BirthDatePicker } from '@/components/custom/datapickers/BirthDatePicker';
 import { ProfileImageField } from '@/components/custom/ProfileImageField';
 import { configurationsSchema, ConfigurationsFormData } from '@/schemas/configurations.schema';
 import { TfiClose } from 'react-icons/tfi';

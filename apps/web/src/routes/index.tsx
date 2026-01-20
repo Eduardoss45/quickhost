@@ -6,8 +6,8 @@ import Home from '@/pages/Home';
 import Configurations from '@/pages/Configurations';
 import Chat from '@/pages/Chat';
 import Host from '@/pages/Host';
-import EditMultiStepForm from '@/pages/EditMultiStepForm';
-import CreatorMultiStepForm from '@/pages/CreatorMultiStepForm';
+import EditMultiStepForm from '@/components/forms/EditMultiStepForm';
+import CreatorMultiStepForm from '@/components/forms/CreatorMultiStepForm';
 import Favorites from '@/pages/Favorites';
 import Announcement from '@/pages/Announcement';
 

@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import BarraPesquisaFiltro from './BarraPesquisaFiltro';
+import SearchBar from '../components/layout/filters/SearchBar';
 import { useAccommodation } from '@/hooks/useAccommodation';
 import { Accommodation } from '@/types';
 import { Category } from '@/enums';
@@ -53,7 +53,7 @@ const Home: React.FC = () => {
 
   return (
     <div className="m-3">
-      <BarraPesquisaFiltro
+      <SearchBar
         onSearch={setSearchTerm}
         onFilterClick={cat => setSelectedCategory(cat ? (cat as Category) : '')}
         onSort={setSortOption}

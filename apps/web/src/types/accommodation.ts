@@ -12,11 +12,11 @@ export interface Accommodation {
 
   is_active: boolean;
 
-  price_per_night: string;
-  cleaning_fee: string;
+  price_per_night: number;
+  cleaning_fee: number;
   discount: boolean;
 
-  average_rating: string;
+  average_rating: number;
 
   room_count: number;
   bed_count: number;

@@ -51,7 +51,7 @@ export default function Announcement() {
       />
 
       <div className="flex flex-row justify-between gap-2 my-4">
-        <section>
+        <section className="w-3/2">
           <h2 className="text-2xl">Descrição</h2>
           <p className="my-3">{accommodation.description}</p>
         </section>
@@ -59,7 +59,7 @@ export default function Announcement() {
       </div>
       <AmenitiesList amenities={accommodation} />
 
-      <CommentsSection accommodationId={accommodation.id} />
+      <CommentsSection accommodationId={accommodation.id} averageRating={accommodation.average_rating} />
     </div>
   );
 }
