@@ -15,7 +15,8 @@ interface Props {
 
 export function ReservationDatePicker({ field, placeholder }: Props) {
   const today = new Date();
-  const maxDate = addDays(today, 30);
+  const minDate = addDays(today, 1);
+  const maxDate = addDays(today, 31);
 
   return (
     <Popover>
@@ -39,16 +40,17 @@ export function ReservationDatePicker({ field, placeholder }: Props) {
           selected={field.value ?? undefined}
           onSelect={date => {
             if (!date) return;
-            if (isBefore(date, today)) return;
             field.onChange(date);
           }}
-          fromDate={today}
+          disabled={[{ before: minDate }, { after: maxDate }]}
+          fromDate={minDate}
           toDate={maxDate}
           locale={ptBR}
           initialFocus
           classNames={{
             day_selected: 'bg-orange-400 text-white hover:bg-orange-500',
             day_today: 'border border-orange-400',
+            day_disabled: 'text-muted-foreground opacity-40 cursor-not-allowed',
             nav_button: 'hover:bg-orange-100 text-orange-500 transition-colors',
           }}
         />

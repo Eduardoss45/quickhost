@@ -8,6 +8,7 @@ import { AccommodationModule } from './accommodations/accommodations.module';
 import { ChatModule } from './chat/chat.module';
 import { SecurityModule } from './strategies/security.module';
 import { RmqExceptionInterceptor } from './exception/rmq-exception.interceptor';
+import { BookingModule } from './booking/booking.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { RmqExceptionInterceptor } from './exception/rmq-exception.interceptor';
     SecurityModule,
     AccommodationModule,
     ChatModule,
+    BookingModule,
   ],
   providers: [
     {

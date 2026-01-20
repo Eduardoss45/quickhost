@@ -2,7 +2,6 @@ import { RpcException } from '@nestjs/microservices';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { AccommodationRepository } from '../repositories/accommodation.repository';
 import { Accommodation } from '../entities/accommodation.entity';
-import { Comment } from '../entities/comment.entity';
 import { validate as isUUID } from 'uuid';
 import { CommentRepository } from '../repositories/comments.repository';
 
@@ -76,8 +75,6 @@ export class AccommodationService {
   }) {
     this.assertUUID(comment.accommodationId, 'Accommodation ID');
 
-    console.log(comment.rating); // ! valor 5
-
     const created =
       await this.commentRepository.createCommentWithRatingUpdate(comment);
 
@@ -107,5 +104,16 @@ export class AccommodationService {
       resolvedPage,
       resolvedSize,
     );
+  }
+
+  async updateNextAvailableDate(accommodationId: string, date: string | null) {
+    const accommodation = await this.findOne(accommodationId);
+
+    console.log('passou aqui');
+
+    accommodation.next_available_date = date;
+    accommodation.is_active = date === null; // opcional: regra inteligente
+
+    return this.accommodationRepository.save(accommodation);
   }
 }

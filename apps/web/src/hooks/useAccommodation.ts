@@ -31,7 +31,6 @@ export function useAccommodation() {
   const getById = async (id: string): Promise<Accommodation | null> => {
     try {
       const res = await api.get(`/api/accommodations/${id}`);
-      console.log(res.data);
       return res.data;
     } catch {
       toast.error('Acomodação não encontrada');

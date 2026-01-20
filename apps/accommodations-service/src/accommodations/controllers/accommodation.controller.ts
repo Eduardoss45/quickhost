@@ -62,4 +62,14 @@ export class AccommodationController {
       data.size,
     );
   }
+
+  @MessagePattern('accommodation.update_next_available_date')
+  updateNextAvailableDate(
+    @Payload() data: { accommodationId: string; date: string | null },
+  ) {
+    return this.accommodationService.updateNextAvailableDate(
+      data.accommodationId,
+      data.date,
+    );
+  }
 }

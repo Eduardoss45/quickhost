@@ -5,12 +5,19 @@ import { bookingSchema, BookingFormData } from '@/schemas/booking.schema';
 import { ReservationDatePicker } from '@/components/custom/datapickers/ReservationDatePicker';
 import { Accommodation } from '@/types';
 import { differenceInCalendarDays } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
+import { useChat } from '@/hooks/useChat';
+import { useBooking } from '@/hooks/useBooking';
 
 interface Props {
   accommodation: Accommodation;
 }
 
 export default function BookingCard({ accommodation }: Props) {
+  const navigate = useNavigate();
+  const { getOrCreateRoom } = useChat();
+  const { createBooking, loading } = useBooking();
+
   const form = useForm<BookingFormData>({
     resolver: zodResolver(bookingSchema),
   });
@@ -37,8 +44,25 @@ export default function BookingCard({ accommodation }: Props) {
 
   const total = nights > 0 && Number.isFinite(subtotalWithFee) ? subtotalWithFee + cleaningFee : 0;
 
-  const onSubmit = (data: BookingFormData) => {
-    console.log(data);
+  function formatDateOnly(date: Date): string {
+    return date.toISOString().slice(0, 10);
+  }
+
+  const onSubmit = async (data: BookingFormData) => {
+    await createBooking({
+      accommodationId: accommodation.id,
+      hostId: accommodation.creator_id,
+      checkInDate: formatDateOnly(data.checkIn),
+      checkOutDate: formatDateOnly(data.checkOut),
+    });
+  };
+
+  const handleSendMessage = async () => {
+    const room = await getOrCreateRoom(accommodation.creator_id);
+
+    if (room) {
+      navigate('/chat');
+    }
   };
 
   return (
@@ -93,13 +117,21 @@ export default function BookingCard({ accommodation }: Props) {
 
           <button
             type="submit"
-            className="mt-4 w-full bg-blue-500 text-white py-2 my-2 rounded-md"
-            disabled={!accommodation.is_active}
+            className="mt-4 w-full bg-blue-500 text-white py-2 my-2 rounded-md disabled:opacity-50"
+            disabled={!accommodation.is_active || loading}
           >
-            {accommodation.is_active ? 'Solicitar reserva' : 'Indisponível'}
+            {loading
+              ? 'Processando...'
+              : accommodation.is_active
+                ? 'Solicitar reserva'
+                : 'Indisponível'}
           </button>
 
-          <button type="button" className="mt-2 w-full bg-orange-400 text-white py-2 rounded-md">
+          <button
+            type="button"
+            onClick={handleSendMessage}
+            className="mt-2 w-full bg-orange-400 text-white py-2 rounded-md"
+          >
             Enviar mensagem
           </button>
         </form>

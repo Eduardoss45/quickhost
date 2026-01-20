@@ -88,15 +88,15 @@ const FormPagamento = () => {
             <p>{accommodationData?.title}</p>
           </div>
         </div>
-        <form >
+        <form>
           <div>
             <h2>Método de pagamento</h2>
-            <div >
+            <div>
               <GoCreditCard />
               <span>Cartão de Crédito</span>
             </div>
           </div>
-          <div >
+          <div>
             <h2>Método de pagamento</h2>
             <div>
               <h3>Nome do titular</h3>

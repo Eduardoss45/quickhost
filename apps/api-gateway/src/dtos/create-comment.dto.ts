@@ -1,18 +1,9 @@
-import { IsNotEmpty, IsNumber, IsString, IsUUID } from 'class-validator';
+import { IsNotEmpty, IsNumber } from 'class-validator';
 
-export class CreateCommentCommand {
+export class CreateCommentDto {
   @IsNotEmpty()
-  content: string;
+  content: string = '';
 
   @IsNumber()
   rating: number;
-
-  @IsUUID()
-  accommodationId: string;
-
-  @IsUUID()
-  authorId: string;
-
-  @IsString()
-  authorName: string;
 }

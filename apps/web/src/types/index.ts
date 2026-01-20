@@ -8,3 +8,4 @@ export * from './bank-form';
 export * from './auth';
 export * from './comment';
 export * from './amenities';
+export * from './bookings';

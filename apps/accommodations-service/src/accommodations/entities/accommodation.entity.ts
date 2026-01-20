@@ -130,6 +130,9 @@ export class Accommodation {
   @CreateDateColumn()
   created_at: Date;
 
+  @Column({ type: 'date', nullable: true })
+  next_available_date: string | null;
+
   @UpdateDateColumn()
   updated_at: Date;
 }
