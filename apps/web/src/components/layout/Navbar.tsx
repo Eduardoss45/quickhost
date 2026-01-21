@@ -37,12 +37,12 @@ const Navbar = () => {
   return (
     <header className="flex items-center justify-between bg-orange-400 p-5">
       <Link to="/">
-        <img className="w-36" src={logo} alt="Logo QuickHost" />
+        <img className="w-24 md:w-36" src={logo} alt="Logo QuickHost" />
       </Link>
 
       <nav className="flex items-center gap-6">
         {isAuthenticated && (
-          <>
+          <div className="hidden md:flex items-center gap-6">
             <Link to="/reservations">
               <NavButton icon={<IoBedOutline />} label="Reservas" />
             </Link>
@@ -54,7 +54,7 @@ const Navbar = () => {
             <Link to="/chat">
               <NavButton icon={<IoChatbubbleOutline />} label="Mensagens" />
             </Link>
-          </>
+          </div>
         )}
 
         <DropdownMenu>
@@ -77,7 +77,11 @@ const Navbar = () => {
             </button>
           </DropdownMenuTrigger>
 
-          <DropdownMenuContent align="end" sideOffset={8} className="w-64 p-0 bg-white border-none">
+          <DropdownMenuContent
+            align="end"
+            sideOffset={8}
+            className="w-64 p-0 bg-white border-none z-50"
+          >
             <FloatingMenu
               isAuthenticated={isAuthenticated}
               name={userDisplayName || undefined}

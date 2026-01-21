@@ -17,10 +17,6 @@ export default function AccommodationMediaForm() {
   const [photos, setPhotos] = useState<PreviewFile[]>([]);
   const [mainIndex, setMainIndex] = useState<number | undefined>(getValues('main_cover_index'));
 
-  /**
-   * Reidrata as imagens a partir do contexto do formulário
-   * (quando o usuário volta para esta etapa)
-   */
   useEffect(() => {
     const storedImages = getValues('internal_images');
 
@@ -77,10 +73,10 @@ export default function AccommodationMediaForm() {
         <p className="text-sm text-red-500 mt-2">{errors.main_cover_index.message}</p>
       )}
 
-      <div className="flex justify-center m-8">
+      <div className="flex justify-center md:m-8 my-3">
         <div
           {...getRootProps()}
-          className="flex flex-col items-center w-1/2 p-12 border border-dashed rounded-md cursor-pointer"
+          className="flex flex-col items-center md:w-1/2 p-12 border border-dashed rounded-md cursor-pointer w-full"
         >
           <input {...getInputProps()} />
           <CiCamera size={60} />

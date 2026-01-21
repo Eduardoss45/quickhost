@@ -36,7 +36,7 @@ function App() {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <main className="flex-1 p-4 container mx-auto shadow-sm">
+      <main className="flex-1 md:p-4 container mx-auto shadow-sm">
         <Outlet />
       </main>
       <Footer />

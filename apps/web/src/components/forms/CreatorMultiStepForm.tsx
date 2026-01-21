@@ -175,7 +175,7 @@ export default function CreatorMultiStepForm() {
         }}
       >
         <FormHeader step={currentStep} name={title} />
-        <div className="flex-1 px-4">{currentComponent}</div>
+        <div className="flex-1 md:px-4 m-3">{currentComponent}</div>
         <div className="sticky bottom-0 bg-white p-4 flex justify-between">
           {!isFirstStep && (
             <button
@@ -187,7 +187,7 @@ export default function CreatorMultiStepForm() {
             </button>
           )}
           <button
-            className="mx-10 mb-5 px-6 py-2 bg-orange-400 text-white rounded-md"
+            className="md:mx-10 mx-3 mb-5 px-6 py-2 bg-orange-400 text-white rounded-md"
             type="submit"
             disabled={loading}
           >

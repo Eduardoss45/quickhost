@@ -9,7 +9,7 @@ import {
   Delete,
 } from '@nestjs/common';
 import { BookingService } from './booking.service';
-import { ConfirmBookingDto, CreateBookingDto, EditBookingDto } from '../dtos';
+import { ConfirmBookingDto, CreateBookingDto } from '../dtos';
 import { CurrentUser } from 'src/decorators/current-user.decorator';
 import type { JwtUser } from 'src/types';
 import { JwtAuthGuard } from 'src/guards/jwt.guard';

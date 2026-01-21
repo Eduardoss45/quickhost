@@ -42,7 +42,7 @@ export default function Announcement() {
   }
 
   return (
-    <div className="container mx-auto">
+    <div className="container mx-auto p-3">
       <AnnouncementHeader accommodation={accommodation} />
       <AnnouncementGallery
         images={accommodation.internal_images.map(img =>
@@ -50,9 +50,9 @@ export default function Announcement() {
         )}
       />
 
-      <div className="flex flex-row justify-between gap-2 my-4">
-        <section className="w-3/2">
-          <h2 className="text-2xl">Descrição</h2>
+      <div className="flex md:flex-row flex-col justify-between gap-2 my-4">
+        <section className="md:w-3/2 w-full">
+          <h2 className="text-2xl w-full">Descrição</h2>
           <p className="my-3">{accommodation.description}</p>
         </section>
         <BookingCard accommodation={accommodation} />

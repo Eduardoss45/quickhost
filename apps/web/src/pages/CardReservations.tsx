@@ -63,15 +63,15 @@ export default function CardReservations({ reserva, flow }: Props) {
   }
 
   return (
-    <div className="border rounded-lg overflow-hidden flex flex-col p-4">
+    <div className="shadow-2xl overflow-hidden flex flex-col p-4 brightness-95">
       {isCanceled && (
-        <div className="bg-yellow-100 text-yellow-800 text-sm px-4 py-2 border-b mb-3">
+        <div className="text-red-500 text-sm px-4 py-2 border-b border-black mb-3">
           ⚠️ Esta reserva foi cancelada.
         </div>
       )}
 
-      <div className="flex">
-        <div className="w-48 aspect-4/3 overflow-hidden rounded-md">
+      <div className="flex flex-col md:flex-row">
+        <div className="w-full md:flex-1 max-w-md aspect-[4/3] overflow-hidden rounded-md">
           <img
             src={`${import.meta.env.VITE_API_BASE_URL}${accommodation.internal_images?.[0]}`}
             alt="Vista da acomodação"
@@ -81,19 +81,19 @@ export default function CardReservations({ reserva, flow }: Props) {
 
         <div className="flex-1 flex flex-col justify-between p-4">
           <div>
-            <div className="flex justify-between">
+            <div className="flex justify-between flex-col md:flex-row">
               <div>
-                <h2 className="font-semibold">{accommodation.title}</h2>
-                <p className="text-sm text-muted-foreground">
+                <h2 className="text-xl">{accommodation.title}</h2>
+                <p className="text-muted-foreground">
                   {host?.username || 'Anfitrião desconhecido'}
                 </p>
               </div>
 
-              <div className="text-sm">
-                <div>
+              <div className="text-sm shadow-2xl">
+                <div className="border rounded-md mb-3 p-3 bg-blue-500 text-white font-bold">
                   <span className="font-medium">Check-in:</span> {reserva.checkInDate}
                 </div>
-                <div>
+                <div className="border rounded-md p-3 bg-blue-500 text-white font-bold">
                   <span className="font-medium">Check-out:</span> {reserva.checkOutDate}
                 </div>
               </div>
@@ -101,17 +101,17 @@ export default function CardReservations({ reserva, flow }: Props) {
 
             <div className="mt-3 space-y-1 text-sm">
               <div className="flex items-center gap-2">
-                <CiLocationOn />
+                <CiLocationOn className="text-2xl" />
                 <p>{accommodation.address}</p>
               </div>
 
               <div className="flex items-center gap-2">
-                <PiPhoneThin />
+                <PiPhoneThin className="text-2xl" />
                 <p>{host?.phone_number || 'Telefone não disponível'}</p>
               </div>
 
               <div className="flex items-center gap-2">
-                <CiUser />
+                <CiUser className="text-2xl" />
                 {flow === 'HOST' ? (
                   <p>Hóspede: {guest?.username || 'Hóspede desconhecido'}</p>
                 ) : (
@@ -126,15 +126,18 @@ export default function CardReservations({ reserva, flow }: Props) {
               to={`/announcement/${accommodation.id}`}
               className="flex items-center gap-1 text-white bg-blue-500 rounded-md px-4 py-2 text-bold"
             >
-              <span className='text-xl mr-1'>
-              <IoEyeOutline />
+              <span className="text-xl mr-1">
+                <IoEyeOutline />
               </span>
               Ver anúncio
             </Link>
 
-            <button onClick={handleSendMessage} className="flex items-center gap-1 text-white bg-orange-400 rounded-md px-4">
-              <span className='text-xl'>
-              <IoChatbubbleOutline />
+            <button
+              onClick={handleSendMessage}
+              className="flex items-center gap-1 text-white bg-orange-400 rounded-md px-4 py-2"
+            >
+              <span className="text-xl">
+                <IoChatbubbleOutline />
               </span>
               Mandar mensagem
             </button>
@@ -142,7 +145,7 @@ export default function CardReservations({ reserva, flow }: Props) {
             {canConfirm && (
               <button
                 onClick={() => confirmBooking(reserva.id)}
-                className="flex items-center gap-1 text-white bg-green-400 rounded-md px-4"
+                className="flex items-center gap-1 text-white bg-green-400 rounded-md px-4 py-2"
               >
                 Confirmar reserva
               </button>
@@ -151,10 +154,10 @@ export default function CardReservations({ reserva, flow }: Props) {
             {canCancel && (
               <button
                 onClick={() => cancelBooking(reserva.id)}
-                className="flex items-center gap-1 text-white bg-red-400 rounded-md px-4"
+                className="flex items-center gap-1 text-white bg-red-400 rounded-md px-4 py-2"
               >
-                <span className='text-xl'>
-                <PiTrashSimple />
+                <span className="text-xl">
+                  <PiTrashSimple />
                 </span>
                 Cancelar hospedagem
               </button>

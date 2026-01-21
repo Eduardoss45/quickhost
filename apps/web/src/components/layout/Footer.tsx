@@ -3,7 +3,7 @@ import logo from '../../image/logo-black.png';
 
 function Footer() {
   return (
-    <footer className="w-full p-5 bg-gray-100">
+    <footer className="w-full p-5 bg-gray-100 hidden md:block">
       <div className="flex justify-between items-center mx-5 mb-3">
         <div className="flex items-center gap-5">
           <img className="w-36" src={logo} alt="Quick Host Logo" />

@@ -22,7 +22,7 @@ export default function AnnouncementHeader({ accommodation }: Props) {
   };
 
   return (
-    <div className="my-6 flex justify-between">
+    <div className="my-6 flex justify-between flex-col md:flex-row">
       <div className="my-3 flex gap-2 items-center">
         <Link to="/" className="flex items-center gap-2">
           <TfiClose className="text-3xl" />

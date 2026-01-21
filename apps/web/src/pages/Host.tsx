@@ -17,8 +17,8 @@ export default function Host() {
 
   return (
     <div className="space-y-6 my-3">
-      <div className="flex items-center justify-between">
-        <div className="px-4 mx-10 flex gap-2 items-center">
+      <div className="flex items-center justify-between flex-col md:flex-row">
+        <div className="px-4 mx-10 mb-3 flex gap-2 items-center">
           <Link to="/" className="flex items-center gap-2 ">
             <TfiClose className="text-3xl" />
           </Link>
@@ -29,7 +29,7 @@ export default function Host() {
         </div>
 
         <Link to="/creator-accommodation">
-          <button className="flex p-2 gap-2 items-center justify-center rounded-sm bg-orange-400 text-white">
+          <button className="flex p-2 gap-2 items-center justify-center rounded-sm bg-orange-400 text-white w-[280px]">
             <span className="text-2xl">
               <BiPlus />
             </span>
@@ -50,13 +50,13 @@ export default function Host() {
       )}
 
       {!loading && accommodations.length > 0 && (
-        <div className="flex w-full m-3 gap-10 justify-center flex-wrap">
+        <div className="flex w-full md:m-3 gap-10 justify-center flex-wrap">
           {accommodations.map(acc => (
             <AccommodationCard
               key={acc.id}
               accommodation={acc}
-              showActions={true} // mostra botões "ver" e "editar"
-              showCreator={false} // não mostra o nome do criador
+              showActions={true}
+              showCreator={false}
             />
           ))}
         </div>

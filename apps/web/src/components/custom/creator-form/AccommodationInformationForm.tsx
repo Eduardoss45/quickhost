@@ -8,7 +8,7 @@ import card_3 from '@/image/card-3.png';
 export default function AccommodationInformationForm() {
   return (
     <div>
-      <div className="flex flex-row items-center gap-2 justify-center">
+      <div className="md:flex hidden flex-row items-center gap-2 justify-center">
         <span className="text-6xl">
           <PiNumberCircleOneThin />
         </span>
@@ -25,7 +25,7 @@ export default function AccommodationInformationForm() {
           <PiNumberCircleThreeThin />
         </span>
       </div>
-      <div className="flex justify-center gap-4 mt-4">
+      <div className="flex md:flex-row flex-col justify-center gap-4 mt-4">
         <Step altText="Texto representando uma vista aérea de uma casa" image={card_1} />
         <Step
           altText="Texto representando um edifício com varandas cobertas por plantas"

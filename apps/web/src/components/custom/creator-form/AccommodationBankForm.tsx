@@ -21,7 +21,6 @@ export default function AccommodationBankForm() {
   function updateField<K extends keyof BankForm>(key: K, value: BankForm[K]) {
     setBank(prev => ({ ...prev, [key]: value }));
 
-    // limpa erro ao digitar
     if (errors[key]) {
       setErrors(prev => ({ ...prev, [key]: undefined }));
     }
@@ -42,8 +41,7 @@ export default function AccommodationBankForm() {
     return Object.keys(nextErrors).length === 0;
   }
 
-  // apenas para debug
-  console.log('BANK FORM:', bank);
+  console.log('BANK FORM:', bank); // ! Estes dados não tem uso prático no momento
 
   return (
     <div className="flex flex-col max-w-xl">

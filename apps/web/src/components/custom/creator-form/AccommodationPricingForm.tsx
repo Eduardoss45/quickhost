@@ -12,7 +12,7 @@ export default function AccommodationPricingForm() {
       <div className="flex flex-col">
         <span>Preço por noite</span>
         <input
-          className={`border outline-none p-2 w-1/3 rounded-md my-3 ${
+          className={`border outline-none p-2 md:w-1/3 w-full rounded-md my-3 ${
             errors.price_per_night ? 'border-red-500' : ''
           }`}
           type="number"
@@ -25,7 +25,7 @@ export default function AccommodationPricingForm() {
 
         <span>Preço da limpeza</span>
         <input
-          className={`border outline-none p-2 w-1/3 rounded-md my-3 ${
+          className={`border outline-none p-2 md:w-1/3 w-full rounded-md my-3 ${
             errors.cleaning_fee ? 'border-red-500' : ''
           }`}
           type="number"

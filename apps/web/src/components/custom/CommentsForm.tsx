@@ -72,7 +72,7 @@ export default function CommentsForm({ onSubmit, disabled }: Props) {
       <button
         type="submit"
         disabled={disabled}
-        className={`mt-4 px-4 py-2 rounded-md bg-orange-400 w-1/6 text-white ${
+        className={`mt-4 px-4 py-2 rounded-md bg-orange-400 md:w-1/6 text-white ${
           disabled ? 'hidden' : ''
         }`}
       >

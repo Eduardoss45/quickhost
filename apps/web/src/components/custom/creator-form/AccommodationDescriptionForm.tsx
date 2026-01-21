@@ -20,7 +20,7 @@ export default function AccommodationDescriptionForm() {
           {...register('title')}
           maxLength={32}
           placeholder="Título"
-          className={`w-1/3 p-2 outline-none border rounded-md ${
+          className={`md:w-1/3 w-full p-2 outline-none border rounded-md ${
             errors.title ? 'border-red-500' : ''
           }`}
         />

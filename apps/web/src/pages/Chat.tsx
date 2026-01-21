@@ -42,6 +42,8 @@ export default function Chat() {
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
@@ -112,7 +114,14 @@ export default function Chat() {
 
   return (
     <div className="flex w-full h-screen">
-      <aside className="w-[320px] border-r flex flex-col h-full">
+      <aside
+        className={`
+    fixed inset-y-0 left-0 z-40 w-[320px] bg-white border-r flex flex-col h-full
+    transform transition-transform duration-300
+    ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+    md:static md:translate-x-0
+  `}
+      >
         <div className="p-4 flex items-center gap-2 shrink-0">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -135,7 +144,10 @@ export default function Chat() {
             {rooms.map(room => (
               <div
                 key={room.roomId}
-                onClick={() => setActiveRoomId(room.roomId)}
+                onClick={() => {
+                  setActiveRoomId(room.roomId);
+                  setIsSidebarOpen(false);
+                }}
                 className={`flex items-center gap-3 p-3 rounded-2xl cursor-pointer transition ${
                   room.roomId === activeRoomId
                     ? 'bg-orange-400/20 border border-orange-400'
@@ -160,6 +172,14 @@ export default function Chat() {
       </aside>
 
       <main className="flex-1 flex flex-col h-full">
+        <div className="md:hidden p-4 border-b">
+          <button
+            onClick={() => setIsSidebarOpen(true)}
+            className="px-3 py-2 border rounded-md text-sm"
+          >
+            Conversas
+          </button>
+        </div>
         <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6 scrollbar-hide">
           {messages.map(msg => (
             <div

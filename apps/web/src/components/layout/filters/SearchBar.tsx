@@ -71,7 +71,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, onFilterClick, onSort }
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent
-            className="max-h-60 overflow-y-auto shadow-sm rounded-md p-3 mt-2 bg-white"
+            className="max-h-60 overflow-y-auto shadow-sm rounded-md p-3 mt-2 bg-white z-50"
             align="start"
           >
             {Object.keys(categoryMapping).map(tipo => (
@@ -89,7 +89,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, onFilterClick, onSort }
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent
-            className="max-h-60 overflow-y-auto shadow-sm rounded-md p-3 mt-2 bg-white"
+            className="max-h-60 overflow-y-auto shadow-sm rounded-md p-3 mt-2 bg-white z-50"
             align="start"
           >
             {['Avaliação', 'Mais recentes', 'Mais antigos', 'Todos'].map(opcao => (

@@ -39,8 +39,7 @@ const Home: React.FC = () => {
     if (!sortOption) return filteredAccommodations;
 
     return [...filteredAccommodations].sort((a, b) => {
-      if (sortOption === 'rating')
-        return parseFloat(b.average_rating) - parseFloat(a.average_rating);
+      if (sortOption === 'rating') return b.average_rating - a.average_rating;
       if (sortOption === 'newest')
         return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
       if (sortOption === 'oldest')
@@ -52,21 +51,17 @@ const Home: React.FC = () => {
   if (loading) return <div>Carregando...</div>;
 
   return (
-    <div className="m-3">
+    <div className="md:m-3">
       <SearchBar
         onSearch={setSearchTerm}
         onFilterClick={cat => setSelectedCategory(cat ? (cat as Category) : '')}
         onSort={setSortOption}
       />
 
-      <div className="flex w-full m-3 gap-10 justify-center flex-wrap">
+      <div className="flex w-full md:m-3 gap-10 justify-center flex-wrap">
         {sortedAccommodations.map(item => (
           <Link key={item.id} to={`/announcement/${item.id}`}>
-            <AccommodationCard
-              accommodation={item}
-              showCreator={true} // mostra nome do criador
-              showActions={false} // sem botões "editar/ver"
-            />
+            <AccommodationCard accommodation={item} showCreator={true} showActions={false} />
           </Link>
         ))}
       </div>

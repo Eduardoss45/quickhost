@@ -19,7 +19,7 @@ export default function AccommodationPricingForm() {
   };
 
   return (
-    <div className="space-y-8 m-10">
+    <div className="space-y-8 md:m-10 ">
       <div>
         <h2 className="text-2xl">Determine o valor da sua diária</h2>
 

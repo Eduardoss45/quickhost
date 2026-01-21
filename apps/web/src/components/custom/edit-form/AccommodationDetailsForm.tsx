@@ -36,7 +36,7 @@ export default function AccommodationDetailsForm() {
   });
 
   return (
-    <div className="space-y-6 m-10">
+    <div className="space-y-6 md:m-10 m-3">
       {formLocked && (
         <div className="bg-yellow-100 border border-yellow-300 p-3 rounded text-sm">
           ⚠️ Para editar os dados, você precisa substituir as imagens primeiro.
@@ -94,7 +94,7 @@ export default function AccommodationDetailsForm() {
         </p>
       </div>
 
-      <fieldset disabled={formLocked} className="space-y-4 w-1/2">
+      <fieldset disabled={formLocked} className="space-y-4 md:w-1/2 w-full">
         <div>
           <Label htmlFor="title">Nome</Label>
           <Controller

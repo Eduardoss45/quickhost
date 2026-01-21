@@ -53,7 +53,7 @@ const AccommodationCard: React.FC<Props> = ({
 
   return (
     <div
-      className={`flex flex-col rounded-xl overflow-hidden shadow-md border bg-card text-card-foreground w-60 ${className}`}
+      className={`flex flex-col rounded-xl shadow-2xl overflow-hidden text-card-foreground w-60 brightness-95 ${className}`}
     >
       <div className="w-full aspect-4/3 overflow-hidden">
         <img src={imageUrl} alt={accommodation.title} className="w-full h-full object-cover" />
@@ -104,7 +104,7 @@ const AccommodationCard: React.FC<Props> = ({
         }
       `}
           >
-            <FaRegTrashAlt className='text-2xl' /> Remover dos favoritos
+            <FaRegTrashAlt className="text-2xl" /> Remover dos favoritos
           </button>
         </div>
       )}
