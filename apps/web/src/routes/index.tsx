@@ -10,6 +10,7 @@ import EditMultiStepForm from '@/components/forms/EditMultiStepForm';
 import CreatorMultiStepForm from '@/components/forms/CreatorMultiStepForm';
 import Favorites from '@/pages/Favorites';
 import Announcement from '@/pages/Announcement';
+import Reservations from '@/pages/Reservations';
 
 export function AppRoutes() {
   return (
@@ -25,6 +26,7 @@ export function AppRoutes() {
         <Route path="/creator-accommodation" element={<CreatorMultiStepForm />} />
         <Route path="/favorites" element={<Favorites />} />
         <Route path="/announcement/:id" element={<Announcement />} />
+        <Route path="/reservations" element={<Reservations />} />
       </Route>
     </Routes>
   );

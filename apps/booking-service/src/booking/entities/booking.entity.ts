@@ -10,6 +10,8 @@ import { BookingStatus } from '../enums/booking-status.enum';
 
 @Entity('bookings')
 @Index(['accommodationId', 'checkInDate', 'checkOutDate'])
+@Index(['status', 'createdAt'])
+@Index(['accommodationId', 'checkInDate'])
 export class Booking {
   @PrimaryGeneratedColumn('uuid')
   id: string;

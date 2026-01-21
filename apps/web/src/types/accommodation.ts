@@ -48,6 +48,7 @@ export interface Accommodation {
   fire_extinguisher: boolean;
   first_aid_kit: boolean;
   outdoor_camera: boolean;
+  next_available_date: string;
 
   comments?: Comment[];
 

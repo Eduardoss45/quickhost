@@ -82,4 +82,76 @@ export class BookingController {
       throw error;
     }
   }
+
+  @MessagePattern('booking.find_by_user')
+  async handleFindByUser(
+    @Payload()
+    payload: {
+      userId: string;
+      role?: 'guest' | 'host';
+    },
+    @Ctx() context: RmqContext,
+  ) {
+    const channel = context.getChannelRef();
+    const message = context.getMessage();
+
+    try {
+      const result = await this.bookingService.getBookingsByUser(
+        payload.userId,
+        payload.role,
+      );
+
+      channel.ack(message);
+      return result;
+    } catch (error) {
+      channel.ack(message);
+      throw error;
+    }
+  }
+
+  @MessagePattern('booking.confirm')
+  async handleConfirmBooking(
+    @Payload()
+    payload: {
+      bookingId: string;
+      hostId: string;
+    },
+    @Ctx() context: RmqContext,
+  ) {
+    const channel = context.getChannelRef();
+    const message = context.getMessage();
+
+    try {
+      const booking = await this.bookingService.confirmBooking(
+        payload.bookingId,
+        payload.hostId,
+      );
+
+      channel.ack(message);
+
+      return {
+        bookingId: booking.id,
+        status: booking.status,
+      };
+    } catch (error) {
+      channel.ack(message);
+      throw error;
+    }
+  }
+
+  @MessagePattern('booking.dev.clear_all')
+  async clearAllBookings(@Ctx() context: RmqContext) {
+    const channel = context.getChannelRef();
+    const message = context.getMessage();
+
+    try {
+      const result = await this.bookingService.deleteAllBookings();
+      channel.ack(message);
+      return result;
+    } catch (error) {
+      console.error('[RMQ] Erro em booking.dev.clear_all:', error);
+      channel.ack(message);
+      throw error;
+    }
+  }
 }

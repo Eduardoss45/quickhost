@@ -6,9 +6,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { Booking } from './entities/booking.entity';
 import { BookingRepository } from './repositories/booking.repository';
+import { BookingCleanupJob } from './jobs/booking-cleanup.job';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
     }),
@@ -40,6 +43,6 @@ import { BookingRepository } from './repositories/booking.repository';
     ]),
   ],
   controllers: [BookingController],
-  providers: [BookingService, BookingRepository],
+  providers: [BookingService, BookingRepository, BookingCleanupJob],
 })
 export class BookingModule {}

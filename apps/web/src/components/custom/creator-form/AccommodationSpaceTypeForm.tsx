@@ -29,21 +29,29 @@ export default function AccommodationSpaceTypeForm() {
         <button
           type="button"
           onClick={() => handleSelect(SpaceType.FULL_SPACE)}
-          className={`border p-4 rounded ${selected === SpaceType.FULL_SPACE ? 'border-black' : ''}`}
+          className={`border-none shadow-2xl w p-4 ${selected === SpaceType.FULL_SPACE ? 'text-white rounded-md bg-blue-500' : ''}`}
         >
           <FaHouse size={28} />
-          <h3 className="font-medium mt-2">Espaço inteiro</h3>
-          <p className="text-sm text-gray-500">Acomodação completa</p>
+          <h3 className="font-semibold mt-2">Espaço inteiro</h3>
+          <p
+            className={`text-sm text-black ${selected === SpaceType.FULL_SPACE ? 'text-white' : ''}`}
+          >
+            Acomodação completa
+          </p>
         </button>
 
         <button
           type="button"
           onClick={() => handleSelect(SpaceType.LIMITED_SPACE)}
-          className={`border p-4 rounded ${selected === SpaceType.LIMITED_SPACE ? 'border-black' : ''}`}
+          className={`border-none shadow-2xl w p-4 ${selected === SpaceType.LIMITED_SPACE ? 'text-white rounded-md bg-blue-500' : ''}`}
         >
           <MdBedroomParent size={28} />
           <h3 className="font-medium mt-2">Quarto</h3>
-          <p className="text-sm text-gray-500">Quarto privado + áreas compartilhadas</p>
+          <p
+            className={`text-sm text-black ${selected === SpaceType.LIMITED_SPACE ? 'text-white' : ''}`}
+          >
+            Quarto privado + áreas compartilhadas
+          </p>
         </button>
       </div>
     </div>

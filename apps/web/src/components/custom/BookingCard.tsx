@@ -44,6 +44,11 @@ export default function BookingCard({ accommodation }: Props) {
 
   const total = nights > 0 && Number.isFinite(subtotalWithFee) ? subtotalWithFee + cleaningFee : 0;
 
+  function formatDisplayDate(date: Date | string) {
+    const d = typeof date === 'string' ? new Date(date) : date;
+    return d.toLocaleDateString('pt-BR');
+  }
+
   function formatDateOnly(date: Date): string {
     return date.toISOString().slice(0, 10);
   }
@@ -113,6 +118,13 @@ export default function BookingCard({ accommodation }: Props) {
             <p className="text-sm mt-2 font-medium">
               Total ({nights} noites): R$ {total.toFixed(2)}
             </p>
+          )}
+
+          {!accommodation.is_active && accommodation.next_available_date && (
+            <div className="mt-3 rounded-md border border-yellow-300 bg-yellow-50 p-2 text-sm text-yellow-800">
+              Próxima data disponível a partir de{' '}
+              <strong>{formatDisplayDate(accommodation.next_available_date)}</strong>
+            </div>
           )}
 
           <button

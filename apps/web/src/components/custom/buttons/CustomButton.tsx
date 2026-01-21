@@ -11,8 +11,8 @@ const CustomButton: React.FC<CustomButtonProps> = ({ icon, label, isActive, onCl
   return (
     <div
       onClick={onClick}
-      className={`cursor-pointer select-none ${
-        isActive ? 'border border-black' : 'border border-transparent'
+      className={`cursor-pointer select-none rounded-md p-4 w-40 shadow-2xl ${
+        isActive ? 'text-white bg-blue-500' : ''
       }`}
     >
       {icon && <span>{icon}</span>}

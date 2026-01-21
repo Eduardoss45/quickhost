@@ -1,11 +1,11 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-
 import { BookingRepository } from '../repositories/booking.repository';
 import { Booking } from '../entities/booking.entity';
 import { BookingStatus } from '../enums/booking-status.enum';
 import { differenceInCalendarDays } from 'date-fns';
+import { MoreThanOrEqual } from 'typeorm';
 
 @Injectable()
 export class BookingService {
@@ -75,8 +75,8 @@ export class BookingService {
       .createQueryBuilder('booking')
       .select('MAX(booking.checkOutDate)', 'next')
       .where('booking.accommodationId = :id', { id: accommodationId })
-      .andWhere('booking.status IN (:...statuses)', {
-        statuses: [BookingStatus.PENDING, BookingStatus.CONFIRMED],
+      .andWhere('booking.status = :status', {
+        status: BookingStatus.CONFIRMED,
       })
       .getRawOne();
 
@@ -97,6 +97,13 @@ export class BookingService {
     checkInDate: string;
     checkOutDate: string;
   }): Promise<Booking> {
+    if (data.hostId === data.guestId) {
+      throw new RpcException({
+        statusCode: 409,
+        message: 'Host cannot create a booking for their own accommodation',
+      });
+    }
+
     const accommodation = await firstValueFrom(
       this.client.send('accommodation.find_one', data.accommodationId),
     );
@@ -162,7 +169,6 @@ export class BookingService {
 
   async cancelBooking(bookingId: string): Promise<void> {
     const booking = await this.bookingRepository.findOneBy({ id: bookingId });
-
     if (!booking) {
       throw new RpcException({ statusCode: 404, message: 'Booking not found' });
     }
@@ -179,5 +185,114 @@ export class BookingService {
     accommodationId: string,
   ): Promise<Booking[]> {
     return this.bookingRepository.findByAccommodation(accommodationId);
+  }
+
+  async getBookingsByUser(
+    userId: string,
+    role?: 'guest' | 'host',
+  ): Promise<Booking[]> {
+    if (!userId) {
+      throw new RpcException({
+        statusCode: 400,
+        message: 'User ID is required',
+      });
+    }
+
+    return this.bookingRepository.findByUser(userId, role);
+  }
+
+  async confirmBooking(bookingId: string, hostId: string): Promise<Booking> {
+    const booking = await this.bookingRepository.findOne({
+      where: { id: bookingId },
+    });
+
+    if (!booking) {
+      throw new RpcException({
+        statusCode: 404,
+        message: 'Booking not found',
+      });
+    }
+
+    if (booking.hostId !== hostId) {
+      throw new RpcException({
+        statusCode: 403,
+        message: 'Only the host can confirm this booking',
+      });
+    }
+
+    if (booking.status !== BookingStatus.PENDING) {
+      throw new RpcException({
+        statusCode: 409,
+        message: 'Only pending bookings can be confirmed',
+      });
+    }
+
+    const today = new Date().toISOString().split('T')[0];
+
+    const confirmedCount = await this.bookingRepository.count({
+      where: {
+        accommodationId: booking.accommodationId,
+        status: BookingStatus.CONFIRMED,
+        checkInDate: MoreThanOrEqual(today),
+      },
+    });
+
+    if (confirmedCount >= 3) {
+      throw new RpcException({
+        statusCode: 409,
+        message:
+          'Accommodation has reached the maximum number of future confirmed bookings',
+      });
+    }
+
+    const hasConflict = await this.bookingRepository.hasDateConflict(
+      booking.accommodationId,
+      booking.checkInDate,
+      booking.checkOutDate,
+    );
+
+    if (hasConflict) {
+      throw new RpcException({
+        statusCode: 409,
+        message: 'This booking conflicts with an existing confirmed booking',
+      });
+    }
+
+    booking.status = BookingStatus.CONFIRMED;
+
+    const saved = await this.bookingRepository.save(booking);
+
+    await this.syncAvailability(booking.accommodationId);
+
+    return saved;
+  }
+
+  async deleteExpiredBookings(
+    expirationHours = 24,
+  ): Promise<{ affected: number }> {
+    const limitDate = new Date();
+    limitDate.setHours(limitDate.getHours() - expirationHours);
+
+    const result = await this.bookingRepository
+      .createQueryBuilder()
+      .delete()
+      .from(Booking)
+      .where('status IN (:...statuses)', {
+        statuses: [BookingStatus.PENDING, BookingStatus.CANCELED],
+      })
+      .andWhere('createdAt < :limitDate', { limitDate })
+      .execute();
+
+    return { affected: result.affected ?? 0 };
+  }
+  
+  async deleteAllBookings(): Promise<{ affected: number }> {
+    const result = await this.bookingRepository
+      .createQueryBuilder()
+      .delete()
+      .from(Booking)
+      .execute();
+
+    return { affected: result.affected ?? 0 };
   }
 }

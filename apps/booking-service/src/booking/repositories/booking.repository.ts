@@ -22,8 +22,8 @@ export class BookingRepository extends Repository<Booking> {
         .where('booking.accommodationId = :accommodationId', {
           accommodationId,
         })
-        .andWhere('booking.status != :status', {
-          status: BookingStatus.CANCELED,
+        .andWhere('booking.status = :status', {
+          status: BookingStatus.CONFIRMED,
         })
         .andWhere(
           `booking.checkInDate < :checkOutDate
@@ -58,5 +58,35 @@ export class BookingRepository extends Repository<Booking> {
       console.error('[FIND_BY_ACCOMMODATION] ERRO:', error);
       throw error;
     }
+  }
+
+  async findByUser(
+    userId: string,
+    role?: 'guest' | 'host',
+  ): Promise<Booking[]> {
+    try {
+      const qb = this.createQueryBuilder('booking');
+
+      if (role === 'guest') {
+        qb.where('booking.guestId = :userId', { userId });
+      } else if (role === 'host') {
+        qb.where('booking.hostId = :userId', { userId });
+      } else {
+        qb.where('booking.guestId = :userId OR booking.hostId = :userId', {
+          userId,
+        });
+      }
+
+      qb.orderBy('booking.checkInDate', 'ASC');
+
+      return await qb.getMany();
+    } catch (error) {
+      console.error('[FIND_BY_USER] ERRO:', error);
+      throw error;
+    }
+  }
+  
+  async deleteById(id: string): Promise<void> {
+    await this.delete({ id });
   }
 }

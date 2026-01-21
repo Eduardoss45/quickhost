@@ -14,25 +14,15 @@ type CountFields = 'room_count' | 'bed_count' | 'bathroom_count' | 'guest_capaci
 export default function AccommodationBasicsDetailsForm() {
   const { setValue, watch } = useFormContext<AccommodationFormValues>();
 
-  const labels = [
-    Category.INN,
-    Category.CHALET,
-    Category.APARTMENT,
-    Category.HOME,
-    Category.ROOM,
+  const categories = [
+    { value: Category.INN, label: 'Pousada', icon: <LiaUmbrellaBeachSolid /> },
+    { value: Category.CHALET, label: 'Chalé', icon: <MdChalet /> },
+    { value: Category.APARTMENT, label: 'Apartamento', icon: <FaBuilding /> },
+    { value: Category.HOME, label: 'Casa', icon: <FaHouse /> },
+    { value: Category.ROOM, label: 'Quarto', icon: <MdBedroomParent /> },
   ] as const;
 
-  const translatedLabels = ['Pousada', 'Chalé', 'Apartamento', 'Casa', 'Quarto'];
-
-  const values = ['Quartos', 'Camas', 'Banheiro', 'Hóspedes acomodados'];
-
-  const icons = [
-    <LiaUmbrellaBeachSolid key="umbrella" />,
-    <MdChalet key="chalet" />,
-    <FaBuilding key="building" />,
-    <FaHouse key="house" />,
-    <MdBedroomParent key="bedroom" />,
-  ];
+  const fieldLabels = ['Quartos', 'Camas', 'Banheiro', 'Hóspedes acomodados'];
 
   const min = 1;
   const max = 20;
@@ -49,40 +39,35 @@ export default function AccommodationBasicsDetailsForm() {
   const [activeButton, setActiveButton] = useState<number | null>(null);
 
   useEffect(() => {
-    if (category) {
-      const index = labels.indexOf(category as (typeof labels)[number]);
-      if (index !== -1) setActiveButton(index);
-    }
-  }, [category]);
+    if (!category) return;
+
+    const index = categories.findIndex(item => item.value === category);
+
+    if (index !== -1) setActiveButton(index);
+  }, [category, categories]);
 
   const handleChange = (key: CountFields, value: number) => {
     const valid = Math.max(min, Math.min(max, value));
     setValue(key, valid, { shouldValidate: true });
   };
 
-  const increment = (key: CountFields) => {
-    handleChange(key, counts[key] + 1);
-  };
-
-  const decrement = (key: CountFields) => {
-    handleChange(key, counts[key] - 1);
-  };
-
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-xl font-semibold mb-4">Selecione o tipo de hospedagem</h2>
+        <h2 className="text-2xl mb-4">Selecione o tipo de hospedagem</h2>
 
         <div className="flex gap-4 flex-wrap">
-          {labels.map((label, index) => (
+          {categories.map((item, index) => (
             <CustomButton
-              key={label}
-              icon={icons[index]}
-              label={translatedLabels[index]}
+              key={item.value}
+              icon={item.icon}
+              label={item.label}
               isActive={activeButton === index}
               onClick={() => {
                 setActiveButton(index);
-                setValue('category', label, { shouldValidate: true });
+                setValue('category', item.value, {
+                  shouldValidate: true,
+                });
               }}
             />
           ))}
@@ -90,15 +75,15 @@ export default function AccommodationBasicsDetailsForm() {
       </div>
 
       <div>
-        <h2 className="text-xl font-semibold mb-4">Adicione informações básicas</h2>
+        <h2 className="text-2xl mb-4">Adicione informações básicas</h2>
 
         <div className="space-y-4">
           {(Object.keys(counts) as CountFields[]).map((key, index) => (
-            <div key={key} className="flex items-center justify-between max-w-md">
-              <label className="font-medium">{values[index]}</label>
+            <div key={key} className="flex items-center justify-between max-w-md shadow-2xl p-3">
+              <label className="font-bold">{fieldLabels[index]}</label>
 
-              <div className="flex items-center gap-3">
-                <button type="button" onClick={() => decrement(key)}>
+              <div className="flex items-center gap-1 border p-2 rounded-md font-bold">
+                <button type="button" onClick={() => handleChange(key, counts[key] - 1)}>
                   <PiMinusThin size={20} />
                 </button>
 
@@ -108,10 +93,10 @@ export default function AccommodationBasicsDetailsForm() {
                   max={max}
                   value={counts[key]}
                   onChange={e => handleChange(key, Number(e.target.value))}
-                  className="w-16 text-center border rounded"
+                  className="ml-3 text-center border-none w-10"
                 />
 
-                <button type="button" onClick={() => increment(key)}>
+                <button type="button" onClick={() => handleChange(key, counts[key] + 1)}>
                   <PiPlusThin size={20} />
                 </button>
               </div>

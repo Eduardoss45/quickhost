@@ -34,6 +34,20 @@ export function useBooking() {
     }
   };
 
+  const confirmBooking = async (bookingId: string) => {
+    setLoading(true);
+    try {
+      const res = await api.post('/api/bookings/confirm', { bookingId });
+      toast.success('Reserva confirmada com sucesso');
+      return res.data;
+    } catch (e: any) {
+      toast.error(e.response?.data?.message ?? 'Erro ao confirmar reserva');
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const getBookingsByAccommodation = async (accommodationId: string): Promise<Booking[]> => {
     try {
       const res = await api.get(`/api/bookings/accommodation/${accommodationId}`);
@@ -44,10 +58,22 @@ export function useBooking() {
     }
   };
 
+  const getUserBookings = async (): Promise<Booking[]> => {
+    try {
+      const res = await api.get('/api/bookings/user');
+      return res.data;
+    } catch {
+      toast.error('Erro ao buscar suas reservas');
+      return [];
+    }
+  };
+
   return {
     loading,
     createBooking,
     cancelBooking,
+    confirmBooking,
     getBookingsByAccommodation,
+    getUserBookings,
   };
 }

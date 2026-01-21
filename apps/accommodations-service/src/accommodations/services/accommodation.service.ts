@@ -109,10 +109,8 @@ export class AccommodationService {
   async updateNextAvailableDate(accommodationId: string, date: string | null) {
     const accommodation = await this.findOne(accommodationId);
 
-    console.log('passou aqui');
-
     accommodation.next_available_date = date;
-    accommodation.is_active = date === null; // opcional: regra inteligente
+    accommodation.is_active = date === null;
 
     return this.accommodationRepository.save(accommodation);
   }

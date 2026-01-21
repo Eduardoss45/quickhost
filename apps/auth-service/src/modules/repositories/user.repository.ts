@@ -60,6 +60,7 @@ export class UserRepository {
         'user.username AS username',
         'user.social_name AS social_name',
         'user.profile_picture_url AS profile_picture_url',
+        'user.phone_number AS phone_number',
       ])
       .where('user.id = :userId', { userId })
       .getRawOne<PublicUserDto>();
