@@ -4,8 +4,13 @@ import { firstValueFrom } from 'rxjs';
 import { BookingRepository } from '../repositories/booking.repository';
 import { Booking } from '../entities/booking.entity';
 import { BookingStatus } from '../enums/booking-status.enum';
-import { differenceInCalendarDays } from 'date-fns';
-import { MoreThanOrEqual } from 'typeorm';
+import {
+  differenceInCalendarDays,
+  addDays,
+  parseISO,
+  isBefore,
+  startOfDay,
+} from 'date-fns';
 
 @Injectable()
 export class BookingService {
@@ -25,13 +30,18 @@ export class BookingService {
     pricePerNight: number;
     cleaningFee: number;
   }): Booking {
-    function parseDateOnly(date: string) {
-      const [year, month, day] = date.split('-').map(Number);
-      return new Date(year, month - 1, day);
-    }
+    const checkIn = parseISO(data.checkInDate);
+    const checkOut = parseISO(data.checkOutDate);
 
-    const checkIn = parseDateOnly(data.checkInDate);
-    const checkOut = parseDateOnly(data.checkOutDate);
+    const today = startOfDay(new Date());
+    const tomorrow = addDays(today, 1);
+
+    if (isBefore(checkIn, tomorrow)) {
+      throw new RpcException({
+        statusCode: 400,
+        message: 'Check-in must be at least one day in the future',
+      });
+    }
 
     const totalDays = differenceInCalendarDays(checkOut, checkIn);
 
@@ -70,17 +80,24 @@ export class BookingService {
     });
   }
 
-  private async syncAvailability(accommodationId: string) {
-    const result = await this.bookingRepository
-      .createQueryBuilder('booking')
-      .select('MAX(booking.checkOutDate)', 'next')
-      .where('booking.accommodationId = :id', { id: accommodationId })
-      .andWhere('booking.status = :status', {
-        status: BookingStatus.CONFIRMED,
-      })
-      .getRawOne();
+  private async syncAvailability(
+    accommodationId: string,
+    newCheckOutDate?: string,
+  ) {
+    let nextDate: string | null = null;
 
-    const nextDate = result?.next ?? null;
+    if (newCheckOutDate) {
+      nextDate = newCheckOutDate;
+    } else {
+      const result = await this.bookingRepository
+        .createQueryBuilder('b')
+        .select('MAX(b."checkOutDate")', 'next')
+        .where('b."accommodationId" = :id', { id: accommodationId })
+        .andWhere('b.status = :status', { status: BookingStatus.CONFIRMED })
+        .getRawOne();
+
+      nextDate = result?.next ?? null;
+    }
 
     await firstValueFrom(
       this.client.send('accommodation.update_next_available_date', {
@@ -115,10 +132,31 @@ export class BookingService {
       });
     }
 
+    if (accommodation.creator_id !== data.hostId) {
+      throw new RpcException({
+        statusCode: 403,
+        message: 'Invalid host for this accommodation',
+      });
+    }
+
     if (!accommodation.is_active) {
       throw new RpcException({
         statusCode: 409,
         message: 'Accommodation is not active',
+      });
+    }
+
+    const pendingCount = await this.bookingRepository.count({
+      where: {
+        accommodationId: data.accommodationId,
+        status: BookingStatus.PENDING,
+      },
+    });
+
+    if (pendingCount >= 3) {
+      throw new RpcException({
+        statusCode: 409,
+        message: 'Maximum of 3 pending bookings allowed for this accommodation',
       });
     }
 
@@ -132,7 +170,7 @@ export class BookingService {
       });
     }
 
-    const hasConflict = await this.bookingRepository.hasDateConflict(
+    const hasConflict = await this.bookingRepository.hasConfirmedConflict(
       data.accommodationId,
       data.checkInDate,
       data.checkOutDate,
@@ -141,7 +179,7 @@ export class BookingService {
     if (hasConflict) {
       throw new RpcException({
         statusCode: 409,
-        message: 'Accommodation already booked for this period',
+        message: 'Cannot create booking: conflicting reservation exists',
       });
     }
 
@@ -153,8 +191,6 @@ export class BookingService {
 
     try {
       const saved = await this.bookingRepository.save(booking);
-
-      await this.syncAvailability(data.accommodationId);
 
       return saved;
     } catch (error) {
@@ -202,90 +238,98 @@ export class BookingService {
   }
 
   async confirmBooking(bookingId: string, hostId: string): Promise<Booking> {
-    const booking = await this.bookingRepository.findOne({
-      where: { id: bookingId },
+    return this.bookingRepository.manager.transaction(async (manager) => {
+      const repo = manager.getRepository(Booking);
+
+      const booking = await repo.findOne({
+        where: { id: bookingId },
+        lock: { mode: 'pessimistic_write' },
+      });
+
+      if (!booking)
+        throw new RpcException({
+          statusCode: 404,
+          message: 'Booking not found',
+        });
+
+      if (booking.hostId !== hostId)
+        throw new RpcException({
+          statusCode: 403,
+          message: 'Only the host can confirm this booking',
+        });
+
+      if (booking.status !== BookingStatus.PENDING)
+        throw new RpcException({
+          statusCode: 409,
+          message: 'Only pending bookings can be confirmed',
+        });
+
+      const conflict = await repo
+        .createQueryBuilder('booking')
+        .where('booking.accommodationId = :accommodationId', {
+          accommodationId: booking.accommodationId,
+        })
+        .andWhere(
+          'booking.checkInDate < :checkOutDate AND booking.checkOutDate > :checkInDate',
+          {
+            checkInDate: booking.checkInDate,
+            checkOutDate: booking.checkOutDate,
+          },
+        )
+        .andWhere('booking.status = :status', {
+          status: BookingStatus.CONFIRMED,
+        })
+        .setLock('pessimistic_read')
+        .getOne();
+
+      if (conflict)
+        throw new RpcException({
+          statusCode: 409,
+          message:
+            'Cannot confirm: another booking is already confirmed for this period',
+        });
+
+      booking.status = BookingStatus.CONFIRMED;
+      const saved = await repo.save(booking);
+
+      await repo
+        .createQueryBuilder()
+        .update(Booking)
+        .set({ status: BookingStatus.CANCELED })
+        .where('accommodationId = :accommodationId', {
+          accommodationId: booking.accommodationId,
+        })
+        .andWhere(
+          'checkInDate < :checkOutDate AND checkOutDate > :checkInDate',
+          {
+            checkInDate: booking.checkInDate,
+            checkOutDate: booking.checkOutDate,
+          },
+        )
+        .andWhere('status = :status', { status: BookingStatus.PENDING })
+        .execute();
+
+      await this.syncAvailability(
+        booking.accommodationId,
+        booking.checkOutDate,
+      );
+
+      return saved;
     });
-
-    if (!booking) {
-      throw new RpcException({
-        statusCode: 404,
-        message: 'Booking not found',
-      });
-    }
-
-    if (booking.hostId !== hostId) {
-      throw new RpcException({
-        statusCode: 403,
-        message: 'Only the host can confirm this booking',
-      });
-    }
-
-    if (booking.status !== BookingStatus.PENDING) {
-      throw new RpcException({
-        statusCode: 409,
-        message: 'Only pending bookings can be confirmed',
-      });
-    }
-
-    const today = new Date().toISOString().split('T')[0];
-
-    const confirmedCount = await this.bookingRepository.count({
-      where: {
-        accommodationId: booking.accommodationId,
-        status: BookingStatus.CONFIRMED,
-        checkInDate: MoreThanOrEqual(today),
-      },
-    });
-
-    if (confirmedCount >= 3) {
-      throw new RpcException({
-        statusCode: 409,
-        message:
-          'Accommodation has reached the maximum number of future confirmed bookings',
-      });
-    }
-
-    const hasConflict = await this.bookingRepository.hasDateConflict(
-      booking.accommodationId,
-      booking.checkInDate,
-      booking.checkOutDate,
-    );
-
-    if (hasConflict) {
-      throw new RpcException({
-        statusCode: 409,
-        message: 'This booking conflicts with an existing confirmed booking',
-      });
-    }
-
-    booking.status = BookingStatus.CONFIRMED;
-
-    const saved = await this.bookingRepository.save(booking);
-
-    await this.syncAvailability(booking.accommodationId);
-
-    return saved;
   }
 
-  async deleteExpiredBookings(
-    expirationHours = 24,
-  ): Promise<{ affected: number }> {
-    const limitDate = new Date();
-    limitDate.setHours(limitDate.getHours() - expirationHours);
-
+  async deleteBookingsByStatusBefore(status: BookingStatus, before: Date) {
     const result = await this.bookingRepository
       .createQueryBuilder()
       .delete()
       .from(Booking)
-      .where('status IN (:...statuses)', {
-        statuses: [BookingStatus.PENDING, BookingStatus.CANCELED],
-      })
-      .andWhere('createdAt < :limitDate', { limitDate })
+      .where('status = :status', { status })
+      .andWhere('updatedAt < :before', { before })
       .execute();
 
     return { affected: result.affected ?? 0 };
   }
-  
+
   async deleteAllBookings(): Promise<{ affected: number }> {
     const result = await this.bookingRepository
       .createQueryBuilder()

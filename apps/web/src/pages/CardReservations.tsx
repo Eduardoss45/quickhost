@@ -13,12 +13,13 @@ import { useChat } from '@/hooks/useChat';
 interface Props {
   reserva: Booking;
   flow: 'HOST' | 'GUEST';
+  onUpdateReserva?: (reserva: Booking) => void;
 }
 
-export default function CardReservations({ reserva, flow }: Props) {
+export default function CardReservations({ reserva, flow, onUpdateReserva }: Props) {
   const { getById } = useAccommodation();
   const { getPublicUser } = useUser();
-  const { cancelBooking, confirmBooking } = useBooking();
+  const { cancelBooking, confirmBooking, getUserBookings } = useBooking();
   const { getOrCreateRoom } = useChat();
   const navigate = useNavigate();
 
@@ -52,6 +53,24 @@ export default function CardReservations({ reserva, flow }: Props) {
   const canConfirm = flow === 'HOST' && isPending;
   const canCancel = !isCanceled && (isPending || isConfirmed);
 
+  const handleCancel = async () => {
+    const res = await cancelBooking(reserva.id);
+    if (res) {
+      const updatedReserva = await getUserBookings();
+      const myUpdated = updatedReserva.find(r => r.id === reserva.id);
+      if (myUpdated && onUpdateReserva) onUpdateReserva(myUpdated);
+    }
+  };
+
+  const handleConfirm = async () => {
+    const res = await confirmBooking(reserva.id);
+    if (res) {
+      const updatedReserva = await getUserBookings();
+      const myUpdated = updatedReserva.find(r => r.id === reserva.id);
+      if (myUpdated && onUpdateReserva) onUpdateReserva(myUpdated);
+    }
+  };
+
   const handleSendMessage = async () => {
     const targetUserId = flow === 'HOST' ? reserva.guestId : reserva.hostId;
     const room = await getOrCreateRoom(targetUserId);
@@ -71,7 +90,7 @@ export default function CardReservations({ reserva, flow }: Props) {
       )}
 
       <div className="flex flex-col md:flex-row">
-        <div className="w-full md:flex-1 max-w-md aspect-[4/3] overflow-hidden rounded-md">
+        <div className="w-full md:flex-1 max-w-md aspect-4/3 overflow-hidden rounded-md">
           <img
             src={`${import.meta.env.VITE_API_BASE_URL}${accommodation.internal_images?.[0]}`}
             alt="Vista da acomodação"
@@ -144,7 +163,7 @@ export default function CardReservations({ reserva, flow }: Props) {
 
             {canConfirm && (
               <button
-                onClick={() => confirmBooking(reserva.id)}
+                onClick={handleConfirm}
                 className="flex items-center gap-1 text-white bg-green-400 rounded-md px-4 py-2"
               >
                 Confirmar reserva
@@ -153,12 +172,10 @@ export default function CardReservations({ reserva, flow }: Props) {
 
             {canCancel && (
               <button
-                onClick={() => cancelBooking(reserva.id)}
+                onClick={handleCancel}
                 className="flex items-center gap-1 text-white bg-red-400 rounded-md px-4 py-2"
               >
-                <span className="text-xl">
-                  <PiTrashSimple />
-                </span>
+                <PiTrashSimple className="text-xl" />
                 Cancelar hospedagem
               </button>
             )}

@@ -1,234 +1,270 @@
-# 📐 Regra Universal de Stack — Full-stack Moderno
+# 📌 Quickhost - Sistema de Hospedagem
 
-## 🎯 Princípios Obrigatórios (independentes de tecnologia)
+Este projeto implementa um **sistema de hospedagem estilo Airbnb**, baseado em **arquitetura de microserviços**, com comunicação assíncrona via **RabbitMQ** e **chat e notificações em tempo real** utilizando **WebSocket**.
 
-Todo projeto **deve** atender a estes princípios:
-
-1. **Separação clara de responsabilidades**
-
-   * UI ≠ Estado ≠ Domínio ≠ Infra
-2. **Tipagem forte ponta a ponta**
-3. **Validação em borda** (input nunca é confiável)
-4. **Observabilidade mínima**
-
-   * logs estruturados
-   * health checks
-5. **Ambiente reproduzível**
-
-   * Docker obrigatório
-6. **Documentação mínima executável**
-
-   * README + Swagger
-
-Esses princípios **não mudam**, mesmo que frameworks mudem.
+O foco principal foi entregar uma solução **end-to-end funcional**, com **separação clara de responsabilidades**, segurança básica aplicada e infraestrutura totalmente containerizada.
 
 ---
 
-## 🧩 Camada 1 — Front-end (Regra Universal)
+## ⚠️ Disclaimer Importante – Variáveis de Ambiente (`.env`)
 
-### Stack Base (imutável)
+> **⚠️ Atenção:**
+> O correto funcionamento do sistema **depende obrigatoriamente** da configuração adequada dos arquivos `.env` em **todos os serviços** do projeto.
 
-```txt
-React
-TypeScript
-Tailwind CSS
+> Antes de executar o sistema localmente, é obrigatório:
+> 1. Criar os arquivos `.env` a partir dos modelos fornecidos (`.env.example`).
+> 2. Garantir que todas as variáveis obrigatórias estejam preenchidas.
+> 3. Configurar corretamente os seguintes itens:
+
+- **Credenciais de banco de dados** (host, porta, usuário, senha e nome do banco).
+- **URLs internas de comunicação entre os serviços**.
+- **Chaves JWT** utilizadas pelo `api-gateway` e pelo `auth-service`
+
+  > As chaves **DEVEM SER IDÊNTICAS** para garantir a validação correta dos tokens.
+
+- **Configuração do RabbitMQ** (host, porta, usuário, senha e vhost, se aplicável).
+- **Configuração do WebSocket** (URL, porta e demais parâmetros necessários).
+
+> A ausência ou configuração incorreta de variáveis de ambiente pode causar **falhas silenciosas**, erros de autenticação, falha na comunicação entre serviços ou falha total da aplicação.
+
+---
+
+## 🧱 Visão Geral da Arquitetura
+
+```bash
+Frontend (React + React Router)
+        │
+        ▼
+API Gateway (NestJS)
+        │
+        ├── Auth Service
+        │     └── Autenticação, JWT, Refresh Token
+        │
+        ├── Accommodation Service
+        │     └── Acomodações, Comentários
+        │
+        ├── Booking Service
+        │     └── Reservas
+        │
+        ├── Media Service
+        │     └── Gerenciamento de rotas para imagens
+        │
+        ├── Notifications Service
+        │     └── Notificações
+        │
+        └── Chat Service
+              └── Mensagens em tempo real com persistência
 ```
 
-### Regras obrigatórias
+### Tecnologias Principais
 
-* Roteamento explícito (SPA)
-* Componentização previsível
-* Zero lógica de domínio em componentes de UI
-
-### Ferramentas padronizadas
-
-| Responsabilidade | Tecnologia      |
-| ---------------- | --------------- |
-| Roteamento       | TanStack Router |
-| Estado global    | Zustand         |
-| Data fetching    | TanStack Query  |
-| Formulários      | react-hook-form |
-| Validação        | Zod             |
-| UI base          | shadcn/ui       |
-
-### Regras arquiteturais
-
-* **Server State ≠ Client State**
-
-  * Server → TanStack Query
-  * Client → Zustand
-* **Zod é a fonte da verdade** para validação
-* **Nenhum fetch direto em componente**
-
-📌 *Qualquer projeto antigo deve ser migrado para este modelo, mesmo que continue simples.*
+- **Monorepo** gerenciado com **Turborepo**
+- **PostgreSQL** como banco de dados
+- **RabbitMQ** para comunicação entre serviços
+- **Docker + Docker Compose** para orquestração
+- **TypeORM + Migrations** para controle de schema
 
 ---
 
-## 🛠️ Camada 2 — Back-end (Regra Universal)
+## 🔐 Segurança & Autenticação
 
-### Stack Base (imutável)
+- Hash de senha com **bcrypt**
+- Autenticação via **JWT**
+- `accessToken` e `refreshToken`
+- Tokens armazenados em **cookies HTTP-only**
+- Proteção de rotas com **Guards + Passport**
+- **Rate limit** aplicado no API Gateway (`10 req/s`)
+- Payload do JWT minimizado (sem dados sensíveis)
 
-```txt
-Node.js
-TypeScript
-NestJS
-```
-
-### Organização obrigatória
-
-```txt
-Controller
-DTO
-Service
-Domain (opcional, mas recomendado)
-Repository
-```
-
-### Tecnologias padrão
-
-| Responsabilidade | Tecnologia       |
-| ---------------- | ---------------- |
-| ORM              | TypeORM          |
-| Banco relacional | PostgreSQL       |
-| Validação        | class-validator  |
-| Auth             | JWT + Passport   |
-| Hash             | bcrypt ou argon2 |
-
-### Regras arquiteturais
-
-* **Controller nunca contém regra de negócio**
-* **DTO ≠ Entity**
-* **Service orquestra, Repository persiste**
-* **Validação ocorre antes do Service**
+> O **auth-service** é responsável exclusivamente por autenticação e emissão de tokens.
+> O **API Gateway** apenas valida tokens já emitidos, mantendo separação clara de responsabilidades.
 
 ---
 
-## 🧠 Camada 3 — Comunicação & Integração
+## 📋 Domínio de Tasks
 
-### Regra de evolução obrigatória
+### Funcionalidades
 
-1. Projeto começa **monólito**
-2. Eventos são introduzidos
-3. Serviços podem ser extraídos sem refatoração brutal
+- Criar acomodações
+- Editar acomodações
+- Comentários por acomodação
+- Criar reservas em acomodações
+- Avaliação de acomodação
+- Favoritar acomodações
 
-### Stack padrão
+### Status de reservas disponíveis
 
-| Responsabilidade | Tecnologia          |
-| ---------------- | ------------------- |
-| Mensageria       | RabbitMQ            |
-| Eventos          | Event-driven        |
-| Tempo real       | WebSocket (Gateway) |
+- `CAMCELED`
+- `PENDING`
+- `CONFIRMED`
 
-### Regra fundamental
+### Tipos de acomodações disponíveis
 
-> **HTTP é síncrono, eventos são assíncronos. Nunca misturar responsabilidades.**
+- `INN`
+- `CHALET`
+- `APARTMENT`
+- `HOME`
+- `ROOM`
+
+### Categorias de espaço
+
+- `FULL_SPACE`
+- `LIMITED_SPACE`
 
 ---
 
-## 🗄️ Camada 4 — Banco de Dados
+## 🔔 Notificações em Tempo Real
 
-### Regras universais
+- Eventos consumidos via **RabbitMQ**
+- Persistência em banco próprio
+- Envio via **WebSocket**
+- Frontend recebe notificações em tempo real
 
-* PostgreSQL como padrão
-* Migrations obrigatórias
-* Entidades **sem lógica complexa**
-* Auditoria simplificada quando aplicável
+> O **notifications-service** não resolve identidade de usuários.
+> Ele utiliza exclusivamente os UUIDs presentes nos payloads dos eventos publicados pelos serviços produtores.
+> O serviço mantém sua **própria base de dados**, sem acoplamento com o domínio de accommodations.
+
+---
+
+## 🗨️ Chat
+
+- Eventos consumidos via **RabbitMQ**
+- Persistência em banco próprio
+- Envio via **WebSocket**
+- Frontend recebe mensagens e notificações em tempo real
+
+> O **chat-service** não resolve identidade de usuários.
+> Ele utiliza exclusivamente os UUIDs presentes nos payloads dos eventos publicados pelos serviços produtores.
+> O serviço mantém sua **própria base de dados**, sem acoplamento com o domínio de accommodations.
+
+---
+
+## 🎨 Frontend
 
 ### Stack
 
-```txt
-PostgreSQL
-TypeORM Migrations
+- **React (Vite)**
+- **React Router**
+- **Tailwind CSS**
+- **shadcn/ui**
+- **react-hook-form + zod**
+
+---
+
+### Características do Frontend
+
+- Skeleton loaders
+- WebSocket conectado após login
+- Feedback visual via toast
+- Atualização otimista e invalidação de cache controlada
+
+### Páginas Implementadas
+
+- Login
+- Registro
+- Configurações (informações da conta e ajustes de dados)
+- Troca de senha
+- Lista de acomodações (filtro + busca)
+- Lista de reservas (hospede ou anfitrião)
+- Minhas acomodações (edito e criador)
+- Chat (salas e clientes)
+- Anuncio (comentários + status + imagens + reservas)
+
+---
+
+## 🐳 Infraestrutura & Docker
+
+- Dockerfile individual por serviço
+- docker-compose orquestrando:
+  - API Gateway
+  - Auth Service
+  - Accommodation Service
+  - Notifications Service
+  - Chat Service
+  - Media Service
+  - Booking Service
+  - PostgreSQL
+  - RabbitMQ
+
+### Execução com Docker
+
+```bash
+docker compose up --build
 ```
 
+### Observação sobre Health Checks
+
+- O frontend **não depende** de health checks para iniciar
+- Utilizado `condition: service_started`
+- Health checks usados apenas para **observabilidade e diagnóstico**
+
 ---
 
-## 🐳 Camada 5 — Infraestrutura (Obrigatória)
+## 🗄️ Banco de Dados & Migrations
 
-### Stack mínima
+- TypeORM com **migrations explícitas**
+- `synchronize: false` em todos os serviços
+- Bancos separados por domínio
 
-```txt
-Docker
-Docker Compose
+```sql
+CREATE DATABASE qk_auth_db;
+CREATE DATABASE qk_chat_db;
+CREATE DATABASE qk_booking_db;
+CREATE DATABASE qk_notifications_db;
+CREATE DATABASE qk_accommodation_db;
 ```
 
-### Regras fixas
+### Execução de Migrations
 
-* Nenhum projeto roda fora do Docker
-* `.env.example` obrigatório
-* Serviços isolados por container
-* Banco e broker sempre containerizados
+- Executadas automaticamente no Docker
+- Uso exclusivo de `migration:run`
+- `migration:generate` nunca é usado em ambiente Docker
 
 ---
 
-## 📦 Camada 6 — Monorepo (Regra de Escala)
+## ▶️ Execução Local (sem Docker)
 
-### Quando usar
-
-* Full-stack
-* Mais de um serviço
-* Código compartilhado
-
-### Stack padrão
-
-```txt
-Turborepo
+```bash
+npm install
+npm run migrate:init
+npm run test
+npm run build
+npm run dev
 ```
 
-### Pacotes obrigatórios
+### Pré-requisitos
 
-```txt
-packages/
-  types
-  utils
-  eslint-config
-  tsconfig
-```
+- Node.js **>= 18**
+- PostgreSQL em execução
+- RabbitMQ em execução
+- Variáveis de ambiente configuradas (`.env`)
 
 ---
 
-## 📚 Camada 7 — Qualidade & DX
+## 🧠 Decisões Técnicas Importantes
 
-### Obrigatório
-
-| Item             | Regra        |
-| ---------------- | ------------ |
-| Swagger          | Sempre ativo |
-| Logs             | Estruturados |
-| Health check     | /health      |
-| Lint             | Centralizado |
-| Build previsível | Sem hacks    |
-
-### Diferencial (mas recomendado)
-
-* Testes unitários
-* Rate limiting
-* CI básico
+- Monorepo para padronização
+- API Gateway como ponto único de entrada
+- RabbitMQ para desacoplamento
+- WebSocket fora do fluxo HTTP
+- Relacionamentos entre serviços via **UUID**
+- Eventos emitidos de forma ampla e filtrados no consumer
 
 ---
 
-## 🔁 Regra de Atualização de Projetos Antigos
+## ⚠️ Trade-offs & Observações
 
-Sempre seguir esta ordem:
+- Rate limit difícil de testar manualmente
+- UI focada em funcionalidade
+- Observabilidade avançada deixada como evolução natural
 
-1. **Migrar para TypeScript**
-2. **Adicionar Zod + react-hook-form**
-3. **Padronizar fetch com TanStack Query**
-4. **Isolar estado global (Zustand)**
-5. **Dockerizar**
-6. **Documentar arquitetura**
-
-Se um projeto antigo **não atende a esses pontos**, ele **não está atualizado**.
+> A arquitetura está preparada para escalar e evoluir sem refatorações estruturais.
 
 ---
 
-## 🧠 Regra de Especialização (Importante)
+## 🚀 Melhorias Futuras
 
-> Você **não está escolhendo stacks**.
-> Você está **criando um sistema operacional pessoal de projetos**.
-
-Essa regra permite:
-
-* Trocar framework sem perder arquitetura
-* Defender decisões em entrevista
-* Evoluir projetos simples → profissionais
+- Redis para cache
+- Retry + DLQ no RabbitMQ
+- Notificações de reservas vencidas
+- Testes E2E

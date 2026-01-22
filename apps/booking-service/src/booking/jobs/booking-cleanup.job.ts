@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { BookingService } from '../services/booking.service';
+import { BookingStatus } from '../enums/booking-status.enum';
 
 @Injectable()
 export class BookingCleanupJob {
@@ -8,17 +9,24 @@ export class BookingCleanupJob {
 
   constructor(private readonly bookingService: BookingService) {}
 
-  @Cron('0 * * * *')
+  @Cron('*/5 * * * *')
   async handleCleanup() {
     try {
-      const result = await this.bookingService.deleteExpiredBookings(24);
+      const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+
+      const result = await this.bookingService.deleteBookingsByStatusBefore(
+        BookingStatus.CANCELED,
+        fiveMinutesAgo,
+      );
 
       if (result?.affected > 0) {
-        this.logger.log(`Removed ${result.affected} expired bookings`);
+        this.logger.log(
+          `Removed ${result.affected} canceled bookings older than 5 minutes`,
+        );
       }
     } catch (error) {
       this.logger.error(
-        'Error while cleaning expired bookings',
+        'Error while cleaning canceled bookings',
         error instanceof Error ? error.stack : undefined,
       );
     }

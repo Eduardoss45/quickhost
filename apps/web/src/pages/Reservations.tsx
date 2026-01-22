@@ -34,7 +34,18 @@ export default function Reservations() {
           {reservas.map(reserva => {
             const flow = user?.id === reserva.hostId ? 'HOST' : 'GUEST';
 
-            return <CardReservations key={reserva.id} reserva={reserva} flow={flow} />;
+            return (
+              <CardReservations
+                key={reserva.id}
+                reserva={reserva}
+                flow={flow}
+                onUpdateReserva={(updatedReserva: Booking) => {
+                  setReservas(prev =>
+                    prev.map(r => (r.id === updatedReserva.id ? updatedReserva : r))
+                  );
+                }}
+              />
+            );
           })}
         </div>
       ) : (
