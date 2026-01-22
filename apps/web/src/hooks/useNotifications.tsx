@@ -1,42 +1,35 @@
 import { useEffect } from 'react';
-import { toast } from 'sonner';
-import { getChatSocket } from '@/services/chat.socket';
+import { connectNotifications, disconnectNotifications } from '@/services/notifications.socket';
+import { authStore } from '@/store/auth.store';
+import { formatBookingNotification } from '@/formatters/notificationFormatter';
+import type { BookingNotificationEvent } from '@/types/notifications';
 
-type ChatNotification = {
-  roomId: string;
-  preview: string;
-  message: string;
-  senderName: string;
-  senderProfilePicture?: string | null;
-  deliveredAt: string;
-};
+export function useNotifications() {
+  const user = authStore(state => state.user);
 
-export function useChatNotifications() {
   useEffect(() => {
-    const socket = getChatSocket();
-    if (!socket) return;
+    if (!user) return;
 
-    const handler = (data: ChatNotification) => {
-      toast(`${data.senderName} 💬`, {
-        description: data.message,
-        icon: data.senderProfilePicture ? (
-          <img
-            src={
-              data.senderProfilePicture
-                ? `${import.meta.env.VITE_API_BASE_URL}${data.senderProfilePicture}`
-                : undefined
-            }
-            alt={data.senderName}
-            className="w-6 h-6 rounded-full object-cover"
-          />
-        ) : undefined,
-      });
+    const socket = connectNotifications();
+
+    const onNotification = (data: BookingNotificationEvent) => {
+      const { type, payload } = data;
+      formatBookingNotification({ type, payload });
     };
 
-    socket.on('chat.notification', handler);
+    socket.on('connect', () => {
+      console.log('[WS] Connected');
+    });
+
+    socket.on('notification', onNotification);
+
+    socket.on('disconnect', () => {
+      console.log('[WS] Disconnected');
+    });
 
     return () => {
-      socket.off('chat.notification', handler);
+      socket.off('notification', onNotification);
+      disconnectNotifications();
     };
-  }, []);
+  }, [user]);
 }

@@ -9,7 +9,7 @@ async function bootstrap() {
       transport: Transport.RMQ,
       options: {
         urls: [process.env.RMQ_URL!],
-        queue: 'qk_notifications_queue',
+        queue: 'qk_notifications_events_queue',
         queueOptions: { durable: true },
       },
     },

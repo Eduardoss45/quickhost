@@ -1,45 +1,54 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Injectable, Inject } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { Notification } from '../entities/notification.entity';
+import { NotificationRepository } from '../repositories/notifications.repository';
 
 @Injectable()
 export class NotificationsService {
   constructor(
-    @InjectRepository(Notification)
-    private readonly notificationRepo: Repository<Notification>,
+    private readonly notifications: NotificationRepository,
 
     @Inject('GATEWAY_NOTIFICATIONS_CLIENT')
-    private readonly client: ClientProxy,
+    private readonly gatewayClient: ClientProxy,
   ) {}
 
-  async persistAndDispatch(
-    userId: string,
-    type: string,
-    payload: Record<string, any>,
-  ): Promise<Notification> {
-    const notification = await this.notificationRepo.save({
+  private async persistAndDispatch(userId: string, type: string, payload: any) {
+    await this.notifications.create({ userId, type, payload });
+
+    this.gatewayClient.emit('notification.dispatch', {
       userId,
       type,
       payload,
-      read: false,
     });
+  }
 
-    this.client.emit('notification.dispatch', { userId, type, payload });
+  async handleBookingCreated(event: {
+    bookingId: string;
+    hostId: string;
+    guestId: string;
+    accommodationTitle: string;
+  }) {
+    await this.persistAndDispatch(event.hostId, 'booking:created', event);
+  }
 
-    if (type === 'chat_message') {
-      this.client.emit('notification.dispatch', {
-        userId,
-        type: 'chat.message',
-        payload: {
-          from: payload.senderId,
-          message: payload.content,
-          chatRoomId: payload.chatRoomId,
-        },
-      });
-    }
+  async handleBookingConfirmed(event: {
+    bookingId: string;
+    hostId: string;
+    guestId: string;
+    accommodationTitle: string;
+  }) {
+    await this.persistAndDispatch(event.guestId, 'booking:confirmed', event);
+  }
 
-    return notification;
+  async handleBookingCanceled(event: {
+    bookingId: string;
+    hostId: string;
+    guestId: string;
+    canceledBy: 'host' | 'guest' | 'system';
+    accommodationTitle: string;
+  }) {
+    await Promise.all([
+      this.persistAndDispatch(event.hostId, 'booking:canceled', event),
+      this.persistAndDispatch(event.guestId, 'booking:canceled', event),
+    ]);
   }
 }

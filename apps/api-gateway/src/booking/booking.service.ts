@@ -19,8 +19,10 @@ export class BookingService {
     return firstValueFrom(this.client.send('booking.create', payload));
   }
 
-  cancelBooking(bookingId: string) {
-    return firstValueFrom(this.client.send('booking.cancel', { bookingId }));
+  cancelBooking(bookingId: string, actorId: string) {
+    return firstValueFrom(
+      this.client.send('booking.cancel', { bookingId, actorId }),
+    );
   }
 
   getBookingsByAccommodation(accommodationId: string) {

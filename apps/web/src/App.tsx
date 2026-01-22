@@ -3,8 +3,7 @@ import { useUser } from './hooks/useUser';
 import { Outlet } from 'react-router-dom';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
-import { initSocket } from '@/services/notification.socket';
-import { useChatNotifications } from './hooks/useNotifications';
+import { useNotifications } from './hooks/useNotifications';
 import { useFavoritesStore } from './store/favorites.store';
 
 function App() {
@@ -16,18 +15,15 @@ function App() {
   }, []);
 
   useEffect(() => {
+    bootstrapSession();
+  }, []);
+
+  useEffect(() => {
     if (!hydrated || !user) return;
-
     fetchFavorites();
-
-    const socket = initSocket();
-
-    return () => {
-      socket?.disconnect();
-    };
   }, [hydrated, user, fetchFavorites]);
 
-  useChatNotifications();
+  useNotifications();
 
   if (!hydrated) {
     return <p>Carregando...</p>;

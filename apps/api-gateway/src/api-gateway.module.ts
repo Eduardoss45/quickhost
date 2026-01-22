@@ -9,6 +9,7 @@ import { ChatModule } from './chat/chat.module';
 import { SecurityModule } from './strategies/security.module';
 import { RmqExceptionInterceptor } from './exception/rmq-exception.interceptor';
 import { BookingModule } from './booking/booking.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { BookingModule } from './booking/booking.module';
     AccommodationModule,
     ChatModule,
     BookingModule,
+    NotificationsModule,
   ],
   providers: [
     {

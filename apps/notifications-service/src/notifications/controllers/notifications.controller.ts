@@ -1,19 +1,23 @@
 import { Controller } from '@nestjs/common';
-import { EventPattern, Payload } from '@nestjs/microservices';
+import { EventPattern, MessagePattern } from '@nestjs/microservices';
 import { NotificationsService } from '../services/notifications.service';
 
 @Controller()
 export class NotificationsController {
   constructor(private readonly service: NotificationsService) {}
 
-  @EventPattern('chat.message.created')
-  async handleChatMessage(@Payload() payload: any) {
-    const { chatRoomId, senderId, receiverId, content } = payload;
+  @EventPattern('booking.created')
+  onBookingCreated(data: any) {
+    return this.service.handleBookingCreated(data);
+  }
 
-    await this.service.persistAndDispatch(receiverId, 'chat_message', {
-      chatRoomId,
-      senderId,
-      content,
-    });
+  @EventPattern('booking.confirmed')
+  onBookingConfirmed(data: any) {
+    return this.service.handleBookingConfirmed(data);
+  }
+
+  @EventPattern('booking.canceled')
+  onBookingCanceled(data: any) {
+    return this.service.handleBookingCanceled(data);
   }
 }

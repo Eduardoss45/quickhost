@@ -5,7 +5,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 
 import { NotificationsController } from './controllers/notifications.controller';
 import { NotificationsService } from './services/notifications.service';
-import { Notification } from './entities/notification.entity';
+import { Notification } from './entities/notifications.entity';
+import { NotificationRepository } from './repositories/notifications.repository';
 
 @Module({
   imports: [
@@ -31,7 +32,7 @@ import { Notification } from './entities/notification.entity';
           transport: Transport.RMQ,
           options: {
             urls: [config.get<string>('RMQ_URL')!],
-            queue: 'gateway_notifications_queue',
+            queue: 'qk_gateway_notifications_queue',
             queueOptions: { durable: true },
           },
         }),
@@ -39,6 +40,6 @@ import { Notification } from './entities/notification.entity';
     ]),
   ],
   controllers: [NotificationsController],
-  providers: [NotificationsService],
+  providers: [NotificationsService, NotificationRepository],
 })
 export class NotificationsModule {}

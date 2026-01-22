@@ -5,7 +5,6 @@ import {
   Get,
   Param,
   UseGuards,
-  Put,
   Delete,
 } from '@nestjs/common';
 import { BookingService } from './booking.service';
@@ -42,8 +41,8 @@ export class BookingController {
   }
 
   @Post(':id/cancel')
-  async cancel(@Param('id') bookingId: string) {
-    return this.bookingService.cancelBooking(bookingId);
+  async cancel(@Param('id') bookingId: string, @CurrentUser() user: JwtUser) {
+    return this.bookingService.cancelBooking(bookingId, user.userId);
   }
 
   @Get('accommodation/:accommodationId')

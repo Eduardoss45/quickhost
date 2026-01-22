@@ -18,7 +18,9 @@ export class BookingService {
     private readonly bookingRepository: BookingRepository,
 
     @Inject('ACCOMMODATIONS_CLIENT')
-    private readonly client: ClientProxy,
+    private readonly accommodationClient: ClientProxy,
+    @Inject('NOTIFICATIONS_EVENTS')
+    private readonly notificationsClient: ClientProxy,
   ) {}
 
   private buildBooking(data: {
@@ -100,10 +102,13 @@ export class BookingService {
     }
 
     await firstValueFrom(
-      this.client.send('accommodation.update_next_available_date', {
-        accommodationId,
-        date: nextDate,
-      }),
+      this.accommodationClient.send(
+        'accommodation.update_next_available_date',
+        {
+          accommodationId,
+          date: nextDate,
+        },
+      ),
     );
   }
 
@@ -122,7 +127,10 @@ export class BookingService {
     }
 
     const accommodation = await firstValueFrom(
-      this.client.send('accommodation.find_one', data.accommodationId),
+      this.accommodationClient.send(
+        'accommodation.find_one',
+        data.accommodationId,
+      ),
     );
 
     if (!accommodation) {
@@ -192,6 +200,15 @@ export class BookingService {
     try {
       const saved = await this.bookingRepository.save(booking);
 
+      this.notificationsClient.emit('booking.created', {
+        bookingId: saved.id,
+        hostId: saved.hostId,
+        guestId: saved.guestId,
+        accommodationTitle: accommodation.title ?? 'Accommodation',
+        checkInDate: saved.checkInDate,
+        checkOutDate: saved.checkOutDate,
+      });
+
       return saved;
     } catch (error) {
       console.error('[BOOKING_CREATE_ERROR]', error);
@@ -203,16 +220,48 @@ export class BookingService {
     }
   }
 
-  async cancelBooking(bookingId: string): Promise<void> {
+  async cancelBooking(bookingId: string, actorId: string): Promise<void> {
     const booking = await this.bookingRepository.findOneBy({ id: bookingId });
+
     if (!booking) {
       throw new RpcException({ statusCode: 404, message: 'Booking not found' });
+    }
+
+    if (actorId !== booking.hostId && actorId !== booking.guestId) {
+      throw new RpcException({
+        statusCode: 403,
+        message: 'You are not allowed to cancel this booking',
+      });
+    }
+
+    if (booking.status === BookingStatus.CANCELED) {
+      return;
     }
 
     await this.bookingRepository.update(
       { id: bookingId },
       { status: BookingStatus.CANCELED },
     );
+
+    const canceledBy: 'host' | 'guest' =
+      actorId === booking.hostId ? 'host' : 'guest';
+
+    const accommodation = await firstValueFrom(
+      this.accommodationClient.send(
+        'accommodation.find_one',
+        booking.accommodationId,
+      ),
+    );
+
+    this.notificationsClient.emit('booking.canceled', {
+      bookingId: booking.id,
+      hostId: booking.hostId,
+      guestId: booking.guestId,
+      canceledBy,
+      accommodationTitle: accommodation.title,
+      checkInDate: booking.checkInDate,
+      checkOutDate: booking.checkOutDate,
+    });
 
     await this.syncAvailability(booking.accommodationId);
   }
@@ -308,6 +357,22 @@ export class BookingService {
         )
         .andWhere('status = :status', { status: BookingStatus.PENDING })
         .execute();
+
+      const accommodation = await firstValueFrom(
+        this.accommodationClient.send(
+          'accommodation.find_one',
+          booking.accommodationId,
+        ),
+      );
+
+      this.notificationsClient.emit('booking.confirmed', {
+        bookingId: saved.id,
+        hostId: saved.hostId,
+        guestId: saved.guestId,
+        accommodationTitle: accommodation.title,
+        checkInDate: saved.checkInDate,
+        checkOutDate: saved.checkOutDate,
+      });
 
       await this.syncAvailability(
         booking.accommodationId,

@@ -9,3 +9,4 @@ export * from './auth';
 export * from './comment';
 export * from './amenities';
 export * from './bookings';
+export * from './notifications';

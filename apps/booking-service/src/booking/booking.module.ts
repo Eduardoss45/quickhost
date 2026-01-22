@@ -40,6 +40,16 @@ import { ScheduleModule } from '@nestjs/schedule';
           },
         }),
       },
+      {
+        name: 'NOTIFICATIONS_EVENTS',
+        useFactory: () => ({
+          transport: Transport.RMQ,
+          options: {
+            urls: [process.env.RMQ_URL!],
+            queue: 'qk_notifications_events_queue',
+          },
+        }),
+      },
     ]),
   ],
   controllers: [BookingController],

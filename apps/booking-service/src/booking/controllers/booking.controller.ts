@@ -46,14 +46,17 @@ export class BookingController {
 
   @MessagePattern('booking.cancel')
   async handleCancelBooking(
-    @Payload() payload: { bookingId: string },
+    @Payload() payload: { bookingId: string; actorId: string },
     @Ctx() context: RmqContext,
   ) {
     const channel = context.getChannelRef();
     const message = context.getMessage();
 
     try {
-      await this.bookingService.cancelBooking(payload.bookingId);
+      await this.bookingService.cancelBooking(
+        payload.bookingId,
+        payload.actorId,
+      );
       channel.ack(message);
       return { success: true };
     } catch (error) {

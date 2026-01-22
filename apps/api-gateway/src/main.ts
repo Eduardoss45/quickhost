@@ -10,7 +10,9 @@ import { Transport } from '@nestjs/microservices';
 async function bootstrap() {
   const app = await NestFactory.create(ApiGatewayModule);
   app.setGlobalPrefix('api');
+
   app.enableCors({ origin: [process.env.FRONTEND_URL], credentials: true });
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -18,13 +20,25 @@ async function bootstrap() {
       transform: true,
     }),
   );
+
   app.use(cookieParser());
+
   app.useWebSocketAdapter(new SocketIoAdapter(app, process.env.FRONTEND_URL!));
+
   app.connectMicroservice({
     transport: Transport.RMQ,
     options: {
       urls: [process.env.RMQ_URL!],
       queue: 'qk_chat_gateway_queue',
+      queueOptions: { durable: true },
+    },
+  });
+
+  app.connectMicroservice({
+    transport: Transport.RMQ,
+    options: {
+      urls: [process.env.RMQ_URL!],
+      queue: 'qk_gateway_notifications_queue',
       queueOptions: { durable: true },
     },
   });
