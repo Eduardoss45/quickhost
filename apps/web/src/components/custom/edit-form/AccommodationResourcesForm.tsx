@@ -1,5 +1,6 @@
-import React from 'react';
-import { useFormContext, Controller } from 'react-hook-form';
+import { useFormContext } from 'react-hook-form';
+import type { AccommodationFormValues } from '@/schemas/accommodation-form.schema';
+import CustomButton from '@/components/custom/buttons/CustomButton';
 import { FaWifi, FaCar, FaSwimmingPool, FaMedkit } from 'react-icons/fa';
 import { LuMonitor } from 'react-icons/lu';
 import { GrRestaurant } from 'react-icons/gr';
@@ -8,18 +9,20 @@ import { TbAirConditioning, TbBeach } from 'react-icons/tb';
 import { MdHotTub, MdOutdoorGrill, MdFitnessCenter } from 'react-icons/md';
 import { WiSmoke } from 'react-icons/wi';
 import { PiFireExtinguisherBold, PiSecurityCameraThin } from 'react-icons/pi';
-import { AccommodationFormValues } from '@/schemas/accommodation-form.schema';
-import { ResourceKey } from '@/types';
 
 export default function AccommodationResourcesForm() {
-  const { control, watch } = useFormContext();
-  const resources = watch();
+  const { watch, setValue } = useFormContext<AccommodationFormValues>();
 
-  const resourcesOptions: {
-    key: ResourceKey;
-    label: string;
-    icon: React.ReactNode;
-  }[] = [
+  const values = watch();
+
+  const toggle = (key: keyof AccommodationFormValues) => {
+    setValue(key, !values[key], {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+  };
+
+  const resourcesOptions = [
     { key: 'wifi', label: 'Wi-Fi', icon: <FaWifi /> },
     { key: 'tv', label: 'TV', icon: <LuMonitor /> },
     { key: 'kitchen', label: 'Cozinha', icon: <GrRestaurant /> },
@@ -31,59 +34,44 @@ export default function AccommodationResourcesForm() {
     { key: 'grill', label: 'Churrasqueira', icon: <MdOutdoorGrill /> },
     { key: 'private_gym', label: 'Academia privativa', icon: <MdFitnessCenter /> },
     { key: 'beach_access', label: 'Acesso à praia', icon: <TbBeach /> },
-  ];
+  ] as const;
 
-  const securityOptions: {
-    key: ResourceKey;
-    label: string;
-    icon: React.ReactNode;
-  }[] = [
+  const securityOptions = [
     { key: 'smoke_detector', label: 'Detector de fumaça', icon: <WiSmoke /> },
     { key: 'fire_extinguisher', label: 'Extintor', icon: <PiFireExtinguisherBold /> },
-    { key: 'first_aid_kit', label: 'Kit de primeiros socorros', icon: <FaMedkit /> },
+    { key: 'first_aid_kit', label: 'Primeiros socorros', icon: <FaMedkit /> },
     { key: 'outdoor_camera', label: 'Câmera externa', icon: <PiSecurityCameraThin /> },
-  ];
-
-  const renderCheckbox = (
-    key: keyof AccommodationFormValues,
-    label: string,
-    icon: React.ReactNode
-  ) => (
-    <Controller
-      key={key}
-      name={key}
-      control={control}
-      defaultValue={false}
-      render={({ field }) => (
-        <button
-          type="button"
-          onClick={() => field.onChange(!field.value)}
-          className={`flex flex-col items-center justify-center gap-2 p-3 rounded-lg border transition ${
-            field.value
-              ? 'bg-orange-500 text-white border-orange-500'
-              : 'bg-white text-gray-700 border-gray-300'
-          } hover:bg-orange-100`}
-        >
-          <div className="text-2xl">{icon}</div>
-          <span className="text-sm text-center">{label}</span>
-        </button>
-      )}
-    />
-  );
+  ] as const;
 
   return (
-    <div className="space-y-6 md:m-10 m-3">
+    <div className="space-y-8">
       <div>
-        <h2 className="text-2xl mb-3">Comodidades</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-          {resourcesOptions.map(r => renderCheckbox(r.key, r.label, r.icon))}
+        <h2 className="text-xl font-semibold mb-3">Comodidades</h2>
+        <div className="flex flex-wrap gap-3">
+          {resourcesOptions.map(({ key, label, icon }) => (
+            <CustomButton
+              key={key}
+              label={label}
+              icon={icon}
+              isActive={!!values[key]}
+              onClick={() => toggle(key)}
+            />
+          ))}
         </div>
       </div>
 
       <div>
-        <h2 className="text-2xl mb-3">Itens de Segurança</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-          {securityOptions.map(s => renderCheckbox(s.key, s.label, s.icon))}
+        <h2 className="text-xl font-semibold mb-3">Segurança</h2>
+        <div className="flex flex-wrap gap-3">
+          {securityOptions.map(({ key, label, icon }) => (
+            <CustomButton
+              key={key}
+              label={label}
+              icon={icon}
+              isActive={!!values[key]}
+              onClick={() => toggle(key)}
+            />
+          ))}
         </div>
       </div>
     </div>

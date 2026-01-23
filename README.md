@@ -10,8 +10,8 @@ O foco principal foi entregar uma solução **end-to-end funcional**, com **sepa
 
 > **⚠️ Atenção:**
 > O correto funcionamento do sistema **depende obrigatoriamente** da configuração adequada dos arquivos `.env` em **todos os serviços** do projeto.
-
 > Antes de executar o sistema localmente, é obrigatório:
+>
 > 1. Criar os arquivos `.env` a partir dos modelos fornecidos (`.env.example`).
 > 2. Garantir que todas as variáveis obrigatórias estejam preenchidas.
 > 3. Configurar corretamente os seguintes itens:
@@ -110,6 +110,12 @@ API Gateway (NestJS)
 
 - `FULL_SPACE`
 - `LIMITED_SPACE`
+
+### Eventos de notificação
+
+- `booking.created`
+- `booking.confirmed`
+- `booking.canceled`
 
 ---
 

@@ -2,27 +2,28 @@ import { Injectable, Inject } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { CreateCommentCommand } from '../dtos';
+import { CreateAccommodationCommand } from 'src/commands';
 
 @Injectable()
-export class AccommodationsService {
+export class AccommodationService {
   constructor(
     @Inject('ACCOMMODATIONS_CLIENT')
     private readonly client: ClientProxy,
   ) {}
 
-  findAll() {
+  findAllAccommodations() {
     return firstValueFrom(this.client.send('accommodation.find_all', {}));
   }
 
-  findOne(id: string) {
+  findOneAccommodation(id: string) {
     return firstValueFrom(this.client.send('accommodation.find_one', id));
   }
 
-  create(data: any) {
+  createAccommodation(data: CreateAccommodationCommand) {
     return firstValueFrom(this.client.send('accommodation.create', data));
   }
 
-  update(id: string, data: any, userId: string) {
+  updateAccommodation(id: string, data: any, userId: string) {
     return firstValueFrom(
       this.client.send('accommodation.update', {
         id,
@@ -32,8 +33,10 @@ export class AccommodationsService {
     );
   }
 
-  remove(id: string) {
-    return firstValueFrom(this.client.send('accommodation.remove', id));
+  removeAccommodation(id: string, userId: string) {
+    return firstValueFrom(
+      this.client.send('accommodation.remove', { id, userId }),
+    );
   }
 
   findMyAccommodations(userId: string) {
@@ -44,13 +47,18 @@ export class AccommodationsService {
     );
   }
 
-  createComment(command: CreateCommentCommand) {
-    return firstValueFrom(this.client.send({ cmd: 'createComment' }, command));
+  createCommentInAccommodation(command: CreateCommentCommand) {
+    return firstValueFrom(
+      this.client.send({ cmd: 'accommodation.create_comment' }, command),
+    );
   }
 
-  async getComments(accommodationId: string, page: number, size: number) {
+  async getCommentsInAccommodation(id: string, page: number, size: number) {
     return firstValueFrom(
-      this.client.send({ cmd: 'getComments' }, { accommodationId, page, size }),
+      this.client.send(
+        { cmd: 'accommodation.get_comments' },
+        { id, page, size },
+      ),
     );
   }
 }

@@ -80,6 +80,7 @@ export type CreateAccommodationPayload = {
   wifi?: boolean;
   tv?: boolean;
   kitchen?: boolean;
+  washing_machine?: boolean;
   air_conditioning?: boolean;
   parking_included?: boolean;
   pool?: boolean;

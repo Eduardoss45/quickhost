@@ -1,18 +1,26 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { api } from '@/services/api';
 import { toast } from 'sonner';
 import { CreateBookingPayload, Booking } from '@/types';
+import { useNavigate } from 'react-router-dom';
 
 export function useBooking() {
   const [loading, setLoading] = useState(false);
+  const submitLockRef = useRef(false);
+  const navigate = useNavigate();
 
   const createBooking = async (payload: CreateBookingPayload) => {
+    if (submitLockRef.current) return;
+
+    submitLockRef.current = true;
     setLoading(true);
     try {
       const res = await api.post('/api/bookings', payload);
       toast.success('Reserva criada com sucesso');
+      navigate('/reservations');
       return res.data;
     } catch (e: any) {
+      submitLockRef.current = false;
       toast.error(e.response?.data?.message ?? 'Erro ao criar reserva');
       return null;
     } finally {
@@ -21,12 +29,16 @@ export function useBooking() {
   };
 
   const cancelBooking = async (bookingId: string) => {
+    if (submitLockRef.current) return;
+
+    submitLockRef.current = true;
     setLoading(true);
     try {
       const res = await api.post(`/api/bookings/${bookingId}/cancel`);
       toast.success('Reserva cancelada com sucesso');
       return res.data;
     } catch (e: any) {
+      submitLockRef.current = false;
       toast.error(e.response?.data?.message ?? 'Erro ao cancelar reserva');
       return null;
     } finally {
@@ -35,12 +47,16 @@ export function useBooking() {
   };
 
   const confirmBooking = async (bookingId: string) => {
+    if (submitLockRef.current) return;
+
+    submitLockRef.current = true;
     setLoading(true);
     try {
       const res = await api.post('/api/bookings/confirm', { bookingId });
       toast.success('Reserva confirmada com sucesso');
       return res.data;
     } catch (e: any) {
+      submitLockRef.current = false;
       toast.error(e.response?.data?.message ?? 'Erro ao confirmar reserva');
       return null;
     } finally {

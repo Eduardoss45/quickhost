@@ -12,28 +12,31 @@ import {
   BadRequestException,
   Query,
   Req,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/guards/jwt.guard';
 import { CurrentUser } from 'src/decorators/current-user.decorator';
 import type { JwtUser } from 'src/types';
 
-import { AccommodationsService } from './accommodations.service';
+import { AccommodationService } from './accommodation.service';
 import {
   CreateAccommodationDto,
   UpdateAccommodationDto,
   CreateCommentDto,
-} from '../dtos/';
+} from '../dtos';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import path from 'path';
 import fs from 'fs';
 import sharp from 'sharp';
+import { CreateAccommodationCommand } from 'src/commands';
 
 @UseGuards(JwtAuthGuard)
 @Controller('accommodations')
-export class AccommodationsController {
-  constructor(private readonly service: AccommodationsService) {}
+export class AccommodationController {
+  constructor(private readonly accommodationService: AccommodationService) {}
 
-  private async localUploadAccommodationImages(
+  private async uploadAccommodationImages(
     accommodationId: string,
     files: Express.Multer.File[],
     coverOriginalName: string,
@@ -85,31 +88,33 @@ export class AccommodationsController {
   }
 
   @Get()
-  findAll() {
-    return this.service.findAll();
+  findAllAccommodations() {
+    return this.accommodationService.findAllAccommodations();
   }
 
   @Get('my-records')
   getMyAccommodations(@CurrentUser() user: JwtUser) {
-    return this.service.findMyAccommodations(user.userId);
+    return this.accommodationService.findMyAccommodations(user.userId);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.service.findOne(id);
+  findOneAccommodation(@Param('id') id: string) {
+    return this.accommodationService.findOneAccommodation(id);
   }
 
   @Post()
   @UseInterceptors(FilesInterceptor('images', 10))
-  async create(
+  async createAccommodation(
     @CurrentUser() user: JwtUser,
     @Body() dto: CreateAccommodationDto,
     @UploadedFiles() files?: Express.Multer.File[],
   ) {
-    const accommodation = await this.service.create({
+    const command: CreateAccommodationCommand = {
       ...dto,
       creator_id: user.userId,
-    });
+    };
+    const accommodation =
+      await this.accommodationService.createAccommodation(command);
 
     if (files?.length) {
       if (!dto.coverOriginalName) {
@@ -118,13 +123,13 @@ export class AccommodationsController {
         );
       }
 
-      const { cover, images } = await this.localUploadAccommodationImages(
+      const { cover, images } = await this.uploadAccommodationImages(
         accommodation.id,
         files,
         dto.coverOriginalName,
       );
 
-      return this.service.update(
+      return this.accommodationService.updateAccommodation(
         accommodation.id,
         {
           main_cover_image: cover,
@@ -137,7 +142,7 @@ export class AccommodationsController {
 
   @Patch(':id')
   @UseInterceptors(FilesInterceptor('images', 10))
-  async update(
+  async updateAccommodation(
     @Param('id') id: string,
     @Body() dto: UpdateAccommodationDto,
     @CurrentUser() user: JwtUser,
@@ -149,7 +154,7 @@ export class AccommodationsController {
     let cover: string | undefined;
 
     if (files?.length) {
-      const result = await this.localUploadAccommodationImages(
+      const result = await this.uploadAccommodationImages(
         id,
         files,
         coverOriginalName!,
@@ -159,7 +164,7 @@ export class AccommodationsController {
       cover = result.cover;
     }
 
-    return this.service.update(
+    return this.accommodationService.updateAccommodation(
       id,
       {
         ...data,
@@ -171,17 +176,21 @@ export class AccommodationsController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.service.remove(id);
+  async removeAccommodation(
+    @Param('id') id: string,
+    @CurrentUser() user: JwtUser,
+  ) {
+    await this.accommodationService.removeAccommodation(id, user.userId);
+    return { success: true };
   }
 
   @Post(':id/comments')
-  async createComment(
+  async createCommentInAccommodation(
     @Param('id') accommodationId: string,
     @Body() dto: CreateCommentDto,
     @Req() req: any,
   ) {
-    return this.service.createComment({
+    return this.accommodationService.createCommentInAccommodation({
       accommodationId: accommodationId,
       content: dto.content,
       rating: dto.rating,
@@ -191,11 +200,11 @@ export class AccommodationsController {
   }
 
   @Get(':id/comments')
-  async getComments(
+  async getCommentsInAccommodation(
     @Param('id') id: string,
     @Query('page') page: number,
     @Query('size') size: number,
   ) {
-    return this.service.getComments(id, page, size);
+    return this.accommodationService.getCommentsInAccommodation(id, page, size);
   }
 }

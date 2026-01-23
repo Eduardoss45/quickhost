@@ -12,8 +12,13 @@ export default function Host() {
   const [accommodations, setAccommodations] = useState<Accommodation[]>([]);
 
   useEffect(() => {
-    getMyRecords().then(setAccommodations);
+    fetchMyRecords();
   }, []);
+
+  const fetchMyRecords = async () => {
+    const data = await getMyRecords();
+    setAccommodations(data);
+  };
 
   return (
     <div className="space-y-6 my-3">
@@ -55,8 +60,9 @@ export default function Host() {
             <AccommodationCard
               key={acc.id}
               accommodation={acc}
-              showActions={true}
+              showActions
               showCreator={false}
+              onRemoved={fetchMyRecords}
             />
           ))}
         </div>

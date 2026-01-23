@@ -5,6 +5,8 @@ import type { Accommodation } from '@/types/accommodation';
 import { useUser } from '@/hooks/useUser';
 import { useFavoritesStore } from '@/store/favorites.store';
 import { FaRegTrashAlt } from 'react-icons/fa';
+import { useAccommodation } from '@/hooks/useAccommodation';
+import { toast } from 'sonner';
 
 interface Props {
   accommodation: Accommodation;
@@ -12,6 +14,7 @@ interface Props {
   showCreator?: boolean;
   enableFavoritesActions?: boolean;
   className?: string;
+  onRemoved?: () => void;
 }
 
 const AccommodationCard: React.FC<Props> = ({
@@ -20,7 +23,9 @@ const AccommodationCard: React.FC<Props> = ({
   showCreator = false,
   className = '',
   enableFavoritesActions = false,
+  onRemoved,
 }) => {
+  const { remove, loading } = useAccommodation();
   const { getPublicUser, isAuthenticated } = useUser();
   const { removeFavorite, isFavorited } = useFavoritesStore();
   const [creatorName, setCreatorName] = useState<string>('Criador desconhecido');
@@ -75,7 +80,7 @@ const AccommodationCard: React.FC<Props> = ({
 
         {showActions && (
           <div className="flex gap-2 pt-2">
-            <Link to={`/acomodacao/${accommodation.id}`} className="flex-1">
+            <Link to={`/announcement/${accommodation.id}`} className="flex-1">
               <button className="flex w-full justify-center items-center gap-2 p-2 bg-blue-500 text-white rounded-sm text-sm">
                 <Eye size={16} /> Ver
               </button>
@@ -86,6 +91,40 @@ const AccommodationCard: React.FC<Props> = ({
                 <Pencil size={16} /> Editar
               </button>
             </Link>
+          </div>
+        )}
+
+        {showActions && (
+          <div className="pt-2">
+            <button
+              disabled={loading}
+              onClick={() => {
+                toast.warning('Remover acomodação?', {
+                  description: 'Esta ação não pode ser desfeita.',
+                  action: {
+                    label: 'Remover',
+                    onClick: async () => {
+                      const success = await remove(accommodation.id);
+                      if (success) {
+                        onRemoved?.();
+                      }
+                    },
+                  },
+                  cancel: {
+                    label: 'Cancelar',
+                    onClick: () => {},
+                  },
+                });
+              }}
+              className="
+        flex w-full justify-center items-center gap-2 p-2
+        bg-red-400 hover:bg-red-500 text-white
+        rounded-sm text-sm transition
+        disabled:opacity-50 disabled:cursor-not-allowed
+      "
+            >
+              <FaRegTrashAlt size={16} /> Remover acomodação
+            </button>
           </div>
         )}
       </div>

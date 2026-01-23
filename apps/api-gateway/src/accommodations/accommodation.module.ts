@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { AccommodationsController } from './accommodations.controller';
-import { AccommodationsService } from './accommodations.service';
+import { AccommodationController } from './accommodation.controller';
+import { AccommodationService } from './accommodation.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
 
@@ -23,7 +23,7 @@ import { ConfigService } from '@nestjs/config';
       },
     ]),
   ],
-  controllers: [AccommodationsController],
-  providers: [AccommodationsService],
+  controllers: [AccommodationController],
+  providers: [AccommodationService],
 })
 export class AccommodationModule {}

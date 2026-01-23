@@ -14,6 +14,21 @@ import {
 
 @Injectable()
 export class BookingService {
+  private async accommodationExists(accommodationId: string): Promise<boolean> {
+    try {
+      const accommodation = await firstValueFrom(
+        this.accommodationClient.send(
+          'accommodation.find_one',
+          accommodationId,
+        ),
+      );
+
+      return !!accommodation;
+    } catch {
+      return false;
+    }
+  }
+
   constructor(
     private readonly bookingRepository: BookingRepository,
 
@@ -269,6 +284,13 @@ export class BookingService {
   async getBookingsByAccommodation(
     accommodationId: string,
   ): Promise<Booking[]> {
+    const exists = await this.accommodationExists(accommodationId);
+
+    if (!exists) {
+      await this.bookingRepository.delete({ accommodationId });
+      return [];
+    }
+
     return this.bookingRepository.findByAccommodation(accommodationId);
   }
 
@@ -283,7 +305,24 @@ export class BookingService {
       });
     }
 
-    return this.bookingRepository.findByUser(userId, role);
+    const bookings = await this.bookingRepository.findByUser(userId, role);
+
+    if (bookings.length === 0) return [];
+
+    const validBookings: Booking[] = [];
+
+    for (const booking of bookings) {
+      const exists = await this.accommodationExists(booking.accommodationId);
+
+      if (!exists) {
+        await this.bookingRepository.delete({ id: booking.id });
+        continue;
+      }
+
+      validBookings.push(booking);
+    }
+
+    return validBookings;
   }
 
   async confirmBooking(bookingId: string, hostId: string): Promise<Booking> {

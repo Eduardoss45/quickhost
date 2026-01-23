@@ -6,7 +6,7 @@ import { User } from './entities/user.entity';
 import { UserService } from './user/services/user.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { UserController } from './user/controllers/user.controller';
-import { FavoritesReconciliationJob } from '../job/favorites.reconciliation.job';
+import { FavoritesReconciliationJob } from '../jobs/favorites.reconciliation.job';
 import { UserFavorite } from './entities/user-favorite.entity';
 import { FavoritesRepository } from './repositories/favorites.repository';
 

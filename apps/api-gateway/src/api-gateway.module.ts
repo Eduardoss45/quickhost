@@ -4,7 +4,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
-import { AccommodationModule } from './accommodations/accommodations.module';
+import { AccommodationModule } from './accommodations/accommodation.module';
 import { ChatModule } from './chat/chat.module';
 import { SecurityModule } from './strategies/security.module';
 import { RmqExceptionInterceptor } from './exception/rmq-exception.interceptor';

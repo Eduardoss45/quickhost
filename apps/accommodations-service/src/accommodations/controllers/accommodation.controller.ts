@@ -40,8 +40,9 @@ export class AccommodationController {
   }
 
   @MessagePattern('accommodation.remove')
-  remove(@Payload() id: string): Promise<void> {
-    return this.accommodationService.remove(id);
+  async remove(@Payload() data: { id: string; userId: string }) {
+    await this.accommodationService.remove(data.id, data.userId);
+    return { success: true };
   }
 
   @MessagePattern('accommodation.find_by_creator')
@@ -49,26 +50,22 @@ export class AccommodationController {
     return this.accommodationService.findByCreator(data.creatorId);
   }
 
-  @MessagePattern({ cmd: 'createComment' })
+  @MessagePattern({ cmd: 'accommodation.create_comment' })
   createComment(command: CreateCommentCommand) {
     return this.accommodationService.createComment(command);
   }
 
-  @MessagePattern({ cmd: 'getComments' })
-  getComments(data: { accommodationId: string; page: number; size: number }) {
-    return this.accommodationService.getComments(
-      data.accommodationId,
-      data.page,
-      data.size,
-    );
+  @MessagePattern({ cmd: 'accommodation.get_comments' })
+  getComments(data: { id: string; page: number; size: number }) {
+    return this.accommodationService.getComments(data.id, data.page, data.size);
   }
 
   @MessagePattern('accommodation.update_next_available_date')
   updateNextAvailableDate(
-    @Payload() data: { accommodationId: string; date: string | null },
+    @Payload() data: { id: string; date: string | null },
   ) {
     return this.accommodationService.updateNextAvailableDate(
-      data.accommodationId,
+      data.id,
       data.date,
     );
   }

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { api } from '@/services/api';
 import { toast } from 'sonner';
 import { Accommodation, CreateAccommodationPayload } from '@/types';
@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 export function useAccommodation() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const submitLockRef = useRef(false);
 
   const getAll = async (): Promise<Accommodation[]> => {
     try {
@@ -39,11 +40,17 @@ export function useAccommodation() {
   };
 
   const create = async (payload: CreateAccommodationPayload) => {
+    if (submitLockRef.current) return;
+
+    submitLockRef.current = true;
     setLoading(true);
+
     try {
       await api.post('/api/accommodations', payload);
       toast.success('Acomodação criada com sucesso');
+      navigate('/host');
     } catch (e: any) {
+      submitLockRef.current = false;
       toast.error(e.response?.data?.message ?? 'Erro ao criar acomodação');
     } finally {
       setLoading(false);
@@ -51,13 +58,18 @@ export function useAccommodation() {
   };
 
   const createWithFiles = async (payload: FormData) => {
+    if (submitLockRef.current) return;
+
+    submitLockRef.current = true;
     setLoading(true);
     try {
       await api.post('/api/accommodations', payload, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       toast.success('Acomodação criada com sucesso');
+      navigate('/host');
     } catch (e: any) {
+      submitLockRef.current = false;
       toast.error(e.response?.data?.message ?? 'Erro ao criar acomodação');
     } finally {
       setLoading(false);
@@ -65,6 +77,9 @@ export function useAccommodation() {
   };
 
   const update = async (id: string, payload: FormData) => {
+    if (submitLockRef.current) return;
+
+    submitLockRef.current = true;
     setLoading(true);
     try {
       await api.patch(`/api/accommodations/${id}`, payload, {
@@ -73,6 +88,7 @@ export function useAccommodation() {
       toast.success('Acomodação atualizada com sucesso');
       navigate('/host');
     } catch (e: any) {
+      submitLockRef.current = false;
       toast.error(e.response?.data?.message ?? 'Erro ao atualizar acomodação');
     } finally {
       setLoading(false);
@@ -82,8 +98,10 @@ export function useAccommodation() {
   const remove = async (id: string) => {
     setLoading(true);
     try {
-      await api.delete(`/api/accommodations/${id}`);
+      const res = await api.delete(`/api/accommodations/${id}`);
+      console.log(res);
       toast.success('Acomodação removida com sucesso');
+      return true;
     } catch {
       toast.error('Erro ao remover acomodação');
     } finally {

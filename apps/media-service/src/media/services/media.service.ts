@@ -2,17 +2,29 @@ import {
   Injectable,
   BadRequestException,
   InternalServerErrorException,
+  Inject,
 } from '@nestjs/common';
-import { RpcException } from '@nestjs/microservices';
+import { ClientProxy, RpcException } from '@nestjs/microservices';
 import * as fs from 'fs';
 import * as path from 'path';
+import { firstValueFrom } from 'rxjs';
 import sharp from 'sharp';
+import { validate as isUUID } from 'uuid';
 
 @Injectable()
 export class MediaService {
   private readonly uploadDir: string;
 
-  constructor() {
+  private isValidUUID(value: string): boolean {
+    return isUUID(value);
+  }
+
+  constructor(
+    @Inject('ACCOMMODATIONS_CLIENT')
+    private readonly accommodationClient: ClientProxy,
+    @Inject('AUTH_CLIENT')
+    private readonly authClient: ClientProxy,
+  ) {
     this.uploadDir = path.resolve(process.cwd(), '..', '..', 'uploads');
 
     if (!fs.existsSync(this.uploadDir)) {
@@ -92,8 +104,8 @@ export class MediaService {
     cover: string;
     images: string[];
   }> {
-    if (images.length === 0 || images.length > 10) {
-      throw new BadRequestException('Acomodação deve ter entre 1 e 10 imagens');
+    if (images.length === 0 || images.length > 5) {
+      throw new BadRequestException('Acomodação deve ter entre 1 e 5 imagens');
     }
 
     const coverIndex = images.findIndex(
@@ -104,7 +116,6 @@ export class MediaService {
       throw new BadRequestException('Imagem de capa não encontrada');
     }
 
-    // Move capa para a posição 0
     const orderedImages = [
       images[coverIndex],
       ...images.filter((_, i) => i !== coverIndex),
@@ -152,6 +163,78 @@ export class MediaService {
         statusCode: 500,
         message: 'Erro ao remover imagens da acomodação',
       });
+    }
+  }
+
+  async userExists(userId: string): Promise<boolean> {
+    try {
+      await firstValueFrom(
+        this.authClient.send('user.get_public_profile', { userId }),
+      );
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  async accommodationExists(accommodationId: string): Promise<boolean> {
+    try {
+      await firstValueFrom(
+        this.accommodationClient.send(
+          'accommodation.find_one',
+          accommodationId,
+        ),
+      );
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  async cleanupUserUploads(): Promise<void> {
+    const usersDir = path.join(this.uploadDir, 'users');
+    if (!fs.existsSync(usersDir)) return;
+
+    const entries = await fs.promises.readdir(usersDir, {
+      withFileTypes: true,
+    });
+
+    for (const entry of entries) {
+      if (!entry.isDirectory()) continue;
+
+      const userId = entry.name;
+      const dirPath = path.join(usersDir, userId);
+
+      try {
+        if (!this.isValidUUID(userId) || !(await this.userExists(userId))) {
+          await fs.promises.rm(dirPath, { recursive: true, force: true });
+        }
+      } catch (error) {}
+    }
+  }
+
+  async cleanupAccommodationUploads(): Promise<void> {
+    const accDir = path.join(this.uploadDir, 'accommodations');
+    if (!fs.existsSync(accDir)) return;
+
+    const entries = await fs.promises.readdir(accDir, {
+      withFileTypes: true,
+    });
+
+    for (const entry of entries) {
+      if (!entry.isDirectory()) continue;
+
+      const accommodationId = entry.name;
+      const dirPath = path.join(accDir, accommodationId);
+
+      try {
+        if (
+          !this.isValidUUID(accommodationId) ||
+          !(await this.accommodationExists(accommodationId))
+        ) {
+          await fs.promises.rm(dirPath, { recursive: true, force: true });
+        }
+      } catch (error) {}
     }
   }
 }

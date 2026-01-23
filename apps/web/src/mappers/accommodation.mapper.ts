@@ -1,36 +1,35 @@
-import { Accommodation, CreateAccommodationPayload } from '@/types';
+import { AccommodationFormValues } from '@/schemas/accommodation-form.schema';
+import { Accommodation } from '@/types';
 
-export function accommodationToForm(accommodation: Accommodation): CreateAccommodationPayload {
+export function accommodationToForm(accommodation: Accommodation): AccommodationFormValues {
   return {
     title: accommodation.title,
     description: accommodation.description ?? '',
 
+    category: accommodation.category,
+    space_type: accommodation.space_type,
+
     price_per_night: Number(accommodation.price_per_night),
     cleaning_fee: Number(accommodation.cleaning_fee),
+    discount: accommodation.discount ?? false,
 
     room_count: accommodation.room_count,
     bed_count: accommodation.bed_count,
     bathroom_count: accommodation.bathroom_count,
     guest_capacity: accommodation.guest_capacity,
 
-    category: accommodation.category,
-    space_type: accommodation.space_type,
-
-    ...(accommodation.address && { address: accommodation.address }),
-    ...(accommodation.city && { city: accommodation.city }),
-    ...(accommodation.neighborhood && {
-      neighborhood: accommodation.neighborhood,
-    }),
-    ...(accommodation.postal_code && {
-      postal_code: accommodation.postal_code,
-    }),
-    ...(accommodation.uf && { uf: accommodation.uf }),
+    address: accommodation.address ?? '',
+    city: accommodation.city ?? '',
+    neighborhood: accommodation.neighborhood ?? '',
+    postal_code: accommodation.postal_code ?? '',
+    uf: accommodation.uf ?? '',
 
     wifi: accommodation.wifi,
     tv: accommodation.tv,
     kitchen: accommodation.kitchen,
-    air_conditioning: accommodation.air_conditioning,
+    washing_machine: accommodation.washing_machine,
     parking_included: accommodation.parking_included,
+    air_conditioning: accommodation.air_conditioning,
     pool: accommodation.pool,
     jacuzzi: accommodation.jacuzzi,
     grill: accommodation.grill,
@@ -43,8 +42,8 @@ export function accommodationToForm(accommodation: Accommodation): CreateAccommo
     outdoor_camera: accommodation.outdoor_camera,
 
     internal_images: accommodation.internal_images,
-    ...(accommodation.main_cover_image && {
-      main_cover_image: accommodation.main_cover_image,
-    }),
+
+    images_replaced: false,
+    main_cover_index: undefined,
   };
 }

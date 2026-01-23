@@ -61,9 +61,19 @@ export class AccommodationService {
     return this.accommodationRepository.save(accommodation);
   }
 
-  async remove(id: string) {
+  async remove(id: string, userId: string) {
     const accommodation = await this.findOne(id);
+
+    if (accommodation.creator_id !== userId) {
+      throw new RpcException({
+        statusCode: 403,
+        message: 'Você não tem permissão para deletar esta acomodação',
+      });
+    }
+
     await this.accommodationRepository.remove(accommodation);
+
+    return { success: true };
   }
 
   async createComment(comment: {
@@ -90,8 +100,8 @@ export class AccommodationService {
 
   async getComments(accommodationId: string, page?: number, size?: number) {
     this.assertUUID(accommodationId, 'Accommodation ID');
-
     const accommodation = await this.findOne(accommodationId);
+    console.log('passou');
 
     const MAX_PAGE_SIZE = 10;
 

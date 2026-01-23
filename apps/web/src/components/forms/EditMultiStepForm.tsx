@@ -75,6 +75,7 @@ export default function EditMultiStepForm() {
     async function loadAccommodation() {
       const data = await getById(id!);
       if (!data) return;
+      console.log(data); // < washing_machine: true
 
       methods.reset(accommodationToForm(data));
     }
