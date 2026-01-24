@@ -11,7 +11,7 @@ type PreviewFile = File & { preview: string };
 
 export default function AccommodationDetailsForm() {
   const { control, setValue, watch } = useFormContext<AccommodationFormValues>();
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
   const photos = watch('internal_images') || [];
   const mainCoverIndex = watch('main_cover_index');
   const imagesReplaced = watch('images_replaced');

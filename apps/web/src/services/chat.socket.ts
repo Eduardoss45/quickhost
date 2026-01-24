@@ -9,7 +9,7 @@ export function getChatSocket() {
   const { user } = authStore.getState();
   if (!user) return null;
 
-  chatSocket = io(`${import.meta.env.VITE_API_BASE_URL}/chat`, {
+  chatSocket = io(`${import.meta.env.VITE_API_URL}/chat`, {
     auth: {
       userId: user.id,
     },

@@ -5,7 +5,7 @@ let socket: Socket | null = null;
 export function connectNotifications() {
   if (socket) return socket;
 
-  socket = io(import.meta.env.VITE_API_BASE_URL + '/notifications', {
+  socket = io(import.meta.env.VITE_API_URL + '/notifications', {
     transports: ['websocket'],
     withCredentials: true,
   });

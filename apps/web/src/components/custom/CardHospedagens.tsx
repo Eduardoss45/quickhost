@@ -17,7 +17,7 @@ const CardHospedagens = ({ accommodationData }: Props) => {
         <img
           src={
             accommodationData.main_cover_image
-              ? `${import.meta.env.VITE_API_BASE_URL}${accommodationData.main_cover_image}?v=${accommodationData.id}`
+              ? `${import.meta.env.VITE_API_URL}${accommodationData.main_cover_image}?v=${accommodationData.id}`
               : '/placeholder.jpg'
           }
           alt={accommodationData.title}

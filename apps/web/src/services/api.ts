@@ -3,7 +3,7 @@ import { authStore } from '@/store/auth.store';
 import { toast } from 'sonner';
 
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
+  baseURL: import.meta.env.VITE_API_URL,
   withCredentials: true,
 });
 
@@ -38,7 +38,7 @@ api.interceptors.response.use(
       console.log('[AUTH] Network error:', error);
       return Promise.reject(error);
     }
-    
+
     if (authStore.getState().sessionInvalidated) {
       console.warn('[AUTH] Session invalidated → blocking request');
       return Promise.reject(error);

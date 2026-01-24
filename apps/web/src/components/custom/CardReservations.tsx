@@ -92,7 +92,7 @@ export default function CardReservations({ reserva, flow, onUpdateReserva }: Pro
       <div className="flex flex-col md:flex-row">
         <div className="w-full md:flex-1 max-w-md aspect-4/3 overflow-hidden rounded-md">
           <img
-            src={`${import.meta.env.VITE_API_BASE_URL}${accommodation.internal_images?.[0]}`}
+            src={`${import.meta.env.VITE_API_URL}${accommodation.internal_images?.[0]}`}
             alt="Vista da acomodação"
             className="w-full h-full object-cover"
           />

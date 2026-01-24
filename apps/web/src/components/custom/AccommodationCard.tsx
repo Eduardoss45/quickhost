@@ -34,7 +34,7 @@ const AccommodationCard: React.FC<Props> = ({
 
   const imageUrl = useMemo(() => {
     return accommodation.main_cover_image
-      ? `${import.meta.env.VITE_API_BASE_URL}${accommodation.main_cover_image}?v=${cacheBuster}`
+      ? `${import.meta.env.VITE_API_URL}${accommodation.main_cover_image}?v=${cacheBuster}`
       : '/placeholder.jpg';
   }, [accommodation.main_cover_image, cacheBuster]);
 

@@ -27,7 +27,7 @@ const Navbar = () => {
   const isAuthenticated = Boolean(user);
   const userDisplayName = user?.username ?? '';
   const userAvatarUrl = user?.profile_picture_url
-    ? `${import.meta.env.VITE_API_BASE_URL}${user.profile_picture_url}`
+    ? `${import.meta.env.VITE_API_URL}${user.profile_picture_url}`
     : '';
 
   useEffect(() => {
