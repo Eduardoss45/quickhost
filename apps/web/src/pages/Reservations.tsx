@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
-import CardReservations from './CardReservations';
+import CardReservations from '../components/custom/CardReservations';
 import { useBooking } from '@/hooks/useBooking';
 import { useUser } from '@/hooks/useUser';
 import { Booking } from '@/types';
+import { Link } from 'react-router-dom';
+import { TfiClose } from 'react-icons/tfi';
 
 export default function Reservations() {
   const { getUserBookings } = useBooking();
@@ -27,7 +29,17 @@ export default function Reservations() {
 
   return (
     <div>
-      <h2 className="text-2xl mb-4">Minhas Reservas</h2>
+      <div className="flex justify-between flex-col md:flex-row md:mb-4">
+        <div className="md:px-4 m-3 md:mx-10 mb-3 flex gap-2 items-center">
+          <Link to="/" className="flex items-center gap-2 ">
+            <TfiClose className="text-3xl" />
+          </Link>
+
+          <div>
+            <h2 className="text-2xl">Minhas Reservas</h2>
+          </div>
+        </div>
+      </div>
 
       {reservas.length > 0 ? (
         <div className="space-y-4">

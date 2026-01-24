@@ -31,7 +31,6 @@ export class BookingService {
 
   constructor(
     private readonly bookingRepository: BookingRepository,
-
     @Inject('ACCOMMODATIONS_CLIENT')
     private readonly accommodationClient: ClientProxy,
     @Inject('NOTIFICATIONS_EVENTS')
@@ -439,6 +438,20 @@ export class BookingService {
       .createQueryBuilder()
       .delete()
       .from(Booking)
+      .execute();
+
+    return { affected: result.affected ?? 0 };
+  }
+
+  async deleteExpiredConfirmedBookings(): Promise<{ affected: number }> {
+    const today = startOfDay(new Date());
+
+    const result = await this.bookingRepository
+      .createQueryBuilder()
+      .delete()
+      .from(Booking)
+      .where('status = :status', { status: BookingStatus.CONFIRMED })
+      .andWhere('checkOutDate < :today', { today })
       .execute();
 
     return { affected: result.affected ?? 0 };

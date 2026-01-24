@@ -25,7 +25,6 @@ export default function AnnouncementGallery({ images }: Props) {
 
   return (
     <section className="space-y-2">
-      {/* MOBILE: carrossel */}
       <div className="md:hidden relative w-full aspect-[4/3] overflow-hidden rounded">
         {images.slice(0, 5).map((image, index) => (
           <img
@@ -39,7 +38,6 @@ export default function AnnouncementGallery({ images }: Props) {
         ))}
       </div>
 
-      {/* DESKTOP: grid original */}
       <div className="hidden md:grid grid-cols-4 grid-rows-2 gap-2 max-h-105">
         {images.slice(0, 4).map((image, index) => {
           const gridClass =

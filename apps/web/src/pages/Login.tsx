@@ -42,7 +42,7 @@ function Login() {
 
   return (
     <div className="flex justify-center flex-row gap-24">
-      <div className="w-1/2 my-6">
+      <div className="md:w-1/2 m-3 my-6">
         <h1 className="text-2xl font-bold">Bem vindo(a) de volta!</h1>
         <p>
           Não tem uma conta?{' '}
@@ -119,9 +119,9 @@ function Login() {
           </form>
         </Form>
       </div>
-      <div className="w-1/2">
+      <div className="md:block md:w-1/2 hidden">
         <img
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover rounded-md"
           src={bg}
           alt="Imagem de uma casa grande e pessoas andando no jardim"
         />

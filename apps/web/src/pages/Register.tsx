@@ -43,7 +43,7 @@ function Register() {
 
   return (
     <div className="flex flex-1 justify-center flex-row gap-24">
-      <div className="w-full my-6">
+      <div className="w-full my-6 m-3">
         <h1 className="text-2xl font-bold">Cadastro</h1>
         <p>
           Já tem uma conta?{' '}
@@ -149,9 +149,9 @@ function Register() {
         </Form>
       </div>
 
-      <div className="w-full">
+      <div className="md:block md:w-full hidden">
         <img
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover rounded-md"
           src={bg}
           alt="Imagem de um ambiente agradável"
         />

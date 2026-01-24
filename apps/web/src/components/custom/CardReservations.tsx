@@ -110,10 +110,10 @@ export default function CardReservations({ reserva, flow, onUpdateReserva }: Pro
 
               <div className="text-sm shadow-2xl">
                 <div className="border rounded-md mb-3 p-3 bg-blue-500 text-white font-bold">
-                  <span className="font-medium">Check-in:</span> {reserva.checkInDate}
+                  <span className="font-xs my-2">Check-in:</span> {reserva.checkInDate}
                 </div>
                 <div className="border rounded-md p-3 bg-blue-500 text-white font-bold">
-                  <span className="font-medium">Check-out:</span> {reserva.checkOutDate}
+                  <span className="font-xs my-2">Check-out:</span> {reserva.checkOutDate}
                 </div>
               </div>
             </div>
@@ -136,6 +136,27 @@ export default function CardReservations({ reserva, flow, onUpdateReserva }: Pro
                 ) : (
                   <p>Anfitrião: {host?.username || 'Anfitrião desconhecido'}</p>
                 )}
+              </div>
+
+              <div className="border-t pt-2 mt-2">
+                <p className="my-2">
+                  <span className="font-xs">Preço por noite:</span> ${reserva.pricePerNight}
+                </p>
+                <p className="my-2">
+                  <span className="font-xs">Total de dias:</span> {reserva.totalDays}
+                </p>
+                <p className="my-2">
+                  <span className="font-xs">Taxa de limpeza:</span> ${reserva.cleaningFee}
+                </p>
+                <p className="my-2">
+                  <span className="font-xs">Taxa de serviço:</span>{' '}
+                  {Number(reserva.serviceFeeMultiplier) > 1
+                    ? `${((reserva.serviceFeeMultiplier - 1) * 100).toFixed(0)}%`
+                    : '0%'}
+                </p>
+                <p className="font-medium text-xl">
+                  <span>Valor final:</span> R${reserva.finalAmount}
+                </p>
               </div>
             </div>
           </div>

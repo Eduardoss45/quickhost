@@ -75,7 +75,19 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, onFilterClick, onSort }
             align="start"
           >
             {Object.keys(categoryMapping).map(tipo => (
-              <DropdownMenuItem key={tipo} onClick={() => handleTipoHospedagemClick(tipo)}>
+              <DropdownMenuItem
+                key={tipo}
+                onClick={() => handleTipoHospedagemClick(tipo)}
+                className="
+    cursor-pointer
+    px-2 py-2
+    outline-none
+    focus:outline-none
+    focus:bg-gray-100
+    hover:bg-gray-200
+    transition-colors
+  "
+              >
                 {tipo}
               </DropdownMenuItem>
             ))}
@@ -93,7 +105,19 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, onFilterClick, onSort }
             align="start"
           >
             {['Avaliação', 'Mais recentes', 'Mais antigos', 'Todos'].map(opcao => (
-              <DropdownMenuItem key={opcao} onClick={() => handleOrdenarPorClick(opcao)}>
+              <DropdownMenuItem
+                key={opcao}
+                onClick={() => handleOrdenarPorClick(opcao)}
+                className="
+    cursor-pointer
+    px-2 py-2
+    outline-none
+    focus:outline-none
+    focus:bg-gray-100
+    hover:bg-gray-200
+    transition-colors
+  "
+              >
                 {opcao}
               </DropdownMenuItem>
             ))}
