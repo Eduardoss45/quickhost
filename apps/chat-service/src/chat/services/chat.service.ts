@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ChatRoom } from '../entities/chat-room.entity';
 import { Message } from '../entities/message.entity';
-import { ClientProxy } from '@nestjs/microservices';
+import { ClientProxy, RpcException } from '@nestjs/microservices';
 
 @Injectable()
 export class ChatService {
@@ -19,6 +19,13 @@ export class ChatService {
   ) {}
 
   async getOrCreateRoom(user1Id: string, user2Id: string) {
+    if (user1Id === user2Id) {
+      throw new RpcException({
+        statusCode: 400,
+        message: 'Não é possível criar uma sala consigo mesmo',
+      });
+    }
+
     let room = await this.chatRoomRepo.findOne({
       where: [
         { user1Id, user2Id },

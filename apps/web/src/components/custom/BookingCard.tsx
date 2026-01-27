@@ -8,6 +8,7 @@ import { differenceInCalendarDays } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { useChat } from '@/hooks/useChat';
 import { useBooking } from '@/hooks/useBooking';
+import { authStore } from '@/store/auth.store';
 
 interface Props {
   accommodation: Accommodation;
@@ -17,6 +18,9 @@ export default function BookingCard({ accommodation }: Props) {
   const navigate = useNavigate();
   const { getOrCreateRoom } = useChat();
   const { createBooking, loading } = useBooking();
+  const user = authStore(state => state.user);
+
+  const isCreator = user?.id === accommodation.creator_id;
 
   const form = useForm<BookingFormData>({
     resolver: zodResolver(bookingSchema),
@@ -54,6 +58,7 @@ export default function BookingCard({ accommodation }: Props) {
   }
 
   const onSubmit = async (data: BookingFormData) => {
+    if (isCreator) return;
     await createBooking({
       accommodationId: accommodation.id,
       hostId: accommodation.creator_id,
@@ -63,6 +68,7 @@ export default function BookingCard({ accommodation }: Props) {
   };
 
   const handleSendMessage = async () => {
+    if (isCreator) return;
     const room = await getOrCreateRoom(accommodation.creator_id);
 
     if (room) {
@@ -71,11 +77,11 @@ export default function BookingCard({ accommodation }: Props) {
   };
 
   return (
-    <aside className="border rounded-lg p-4 sticky top-4 w-full">
+    <aside className="shadow-2xl rounded-lg p-4 sticky top-4 w-full">
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="flex flex-row justify-between gap-2">
-            <div className="w-1/2 border rounded-md py-3 mb-3 text-center">
+            <div className="w-1/2 shadow-2xl rounded-md py-3 mb-3 text-center">
               <p className="font-bold">Check-in</p>
 
               <Controller
@@ -91,7 +97,7 @@ export default function BookingCard({ accommodation }: Props) {
               )}
             </div>
 
-            <div className="w-1/2 border rounded-md py-3 mb-3 text-center">
+            <div className="w-1/2 shadow-2xl rounded-md py-3 mb-3 text-center">
               <p className="font-bold">Check-out</p>
 
               <Controller
@@ -129,22 +135,25 @@ export default function BookingCard({ accommodation }: Props) {
 
           <button
             type="submit"
-            className="mt-4 w-full bg-blue-500 text-white py-2 my-2 rounded-md disabled:opacity-50"
-            disabled={!accommodation.is_active || loading}
+            className="shadow-2xl mt-4 w-full bg-blue-500 text-white py-2 my-2 rounded-md disabled:opacity-50"
+            disabled={!accommodation.is_active || loading || isCreator}
           >
             {loading
               ? 'Processando...'
-              : accommodation.is_active
-                ? 'Solicitar reserva'
-                : 'Indisponível'}
+              : isCreator
+                ? 'Você é o criador'
+                : accommodation.is_active
+                  ? 'Solicitar reserva'
+                  : 'Indisponível'}
           </button>
 
           <button
             type="button"
             onClick={handleSendMessage}
-            className="mt-2 w-full bg-orange-400 text-white py-2 rounded-md"
+            className="shadow-2xl mt-2 w-full bg-orange-400 text-white py-2 rounded-md"
+            disabled={isCreator}
           >
-            Enviar mensagem
+            {isCreator ? 'Não é possível enviar mensagem' : 'Enviar mensagem'}
           </button>
         </form>
       </Form>

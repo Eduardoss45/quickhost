@@ -8,7 +8,6 @@ interface CustomButtonProps {
 }
 
 const CustomButton: React.FC<CustomButtonProps> = ({ icon, label, isActive, onClick }) => {
-  console.log(isActive);
   return (
     <div
       onClick={onClick}

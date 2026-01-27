@@ -9,16 +9,6 @@ import { IoSendOutline } from 'react-icons/io5';
 import type { ChatMessagePayload, ChatRoom, PublicUser } from '@/types';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-
-import { ChevronDown } from 'lucide-react';
 
 type UiMessage = {
   id: string;
@@ -29,11 +19,9 @@ type UiMessage = {
 export default function Chat() {
   const user = authStore(state => state.user);
   const userId = user?.id;
-
   const { getPublicUser } = useUser();
   const { getRooms, getMessages, sendMessage } = useChat();
 
-  const [mode, setMode] = useState<'anfitriao' | 'hospede'>('anfitriao');
   const [text, setText] = useState('');
 
   const [rooms, setRooms] = useState<(ChatRoom & { otherUser?: PublicUser | null })[]>([]);
@@ -43,6 +31,8 @@ export default function Chat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -122,23 +112,6 @@ export default function Chat() {
     md:static md:translate-x-0
   `}
       >
-        <div className="p-4 flex items-center gap-2 shrink-0">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button className="rounded-full flex items-center gap-1">
-                {mode === 'anfitriao' ? 'Sou Anfitrião' : 'Sou Hóspede'}
-                <ChevronDown className="w-4 h-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => setMode('hospede')}>Sou hóspede</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setMode('anfitriao')}>
-                Sou anfitrião
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-
         <div className="flex-1 overflow-y-auto px-3">
           <div className="space-y-3">
             {rooms.map(room => (
@@ -154,13 +127,18 @@ export default function Chat() {
                     : 'hover:bg-gray-100'
                 }`}
               >
-                <Avatar>
-                  <AvatarImage src={room.otherUser?.profile_picture_url ?? ''} />
-                  <AvatarFallback>{room.otherUser?.username?.[0] ?? '?'}</AvatarFallback>
+                <Avatar className="h-10 w-10">
+                  {room.otherUser?.profile_picture_url ? (
+                    <AvatarImage
+                      src={`${API_BASE_URL}${room.otherUser.profile_picture_url}`}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <AvatarFallback>{room.otherUser?.username?.[0] ?? '?'}</AvatarFallback>
+                  )}
                 </Avatar>
 
                 <div>
-                  <p className="text-sm text-gray-500">Cliente:</p>
                   <p className="font-medium">
                     {room.otherUser?.social_name ?? room.otherUser?.username ?? 'Usuário'}
                   </p>

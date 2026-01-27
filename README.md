@@ -331,3 +331,4 @@ npm run dev
 - Retry + DLQ no RabbitMQ
 - Notificações de reservas vencidas
 - Testes E2E
+- Migração de React-Router para TanStack-Router + TanStack-Query

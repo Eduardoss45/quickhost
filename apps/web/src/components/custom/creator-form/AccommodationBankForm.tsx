@@ -41,10 +41,23 @@ export default function AccommodationBankForm() {
     return Object.keys(nextErrors).length === 0;
   }
 
-  console.log('BANK FORM:', bank); // ! Estes dados não tem uso prático no momento
-
   return (
     <div className="flex flex-col max-w-xl">
+      <h2 className="text-2xl mb-4">Dados bancários</h2>
+
+      <div
+        className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4"
+        role="alert"
+      >
+        <p className="font-bold">Atenção</p>
+        <p>
+          Nenhum destes dados financeiros tem propósito real. Este formulário faz parte apenas de
+          uma etapa de fluxo e não tem uso prático na criação da acomodação. Por favor,{' '}
+          <strong>não preencha com dados reais</strong>. Use apenas informações fictícias ou
+          genéricas. Esta etapa pode ser pulada se desejar.
+        </p>
+      </div>
+
       <h2 className="text-2xl mb-4">Dados bancários</h2>
 
       <input

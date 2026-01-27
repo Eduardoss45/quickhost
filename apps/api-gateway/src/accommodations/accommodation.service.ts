@@ -3,6 +3,7 @@ import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { CreateCommentCommand } from '../dtos';
 import { CreateAccommodationCommand } from 'src/commands';
+import { Accommodation } from 'src/types';
 
 @Injectable()
 export class AccommodationService {
@@ -23,7 +24,11 @@ export class AccommodationService {
     return firstValueFrom(this.client.send('accommodation.create', data));
   }
 
-  updateAccommodation(id: string, data: any, userId: string) {
+  updateAccommodation(
+    id: string,
+    data: Partial<Accommodation>,
+    userId: string,
+  ) {
     return firstValueFrom(
       this.client.send('accommodation.update', {
         id,

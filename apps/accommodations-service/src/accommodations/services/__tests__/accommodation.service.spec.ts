@@ -146,8 +146,18 @@ describe('AccommodationService', () => {
   });
 
   it('cria comentário com sucesso', async () => {
+    accommodations.findOne.mockResolvedValue({
+      id: '550e8400-e29b-41d4-a716-446655440000',
+      creator_id: 'other-user',
+    } as any);
+
     comments.createCommentWithRatingUpdate.mockResolvedValue({
       id: 'comment-id',
+      content: 'Ótimo lugar',
+      rating: 5,
+      authorId: 'user-id',
+      authorName: 'Edu',
+      accommodationId: '550e8400-e29b-41d4-a716-446655440000',
     } as any);
 
     const result = await service.createComment({
@@ -158,8 +168,42 @@ describe('AccommodationService', () => {
       accommodationId: '550e8400-e29b-41d4-a716-446655440000',
     });
 
-    expect(result.id).toBe('comment-id');
+    expect(accommodations.findOne).toHaveBeenCalledWith({
+      where: { id: '550e8400-e29b-41d4-a716-446655440000' },
+    });
     expect(comments.createCommentWithRatingUpdate).toHaveBeenCalled();
+    expect(result).toHaveProperty('id', 'comment-id');
+  });
+
+  it('falha se o autor for o criador', async () => {
+    accommodations.findOne.mockResolvedValue({
+      id: '550e8400-e29b-41d4-a716-446655440000',
+      creator_id: 'user-id',
+    } as any);
+
+    await expect(
+      service.createComment({
+        content: 'Teste',
+        rating: 5,
+        authorId: 'user-id',
+        authorName: 'Edu',
+        accommodationId: '550e8400-e29b-41d4-a716-446655440000',
+      }),
+    ).rejects.toBeInstanceOf(RpcException);
+  });
+
+  it('falha se a acomodação não existe', async () => {
+    accommodations.findOne.mockResolvedValue(null);
+
+    await expect(
+      service.createComment({
+        content: 'Teste',
+        rating: 5,
+        authorId: 'user-id',
+        authorName: 'Edu',
+        accommodationId: '550e8400-e29b-41d4-a716-446655440999',
+      }),
+    ).rejects.toBeInstanceOf(RpcException);
   });
 
   it('falha ao criar comentário com accommodationId inválido', async () => {

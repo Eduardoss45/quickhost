@@ -98,8 +98,7 @@ export function useAccommodation() {
   const remove = async (id: string) => {
     setLoading(true);
     try {
-      const res = await api.delete(`/api/accommodations/${id}`);
-      console.log(res);
+      await api.delete(`/api/accommodations/${id}`);
       toast.success('Acomodação removida com sucesso');
       return true;
     } catch {

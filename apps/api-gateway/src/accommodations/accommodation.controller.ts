@@ -30,6 +30,7 @@ import path from 'path';
 import fs from 'fs';
 import sharp from 'sharp';
 import { CreateAccommodationCommand } from 'src/commands';
+import { UpdateAccommodationCommand } from 'src/commands/update-accommodation';
 
 @UseGuards(JwtAuthGuard)
 @Controller('accommodations')
@@ -150,28 +151,36 @@ export class AccommodationController {
   ) {
     const { coverOriginalName, ...data } = dto;
 
-    let images: string[] | undefined;
-    let cover: string | undefined;
+    const command: UpdateAccommodationCommand = {
+      id,
+      data: { ...data },
+      creatorId: user.userId,
+    };
 
     if (files?.length) {
-      const result = await this.uploadAccommodationImages(
+      if (!coverOriginalName) {
+        throw new BadRequestException(
+          'coverOriginalName é obrigatório quando imagens são enviadas',
+        );
+      }
+
+      const { cover, images } = await this.uploadAccommodationImages(
         id,
         files,
-        coverOriginalName!,
+        coverOriginalName,
       );
 
-      images = result.images;
-      cover = result.cover;
+      command.data = {
+        ...command.data,
+        main_cover_image: cover,
+        internal_images: images,
+      };
     }
 
     return this.accommodationService.updateAccommodation(
-      id,
-      {
-        ...data,
-        internal_images: images,
-        main_cover_image: cover,
-      },
-      user.userId,
+      command.id,
+      command.data,
+      command.creatorId,
     );
   }
 
@@ -188,14 +197,14 @@ export class AccommodationController {
   async createCommentInAccommodation(
     @Param('id') accommodationId: string,
     @Body() dto: CreateCommentDto,
-    @Req() req: any,
+    @CurrentUser() user: JwtUser,
   ) {
     return this.accommodationService.createCommentInAccommodation({
       accommodationId: accommodationId,
       content: dto.content,
       rating: dto.rating,
-      authorId: req.user.userId,
-      authorName: req.user.username,
+      authorId: user.userId,
+      authorName: user.username,
     });
   }
 

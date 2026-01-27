@@ -85,6 +85,15 @@ export class AccommodationService {
   }) {
     this.assertUUID(comment.accommodationId, 'Accommodation ID');
 
+    const accommodation = await this.findOne(comment.accommodationId);
+
+    if (accommodation.creator_id === comment.authorId) {
+      throw new RpcException({
+        statusCode: 403,
+        message: 'Você não pode comentar em sua própria acomodação',
+      });
+    }
+
     const created =
       await this.commentRepository.createCommentWithRatingUpdate(comment);
 
@@ -101,7 +110,6 @@ export class AccommodationService {
   async getComments(accommodationId: string, page?: number, size?: number) {
     this.assertUUID(accommodationId, 'Accommodation ID');
     const accommodation = await this.findOne(accommodationId);
-    console.log('passou');
 
     const MAX_PAGE_SIZE = 10;
 
