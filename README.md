@@ -94,7 +94,7 @@ API Gateway (NestJS)
 
 ### Status de reservas disponíveis
 
-- `CAMCELED`
+- `CANCELED`
 - `PENDING`
 - `CONFIRMED`
 
@@ -178,6 +178,61 @@ API Gateway (NestJS)
 
 ---
 
+Segue a **seção pronta para inclusão** no seu README, mantendo o mesmo nível técnico e tom do restante do documento.
+
+---
+
+## 🧪 Testes Automatizados
+
+O projeto possui **testes unitários e de integração** implementados na maioria dos serviços, garantindo a confiabilidade das regras de negócio e dos fluxos críticos.
+
+### Cobertura de Testes
+
+- ✅ **Auth Service**
+- ✅ **Accommodation Service**
+- ✅ **Booking Service**
+- ✅ **Chat Service**
+- ✅ **Notifications Service**
+- ✅ **Media Service**
+- ❌ **API Gateway** (exceção)
+
+> O **API Gateway** não possui testes automatizados, pois seu papel principal é atuar como **orquestrador e validador de requisições**, com lógica mínima e foco em roteamento, autenticação e rate limiting.
+> A decisão foi consciente para priorizar testes nos serviços que concentram **regras de negócio**.
+
+---
+
+### Execução dos Testes
+
+Os testes são executados de forma **centralizada a partir da raiz do monorepo**, aproveitando a estrutura compartilhada.
+
+```bash
+npm run test
+```
+
+Esse comando:
+
+- Executa os testes de **todos os serviços que possuem suíte de testes**
+- Utiliza **Jest** como test runner
+- Roda em ambiente isolado, com dependências mockadas quando necessário
+
+---
+
+### Estratégia de Testes
+
+- Testes focados em **services** (camada de domínio)
+- Repositórios e clientes externos mockados
+- Testes de:
+  - Fluxos felizes
+  - Regras de validação
+  - Cenários de erro
+  - Concorrência (quando aplicável)
+
+- Uso de **transações mockadas** para cenários críticos (ex.: confirmação de reservas)
+
+> O objetivo não foi maximizar cobertura numérica, mas garantir **confiança real nas regras centrais do sistema**.
+
+---
+
 ## 🐳 Infraestrutura & Docker
 
 - Dockerfile individual por serviço
@@ -195,8 +250,10 @@ API Gateway (NestJS)
 ### Execução com Docker
 
 ```bash
-docker compose up --build
+docker compose --parallel 1 up --build
 ```
+
+- Em máquinas com menor capacidade de CPU ou memória, executar múltiplos builds em paralelo pode causar travamentos ou consumo excessivo de recursos. Limitar a execução a uma etapa por vez garante estabilidade e previsibilidade, evitando falhas por falta de recursos durante a construção da aplicação.
 
 ### Observação sobre Health Checks
 

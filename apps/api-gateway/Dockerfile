@@ -30,16 +30,9 @@ FROM base AS builder
 # Dependências nativas para sharp
 RUN apk add --no-cache python3 make g++ libc6-compat vips-dev vips-tools
 
-# Copia node_modules do workspace
 COPY --from=api-gateway-deps /app/node_modules ./node_modules
-
-# Copia código fonte
 COPY . .
 
-# Garante types que faltam
-RUN npm install --workspace=@quickhost/api-gateway @types/express @types/multer --save-dev
-
-# Build do workspace
 RUN npm run build --workspace=@quickhost/api-gateway
 
 # =========================

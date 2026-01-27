@@ -12,20 +12,15 @@
     "migrate:run": "turbo run migration:run"
   },
   "devDependencies": {
-    "prettier": "^3.7.4",
-    "turbo": "^2.7.3",
+    "prettier": "^3.8.1",
+    "turbo": "^2.7.5",
     "typescript": "5.9.3"
   },
   "engines": {
     "node": ">=18"
   },
-  "packageManager": "npm@11.7.0",
+  "packageManager": "npm@11.8.0",
   "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
-  "dependencies": {
-    "@tailwindcss/vite": "^4.1.18",
-    "tailwindcss": "^4.1.18"
-  }
+    "apps/*"
+  ]
 }

@@ -8,8 +8,17 @@ import { resolve } from 'path';
 import { Transport } from '@nestjs/microservices';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
+export function getUploadsPath() {
+  const root = process.env.PROJECT_ROOT;
+  if (!root) {
+    throw new Error('PROJECT_ROOT environment variable is not defined');
+  }
+  return resolve(root, 'uploads');
+}
+
 async function bootstrap() {
   const app = await NestFactory.create(ApiGatewayModule);
+
   app.setGlobalPrefix('api');
 
   app.enableCors({ origin: [process.env.FRONTEND_URL], credentials: true });
@@ -46,7 +55,7 @@ async function bootstrap() {
 
   await app.startAllMicroservices();
 
-  const uploadsDir = resolve(process.env.MONOREPO_ROOT!, 'uploads');
+  const uploadsDir = getUploadsPath();
 
   app.use(
     '/uploads',

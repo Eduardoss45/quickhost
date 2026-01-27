@@ -5,40 +5,47 @@ FROM node:20-alpine AS base
 WORKDIR /app
 
 # =========================
-# DEPS
+# DEPS (monorepo completo)
 # =========================
 FROM base AS deps
 
-# Copiamos apenas manifests para cache eficiente
 COPY package.json package-lock.json ./
 COPY apps/accommodations-service/package.json apps/accommodations-service/
 
 RUN npm install
 
 # =========================
+# DEPS DIMENSIONADO (accommodations-service)
+# =========================
+FROM deps AS accommodations-service-deps
+
+RUN npm prune --workspace=@quickhost/accommodations-service --omit=optional=false
+
+# =========================
 # BUILD
 # =========================
 FROM base AS builder
 
-COPY --from=deps /app/node_modules ./node_modules
+# Dependências nativas para sharp
+RUN apk add --no-cache python3 make g++ libc6-compat vips-dev vips-tools
+
+COPY --from=accommodations-service-deps /app/node_modules ./node_modules
 COPY . .
 
-# Build somente o serviço
 RUN npm run build --workspace=@quickhost/accommodations-service
 
 # =========================
 # RUNTIME
 # =========================
-FROM base AS runner
+FROM node:20-alpine AS runner
+WORKDIR /app
 
-# Segurança básica
 RUN addgroup -S app && adduser -S app -G app
 USER app
 
-COPY --from=builder /app/node_modules ./node_modules
+COPY --from=accommodations-service-deps /app/node_modules ./node_modules
 COPY --from=builder /app/apps/accommodations-service/dist ./dist
-COPY --from=builder /app/apps/accommodations-service/package.json ./package.json
+COPY apps/accommodations-service/package.json ./package.json
 
 EXPOSE 3000
-
 CMD ["node", "dist/src/main.js"]
