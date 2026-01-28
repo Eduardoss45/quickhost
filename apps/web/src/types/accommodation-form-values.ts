@@ -1,4 +1,5 @@
-import { Category, SpaceType } from "@/enums";
+import { Category, SpaceType } from '@/enums';
+import { AccommodationImage } from './accommodation-images';
 
 export type AccommodationFormValues = {
   title: string;
@@ -38,7 +39,7 @@ export type AccommodationFormValues = {
   first_aid_kit: boolean;
   outdoor_camera: boolean;
 
-  internal_images: (string | File)[];
+  internal_images: AccommodationImage;
   main_cover_image?: string;
 
   images_replaced: boolean;

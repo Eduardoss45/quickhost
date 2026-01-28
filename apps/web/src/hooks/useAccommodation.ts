@@ -108,6 +108,17 @@ export function useAccommodation() {
     }
   };
 
+  const removeImages = async (id: string) => {
+    try {
+      await api.delete(`/api/accommodations/${id}/images`);
+      toast.success('Imagens removidas com sucesso');
+      return true;
+    } catch {
+      toast.error('Erro ao remover imagens');
+      return false;
+    }
+  };
+
   return {
     loading,
     getAll,
@@ -117,5 +128,6 @@ export function useAccommodation() {
     createWithFiles,
     update,
     remove,
+    removeImages,
   };
 }

@@ -51,7 +51,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, onFilterClick, onSort }
   };
 
   return (
-    <div className="flex flex-col md:flex-row items-center my-5 gap-2 justify-center w-full">
+    <div className="flex flex-col md:flex-row items-center my-5 m-3 md:m-0 md:w-full gap-2 justify-center ">
       <div className="flex items-center gap-2 w-full md:w-1/2 border-b border-0 px-2 py-2">
         <IoSearchOutline className="text-3xl" />
         <input

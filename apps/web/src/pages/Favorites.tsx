@@ -60,7 +60,7 @@ export default function Favorites() {
         </Card>
       )}
 
-      <div className="flex w-full m-3 gap-10 justify-center flex-wrap">
+      <div className="flex md:w-full m-3 gap-10 justify-center flex-wrap">
         {accommodations.map(accommodation => (
           <AccommodationCard
             key={accommodation.id}

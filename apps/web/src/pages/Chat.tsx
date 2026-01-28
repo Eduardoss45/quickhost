@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { authStore } from '@/store/auth.store';
-
+import { Link } from 'react-router-dom';
+import { TfiClose } from 'react-icons/tfi';
 import { useUser } from '@/hooks/useUser';
 import { useChat } from '@/hooks/useChat';
 import { useChatSocket } from '@/hooks/useChatSocket';
@@ -101,6 +102,7 @@ export default function Chat() {
   }
 
   const activeRoom = rooms.find(r => r.roomId === activeRoomId);
+  const otherUser = activeRoom?.otherUser;
 
   return (
     <div className="flex w-full h-screen">
@@ -150,41 +152,78 @@ export default function Chat() {
       </aside>
 
       <main className="flex-1 flex flex-col h-full">
-        <div className="md:hidden p-4 border-b">
-          <button
-            onClick={() => setIsSidebarOpen(true)}
-            className="px-3 py-2 border rounded-md text-sm"
-          >
-            Conversas
-          </button>
-        </div>
-        <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6 scrollbar-hide">
-          {messages.map(msg => (
-            <div
-              key={msg.id}
-              className={`flex items-end gap-3 ${msg.author === 'me' ? 'justify-end' : 'justify-start'}`}
+        <div className="p-4 border-b flex items-center justify-between">
+          <div className="md:hidden">
+            <button
+              onClick={() => setIsSidebarOpen(true)}
+              className="px-3 py-2 border rounded-md text-sm"
             >
-              {msg.author === 'them' && (
-                <Avatar className="h-8 w-8">
-                  <AvatarFallback>{getInitials(activeRoom?.otherUser?.username)}</AvatarFallback>
-                </Avatar>
-              )}
+              Conversas
+            </button>
+          </div>
 
-              <div
-                className={`max-w-[60%] px-4 py-2 rounded-2xl text-sm ${
-                  msg.author === 'me' ? 'bg-blue-500 text-white' : 'bg-gray-100'
-                }`}
-              >
-                {msg.text}
+          <Link to="/" className="flex items-center gap-2 text-sm text-gray-600 hover:text-black">
+            <TfiClose className="text-2xl" />
+            <span className="hidden sm:inline">Sair do chat</span>
+          </Link>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6 scrollbar-hide">
+          {messages.map(msg => {
+            const isMe = msg.author === 'me';
+
+            return (
+              <div key={msg.id} className={`flex gap-3 ${isMe ? 'justify-end' : 'justify-start'}`}>
+                {!isMe && (
+                  <Avatar className="h-9 w-9 mt-6 shrink-0">
+                    {otherUser?.profile_picture_url ? (
+                      <AvatarImage
+                        src={`${API_BASE_URL}${otherUser.profile_picture_url}`}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <AvatarFallback>{getInitials(otherUser?.username)}</AvatarFallback>
+                    )}
+                  </Avatar>
+                )}
+
+                <div
+                  className={`px-3 py-2 rounded-2xl max-w-[90%] sm:max-w-[75%] ${
+                    isMe ? 'bg-blue-50' : 'bg-orange-50'
+                  }`}
+                >
+                  <p className="text-xs font-medium text-gray-600 mb-1">
+                    {isMe
+                      ? (user?.username ?? 'Você')
+                      : (otherUser?.social_name ?? otherUser?.username ?? 'Usuário')}
+                  </p>
+
+                  <div
+                    className={`px-4 py-2 rounded-2xl text-sm w-fit ${
+                      isMe
+                        ? 'bg-blue-500 text-white rounded-br-sm'
+                        : 'bg-orange-400 text-white rounded-bl-sm'
+                    }`}
+                  >
+                    {msg.text}
+                  </div>
+                </div>
+
+                {isMe && (
+                  <Avatar className="h-9 w-9 mt-6 shrink-0">
+                    {user?.profile_picture_url ? (
+                      <AvatarImage
+                        src={`${API_BASE_URL}${user.profile_picture_url}`}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <AvatarFallback>{getInitials(user?.username)}</AvatarFallback>
+                    )}
+                  </Avatar>
+                )}
               </div>
-
-              {msg.author === 'me' && (
-                <Avatar className="h-8 w-8">
-                  <AvatarFallback>{getInitials(user?.username)}</AvatarFallback>
-                </Avatar>
-              )}
-            </div>
-          ))}
+            );
+          })}
           <div ref={messagesEndRef} />
         </div>
 

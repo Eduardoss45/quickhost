@@ -27,6 +27,5 @@ export class UpdateUserDto {
   birth_date?: string;
 
   @IsOptional()
-  @IsPhoneNumber(undefined)
   phone_number?: string;
 }

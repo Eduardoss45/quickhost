@@ -154,12 +154,12 @@ API Gateway (NestJS)
 - **Tailwind CSS**
 - **shadcn/ui**
 - **react-hook-form + zod**
+- **zustand**
 
 ---
 
 ### Características do Frontend
 
-- Skeleton loaders
 - WebSocket conectado após login
 - Feedback visual via toast
 - Atualização otimista e invalidação de cache controlada
@@ -332,3 +332,4 @@ npm run dev
 - Notificações de reservas vencidas
 - Testes E2E
 - Migração de React-Router para TanStack-Router + TanStack-Query
+- Skeleton loaders

@@ -1,6 +1,6 @@
 export * from './login.dto';
 export * from './register.dto';
-export * from './update.dto';
+export * from './update-user.dto';
 export * from './create-accommodation';
 export * from './update-accommodation.dto';
 export * from './create-comment.dto';

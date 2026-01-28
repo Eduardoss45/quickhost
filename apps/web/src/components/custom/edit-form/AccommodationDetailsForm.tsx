@@ -15,8 +15,10 @@ export default function AccommodationDetailsForm() {
   const photos = watch('internal_images') || [];
   const mainCoverIndex = watch('main_cover_index');
   const imagesReplaced = watch('images_replaced');
-  const hasOnlyStrings = photos.some(p => typeof p === 'string');
-  const formLocked = hasOnlyStrings && !imagesReplaced;
+  const hasImages = photos.length > 0;
+  const hasRealFiles = photos.some(p => typeof p !== 'string');
+  const imagesRemoved = imagesReplaced && !hasImages;
+  const formLocked = imagesRemoved;
   const onDrop = (acceptedFiles: File[]) => {
     const newFiles: PreviewFile[] = acceptedFiles.map(file =>
       Object.assign(file, {
@@ -37,9 +39,11 @@ export default function AccommodationDetailsForm() {
 
   return (
     <div className="space-y-6 md:m-10 m-3">
-      {formLocked && (
-        <div className="bg-yellow-100 border border-yellow-300 p-3 rounded text-sm">
-          ⚠️ Para editar os dados, você precisa substituir as imagens primeiro.
+      {imagesRemoved && (
+        <div className="bg-red-100 border border-red-300 p-4 rounded text-sm text-red-800">
+          ⚠️ Você removeu todas as imagens desta acomodação. Para evitar que o anúncio fique
+          invisível na plataforma, o editor foi bloqueado. Selecione novas imagens para continuar a
+          edição.
         </div>
       )}
 
@@ -48,7 +52,7 @@ export default function AccommodationDetailsForm() {
           <h2 className="text-2xl mb-3">Escolha a imagem de capa</h2>
 
           <div className="grid grid-cols-4 grid-rows-2 gap-2 max-h-64">
-            {photos.slice(0, 4).map((photo, index) => {
+            {(hasImages ? photos.slice(0, 4) : Array.from({ length: 4 })).map((photo, index) => {
               const gridClass =
                 index === 0
                   ? 'col-span-2 row-span-2'
@@ -56,24 +60,34 @@ export default function AccommodationDetailsForm() {
                     ? 'col-span-2 row-span-1'
                     : 'col-span-1 row-span-1';
 
+              const isClickable = hasRealFiles;
+
               return (
                 <div
                   key={index}
                   onClick={() => {
-                    if (formLocked) return;
+                    if (!isClickable) return;
                     setValue('main_cover_index', index, { shouldDirty: true });
                   }}
-                  className={`relative border rounded overflow-hidden cursor-pointer
-          ${gridClass}
-          ${mainCoverIndex === index ? 'border-2 border-orange-500' : 'border-gray-200'}
-          ${formLocked ? 'opacity-50 pointer-events-none' : ''}`}
+                  className={`relative border rounded overflow-hidden
+              ${gridClass}
+              ${isClickable ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'}
+              ${mainCoverIndex === index ? 'border-2 border-orange-500' : 'border-gray-200'}
+            `}
                 >
-                  <img
-                    src={typeof photo === 'string' ? `${API_BASE_URL}${photo}` : photo.preview}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                  />
-                  <FiImage className="absolute top-1 right-1 text-orange-500" />
+                  {photo ? (
+                    <img
+                      src={typeof photo === 'string' ? `${API_BASE_URL}${photo}` : photo.preview}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-500 text-sm">
+                      Sem imagem
+                    </div>
+                  )}
+
+                  {photo && <FiImage className="absolute top-1 right-1 text-orange-500" />}
                 </div>
               );
             })}
@@ -92,6 +106,26 @@ export default function AccommodationDetailsForm() {
             ? 'Solte as imagens aqui...'
             : 'Selecione ou arraste novas imagens para substituir'}
         </p>
+      </div>
+
+      <div>
+        <button
+          type="button"
+          className="bg-red-500 text-white px-4 py-2 rounded text-sm"
+          onClick={() => {
+            const confirmed = confirm(
+              'Isso removerá TODAS as imagens da acomodação permanentemente. Deseja continuar?'
+            );
+
+            if (!confirmed) return;
+
+            setValue('internal_images', [], { shouldDirty: true });
+            setValue('main_cover_index', undefined, { shouldDirty: true });
+            setValue('images_replaced', true, { shouldDirty: true });
+          }}
+        >
+          Remover todas as imagens
+        </button>
       </div>
 
       <fieldset disabled={formLocked} className="space-y-4 md:w-1/2 w-full">

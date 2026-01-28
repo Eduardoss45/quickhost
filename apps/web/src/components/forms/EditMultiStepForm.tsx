@@ -16,6 +16,7 @@ import AccommodationAddressForm from '@/components/custom/edit-form/Accommodatio
 import AccommodationResourcesForm from '@/components/custom/edit-form/AccommodationResourcesForm';
 import AccommodationPricingForm from '@/components/custom/edit-form/AccommodationPricingForm';
 import { TfiClose } from 'react-icons/tfi';
+import { AccommodationImage } from '@/types/accommodation-images';
 
 export default function EditMultiStepForm() {
   const { id } = useParams<{ id: string }>();
@@ -68,6 +69,14 @@ export default function EditMultiStepForm() {
       outdoor_camera: false,
     },
   });
+  
+  const imagesReplaced = methods.watch('images_replaced');
+
+  function getImageUrl(image: AccommodationImage): string | null {
+    if (typeof image === 'string') return image;
+    if (image instanceof File) return null;
+    return image.url;
+  }
 
   useEffect(() => {
     if (!id) return;
@@ -76,7 +85,15 @@ export default function EditMultiStepForm() {
       const data = await getById(id!);
       if (!data) return;
 
-      methods.reset(accommodationToForm(data));
+      const coverIndex = data.internal_images.findIndex(img => {
+        const url = getImageUrl(img);
+        return url === data.main_cover_image;
+      });
+
+      methods.reset({
+        ...accommodationToForm(data),
+        main_cover_index: coverIndex >= 0 ? coverIndex : undefined,
+      });
     }
 
     loadAccommodation();
@@ -207,9 +224,23 @@ export default function EditMultiStepForm() {
           await update(id, formData);
         }}
       >
-        <Link to="/host" className="flex items-center gap-2 md:px-4 m-3 md:mx-10 mt-8">
-          <TfiClose className="text-3xl" />
-        </Link>
+        {imagesReplaced ? (
+          <button
+            type="button"
+            onClick={() => {
+              toast.warning(
+                'Você alterou as imagens. Salve as alterações ou recarregue a página para sair sem salvar.'
+              );
+            }}
+            className="flex items-center gap-2 md:px-4 m-3 md:mx-10 mt-8 opacity-50 cursor-not-allowed"
+          >
+            <TfiClose className="text-3xl" />
+          </button>
+        ) : (
+          <Link to="/host" className="flex items-center gap-2 md:px-4 m-3 md:mx-10 mt-8">
+            <TfiClose className="text-3xl" />
+          </Link>
+        )}
 
         <div className="flex-1 md:px-4 m-3">{currentComponent}</div>
 
