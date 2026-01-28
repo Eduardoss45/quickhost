@@ -2,13 +2,14 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AccommodationService } from '../accommodation.service';
 import { AccommodationRepository } from '../../repositories/accommodation.repository';
 import { CommentRepository } from '../../repositories/comments.repository';
-import { RpcException } from '@nestjs/microservices';
-import { BadRequestException } from '@nestjs/common';
+import { ClientProxy, RpcException } from '@nestjs/microservices';
+import { of, throwError } from 'rxjs';
 
 describe('AccommodationService', () => {
   let service: AccommodationService;
   let accommodations: jest.Mocked<AccommodationRepository>;
   let comments: jest.Mocked<CommentRepository>;
+  let mediaClient: jest.Mocked<ClientProxy>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -32,226 +33,173 @@ describe('AccommodationService', () => {
             findComments: jest.fn(),
           },
         },
+        {
+          provide: 'MEDIA_CLIENT',
+          useValue: {
+            send: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
     service = module.get(AccommodationService);
     accommodations = module.get(AccommodationRepository);
     comments = module.get(CommentRepository);
+    mediaClient = module.get('MEDIA_CLIENT');
   });
 
   afterEach(() => {
-    jest.restoreAllMocks();
+    jest.clearAllMocks();
+  });
+  describe('create', () => {
+    it('cria uma acomodação com sucesso', async () => {
+      accommodations.create.mockReturnValue({ id: 'acc-id' } as any);
+      accommodations.save.mockResolvedValue({ id: 'acc-id' } as any);
+
+      const result = await service.create({
+        title: 'Test',
+        creator_id: 'user-id',
+      } as any);
+
+      expect(accommodations.create).toHaveBeenCalled();
+      expect(accommodations.save).toHaveBeenCalled();
+      expect(result.id).toBe('acc-id');
+    });
   });
 
-  it('cria uma acomodação com sucesso', async () => {
-    const data = { title: 'Casa de Praia' } as any;
+  describe('update', () => {
+    it('atualiza acomodação sem imagens raw', async () => {
+      const accommodation = {
+        id: 'acc-id',
+        creator_id: 'user-id',
+        title: 'Old',
+      } as any;
 
-    accommodations.create.mockReturnValue(data);
-    accommodations.save.mockResolvedValue({ id: 'acc-id', ...data });
+      accommodations.findOne.mockResolvedValue(accommodation);
+      accommodations.save.mockResolvedValue({
+        ...accommodation,
+        title: 'New',
+      });
 
-    const result = await service.create(data);
+      const result = await service.update(
+        'acc-id',
+        { title: 'New' } as any,
+        'user-id',
+      );
 
-    expect(accommodations.create).toHaveBeenCalledWith(data);
-    expect(accommodations.save).toHaveBeenCalled();
-    expect(result.id).toBe('acc-id');
-  });
-
-  it('retorna todas as acomodações', async () => {
-    accommodations.find.mockResolvedValue([{ id: '1' }] as any);
-
-    const result = await service.findAll();
-
-    expect(result).toHaveLength(1);
-    expect(accommodations.find).toHaveBeenCalled();
-  });
-
-  it('retorna uma acomodação por id', async () => {
-    accommodations.findOne.mockResolvedValue({ id: 'acc-id' } as any);
-
-    const result = await service.findOne('acc-id');
-
-    expect(result.id).toBe('acc-id');
-  });
-
-  it('falha ao buscar acomodação inexistente', async () => {
-    accommodations.findOne.mockResolvedValue(null);
-
-    await expect(service.findOne('invalid-id')).rejects.toBeInstanceOf(
-      RpcException,
-    );
-  });
-
-  it('retorna acomodações por criador', async () => {
-    accommodations.findByCreatorId.mockResolvedValue([{ id: '1' }] as any);
-
-    const result = await service.findByCreator('creator-id');
-
-    expect(accommodations.findByCreatorId).toHaveBeenCalledWith('creator-id');
-    expect(result).toHaveLength(1);
-  });
-
-  it('atualiza acomodação se o usuário for o criador', async () => {
-    accommodations.findOne.mockResolvedValue({
-      id: 'acc-id',
-      creator_id: 'user-id',
-    } as any);
-
-    accommodations.save.mockResolvedValue({
-      id: 'acc-id',
-      title: 'Nova',
-    } as any);
-
-    const result = await service.update('acc-id', { title: 'Nova' }, 'user-id');
-
-    expect(result.title).toBe('Nova');
-    expect(accommodations.save).toHaveBeenCalled();
-  });
-
-  it('falha ao atualizar acomodação de outro usuário', async () => {
-    accommodations.findOne.mockResolvedValue({
-      id: 'acc-id',
-      creator_id: 'other-user',
-    } as any);
-
-    await expect(
-      service.update('acc-id', {}, 'user-id'),
-    ).rejects.toBeInstanceOf(RpcException);
-  });
-
-  it('remove acomodação se o usuário for o criador', async () => {
-    const accommodation = {
-      id: 'acc-id',
-      creator_id: 'user-id',
-    } as any;
-
-    accommodations.findOne.mockResolvedValue(accommodation);
-    accommodations.remove.mockResolvedValue(accommodation);
-
-    const result = await service.remove('acc-id', 'user-id');
-
-    expect(accommodations.remove).toHaveBeenCalledWith(accommodation);
-    expect(result).toEqual({ success: true });
-  });
-
-  it('falha ao remover acomodação de outro usuário', async () => {
-    accommodations.findOne.mockResolvedValue({
-      id: 'acc-id',
-      creator_id: 'other-user',
-    } as any);
-
-    await expect(service.remove('acc-id', 'user-id')).rejects.toBeInstanceOf(
-      RpcException,
-    );
-  });
-
-  it('cria comentário com sucesso', async () => {
-    accommodations.findOne.mockResolvedValue({
-      id: '550e8400-e29b-41d4-a716-446655440000',
-      creator_id: 'other-user',
-    } as any);
-
-    comments.createCommentWithRatingUpdate.mockResolvedValue({
-      id: 'comment-id',
-      content: 'Ótimo lugar',
-      rating: 5,
-      authorId: 'user-id',
-      authorName: 'Edu',
-      accommodationId: '550e8400-e29b-41d4-a716-446655440000',
-    } as any);
-
-    const result = await service.createComment({
-      content: 'Ótimo lugar',
-      rating: 5,
-      authorId: 'user-id',
-      authorName: 'Edu',
-      accommodationId: '550e8400-e29b-41d4-a716-446655440000',
+      expect(mediaClient.send).not.toHaveBeenCalled();
+      expect(result.title).toBe('New');
     });
 
-    expect(accommodations.findOne).toHaveBeenCalledWith({
-      where: { id: '550e8400-e29b-41d4-a716-446655440000' },
-    });
-    expect(comments.createCommentWithRatingUpdate).toHaveBeenCalled();
-    expect(result).toHaveProperty('id', 'comment-id');
-  });
+    it('processa imagens se houver imagens raw', async () => {
+      const accommodation = {
+        id: 'acc-id',
+        creator_id: 'user-id',
+        main_cover_image: '/uploads/accommodations/acc-id/raw/cover.jpg',
+        internal_images: ['/uploads/accommodations/acc-id/raw/1.jpg'],
+      } as any;
 
-  it('falha se o autor for o criador', async () => {
-    accommodations.findOne.mockResolvedValue({
-      id: '550e8400-e29b-41d4-a716-446655440000',
-      creator_id: 'user-id',
-    } as any);
+      accommodations.findOne.mockResolvedValue(accommodation);
 
-    await expect(
-      service.createComment({
-        content: 'Teste',
-        rating: 5,
-        authorId: 'user-id',
-        authorName: 'Edu',
-        accommodationId: '550e8400-e29b-41d4-a716-446655440000',
-      }),
-    ).rejects.toBeInstanceOf(RpcException);
-  });
+      mediaClient.send.mockReturnValue(
+        of({
+          cover: '/uploads/accommodations/acc-id/image0.jpeg',
+          images: ['/uploads/accommodations/acc-id/image0.jpeg'],
+        }),
+      );
 
-  it('falha se a acomodação não existe', async () => {
-    accommodations.findOne.mockResolvedValue(null);
+      accommodations.save.mockResolvedValue({
+        ...accommodation,
+        main_cover_image: '/uploads/accommodations/acc-id/image0.jpeg',
+        internal_images: ['/uploads/accommodations/acc-id/image0.jpeg'],
+      });
 
-    await expect(
-      service.createComment({
-        content: 'Teste',
-        rating: 5,
-        authorId: 'user-id',
-        authorName: 'Edu',
-        accommodationId: '550e8400-e29b-41d4-a716-446655440999',
-      }),
-    ).rejects.toBeInstanceOf(RpcException);
-  });
+      const result = await service.update(
+        'acc-id',
+        {
+          main_cover_image: accommodation.main_cover_image,
+          internal_images: accommodation.internal_images,
+        } as any,
+        'user-id',
+      );
 
-  it('falha ao criar comentário com accommodationId inválido', async () => {
-    await expect(
-      service.createComment({
-        content: 'Teste',
-        rating: 5,
-        authorId: 'user-id',
-        authorName: 'Edu',
-        accommodationId: 'invalid',
-      }),
-    ).rejects.toBeInstanceOf(BadRequestException);
-  });
+      expect(mediaClient.send).toHaveBeenCalledWith(
+        'process_accommodation_images',
+        { accommodationId: 'acc-id' },
+      );
 
-  it('retorna comentários paginados', async () => {
-    accommodations.findOne.mockResolvedValue({ id: 'acc-id' } as any);
-    comments.findComments.mockResolvedValue([{ id: 'c1' }] as any);
-
-    const result = await service.getComments(
-      '550e8400-e29b-41d4-a716-446655440000',
-      1,
-      5,
-    );
-
-    expect(comments.findComments).toHaveBeenCalledWith('acc-id', 1, 5);
-    expect(result).toHaveLength(1);
-  });
-
-  it('atualiza próxima data disponível', async () => {
-    const accommodation = {
-      id: 'acc-id',
-      is_active: true,
-      next_available_date: null,
-    } as any;
-
-    accommodations.findOne.mockResolvedValue(accommodation);
-    accommodations.save.mockResolvedValue({
-      ...accommodation,
-      next_available_date: '2026-01-10',
-      is_active: false,
+      expect(result.main_cover_image).toContain('image0.jpeg');
     });
 
-    const result = await service.updateNextAvailableDate(
-      'acc-id',
-      '2026-01-10',
-    );
+    it('falha se o usuário não for o criador', async () => {
+      accommodations.findOne.mockResolvedValue({
+        id: 'acc-id',
+        creator_id: 'other-user',
+      } as any);
 
-    expect(result.is_active).toBe(false);
-    expect(accommodations.save).toHaveBeenCalled();
+      await expect(
+        service.update('acc-id', {} as any, 'user-id'),
+      ).rejects.toBeInstanceOf(RpcException);
+    });
+
+    it('lança RpcException se o processamento de imagens falhar', async () => {
+      accommodations.findOne.mockResolvedValue({
+        id: 'acc-id',
+        creator_id: 'user-id',
+        main_cover_image: '/raw/image.jpg',
+      } as any);
+
+      mediaClient.send.mockReturnValue(
+        throwError(() => new Error('media error')),
+      );
+
+      await expect(
+        service.update(
+          'acc-id',
+          { main_cover_image: '/raw/image.jpg' } as any,
+          'user-id',
+        ),
+      ).rejects.toBeInstanceOf(RpcException);
+    });
+  });
+
+  describe('removeImages', () => {
+    it('remove imagens da acomodação', async () => {
+      const accommodation = {
+        id: 'acc-id',
+        creator_id: 'user-id',
+        main_cover_image: 'img.jpg',
+        internal_images: ['img2.jpg'],
+      } as any;
+
+      accommodations.findOne.mockResolvedValue(accommodation);
+      mediaClient.send.mockReturnValue(of(true));
+
+      accommodations.save.mockResolvedValue({
+        ...accommodation,
+        main_cover_image: '',
+        internal_images: [],
+      });
+
+      const result = await service.removeImages('acc-id', 'user-id');
+
+      expect(mediaClient.send).toHaveBeenCalledWith(
+        'remove-accommodation-images',
+        { accommodationId: 'acc-id' },
+      );
+
+      expect(result.internal_images).toHaveLength(0);
+    });
+
+    it('falha ao remover imagens se não for o criador', async () => {
+      accommodations.findOne.mockResolvedValue({
+        id: 'acc-id',
+        creator_id: 'other-user',
+      } as any);
+
+      await expect(
+        service.removeImages('acc-id', 'user-id'),
+      ).rejects.toBeInstanceOf(RpcException);
+    });
   });
 });

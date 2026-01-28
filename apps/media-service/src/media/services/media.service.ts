@@ -32,45 +32,30 @@ export class MediaService {
     }
   }
 
-  async uploadUserProfileImage(
-    userId: string,
-    fileBuffer: Buffer,
-    originalName: string,
-  ): Promise<string> {
-    if (!fileBuffer || fileBuffer.length < 10) {
-      throw new BadRequestException('Arquivo inválido ou corrompido');
+  async processUserProfileImage(userId: string): Promise<string> {
+    const rawDir = path.join(this.uploadDir, 'users', userId, 'raw');
+    const finalDir = path.join(this.uploadDir, 'users', userId);
+
+    const files = await fs.promises.readdir(rawDir);
+    if (files.length === 0) {
+      throw new RpcException('Nenhuma imagem raw encontrada');
     }
 
-    const maxSize = 5 * 1024 * 1024;
-    if (fileBuffer.length > maxSize) {
-      throw new BadRequestException('Arquivo maior que 5 MB');
-    }
+    const rawFile = path.join(rawDir, files[0]);
 
-    const allowedExtensions = ['.jpg', '.jpeg', '.png', '.webp'];
-    const ext = path.extname(originalName).toLowerCase();
+    await fs.promises.mkdir(finalDir, { recursive: true });
 
-    if (!allowedExtensions.includes(ext)) {
-      throw new BadRequestException('Formato de imagem não suportado');
-    }
+    const buffer = await sharp(rawFile)
+      .resize({ width: 800, withoutEnlargement: true })
+      .jpeg({ quality: 90 })
+      .toBuffer();
 
-    const userDir = path.join(this.uploadDir, 'users', userId);
+    const finalPath = path.join(finalDir, 'profile.jpeg');
+    await fs.promises.writeFile(finalPath, buffer);
 
-    await fs.promises.mkdir(userDir, { recursive: true });
+    await fs.promises.rm(rawDir, { recursive: true, force: true });
 
-    const filepath = path.join(userDir, 'profile.jpeg');
-
-    try {
-      const resizedBuffer = await sharp(fileBuffer)
-        .resize({ width: 800, withoutEnlargement: true })
-        .jpeg({ quality: 90 })
-        .toBuffer();
-
-      await fs.promises.writeFile(filepath, resizedBuffer);
-
-      return `/uploads/users/${userId}/profile.jpeg`;
-    } catch {
-      throw new InternalServerErrorException('Erro ao salvar imagem');
-    }
+    return `/uploads/users/${userId}/profile.jpeg`;
   }
 
   async removeUserProfileImage(userId: string, imagePath: string) {
@@ -93,61 +78,53 @@ export class MediaService {
     }
   }
 
-  async uploadAccommodationImages(
+  async processAccommodationImages(
     accommodationId: string,
-    images: {
-      fileBuffer: Buffer;
-      originalName: string;
-    }[],
-    coverOriginalName: string,
-  ): Promise<{
-    cover: string;
-    images: string[];
-  }> {
-    if (images.length === 0 || images.length > 5) {
-      throw new BadRequestException('Acomodação deve ter entre 1 e 5 imagens');
-    }
-
-    const coverIndex = images.findIndex(
-      (img) => img.originalName === coverOriginalName,
+  ): Promise<{ cover: string; images: string[] }> {
+    const baseDir = path.join(
+      this.uploadDir,
+      'accommodations',
+      accommodationId,
     );
+    const rawDir = path.join(baseDir, 'raw');
 
-    if (coverIndex === -1) {
-      throw new BadRequestException('Imagem de capa não encontrada');
+    if (!fs.existsSync(rawDir)) {
+      throw new RpcException('Nenhuma imagem raw encontrada');
     }
 
-    const orderedImages = [
-      images[coverIndex],
-      ...images.filter((_, i) => i !== coverIndex),
-    ];
+    const files = (await fs.promises.readdir(rawDir)).sort();
 
-    const dir = path.join(this.uploadDir, 'accommodations', accommodationId);
+    if (files.length === 0 || files.length > 5) {
+      throw new BadRequestException('Quantidade inválida de imagens');
+    }
 
-    await fs.promises.mkdir(dir, { recursive: true });
+    await fs.promises.mkdir(baseDir, { recursive: true });
 
-    const savedImages: string[] = [];
+    const finalImages: string[] = [];
 
-    for (let i = 0; i < orderedImages.length; i++) {
-      const img = orderedImages[i];
+    for (let i = 0; i < files.length; i++) {
+      const rawPath = path.join(rawDir, files[i]);
 
-      const buffer = await sharp(img.fileBuffer)
+      const buffer = await sharp(rawPath)
         .resize({ width: 1200, withoutEnlargement: true })
         .jpeg({ quality: 90 })
         .toBuffer();
 
       const filename = `image${i}.jpeg`;
-      const filepath = path.join(dir, filename);
+      const finalPath = path.join(baseDir, filename);
 
-      await fs.promises.writeFile(filepath, buffer);
+      await fs.promises.writeFile(finalPath, buffer);
 
-      savedImages.push(
+      finalImages.push(
         `/uploads/accommodations/${accommodationId}/${filename}`,
       );
     }
 
+    await fs.promises.rm(rawDir, { recursive: true, force: true });
+
     return {
-      cover: savedImages[0],
-      images: savedImages,
+      cover: finalImages[0],
+      images: finalImages,
     };
   }
 

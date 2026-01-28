@@ -1,3 +1,4 @@
+import { ClientsModule, Transport } from '@nestjs/microservices';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -23,6 +24,20 @@ import { CommentRepository } from './repositories/comments.repository';
       }),
     }),
     TypeOrmModule.forFeature([Accommodation, Comment]),
+    ClientsModule.registerAsync([
+      {
+        name: 'MEDIA_CLIENT',
+        inject: [ConfigService],
+        useFactory: (config: ConfigService) => ({
+          transport: Transport.RMQ,
+          options: {
+            urls: [config.get('RMQ_URL')],
+            queue: 'qk_media_queue',
+            queueOptions: { durable: false },
+          },
+        }),
+      },
+    ]),
   ],
   controllers: [AccommodationController],
   providers: [AccommodationService, AccommodationRepository, CommentRepository],

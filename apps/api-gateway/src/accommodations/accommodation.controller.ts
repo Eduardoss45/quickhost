@@ -31,62 +31,15 @@ import fs from 'fs';
 import sharp from 'sharp';
 import { CreateAccommodationCommand } from 'src/commands';
 import { UpdateAccommodationCommand } from 'src/commands/update-accommodation';
+import { LocalImageStorageService } from 'src/storage/local-image-storage.service';
 
 @UseGuards(JwtAuthGuard)
 @Controller('accommodations')
 export class AccommodationController {
-  constructor(private readonly accommodationService: AccommodationService) {}
-
-  private async uploadAccommodationImages(
-    accommodationId: string,
-    files: Express.Multer.File[],
-    coverOriginalName: string,
-  ) {
-    const coverIndex = files.findIndex(
-      (f) => f.originalname === coverOriginalName,
-    );
-
-    if (coverIndex === -1) {
-      throw new BadRequestException('Imagem de capa não encontrada');
-    }
-
-    const ordered = [
-      files[coverIndex],
-      ...files.filter((_, i) => i !== coverIndex),
-    ];
-
-    const dir = path.resolve(
-      __dirname,
-      '..',
-      '..',
-      '..',
-      '..',
-      'uploads',
-      'accommodations',
-      accommodationId,
-    );
-
-    await fs.promises.mkdir(dir, { recursive: true });
-
-    const images: string[] = [];
-
-    for (let i = 0; i < ordered.length; i++) {
-      const buffer = await sharp(ordered[i].buffer)
-        .resize({ width: 1200 })
-        .jpeg({ quality: 90 })
-        .toBuffer();
-
-      const filename = `image${i}.jpeg`;
-      await fs.promises.writeFile(path.join(dir, filename), buffer);
-
-      images.push(`/uploads/accommodations/${accommodationId}/${filename}`);
-    }
-
-    return {
-      cover: images[0],
-      images,
-    };
-  }
+  constructor(
+    private readonly accommodationService: AccommodationService,
+    private readonly imageStorage: LocalImageStorageService,
+  ) {}
 
   @Get()
   findAllAccommodations() {
@@ -104,7 +57,7 @@ export class AccommodationController {
   }
 
   @Post()
-  @UseInterceptors(FilesInterceptor('images', 10))
+  @UseInterceptors(FilesInterceptor('images', 5))
   async createAccommodation(
     @CurrentUser() user: JwtUser,
     @Body() dto: CreateAccommodationDto,
@@ -124,11 +77,12 @@ export class AccommodationController {
         );
       }
 
-      const { cover, images } = await this.uploadAccommodationImages(
-        accommodation.id,
-        files,
-        dto.coverOriginalName,
-      );
+      const { cover, images } =
+        await this.imageStorage.saveRawAccommodationImages(
+          accommodation.id,
+          files,
+          dto.coverOriginalName,
+        );
 
       return this.accommodationService.updateAccommodation(
         accommodation.id,
@@ -164,11 +118,12 @@ export class AccommodationController {
         );
       }
 
-      const { cover, images } = await this.uploadAccommodationImages(
-        id,
-        files,
-        coverOriginalName,
-      );
+      const { cover, images } =
+        await this.imageStorage.saveRawAccommodationImages(
+          id,
+          files,
+          coverOriginalName,
+        );
 
       command.data = {
         ...command.data,
@@ -215,5 +170,14 @@ export class AccommodationController {
     @Query('size') size: number,
   ) {
     return this.accommodationService.getCommentsInAccommodation(id, page, size);
+  }
+
+  @Delete(':id/images')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async removeAccommodationImages(
+    @Param('id') id: string,
+    @CurrentUser() user: JwtUser,
+  ) {
+    await this.accommodationService.removeAccommodationImages(id, user.userId);
   }
 }

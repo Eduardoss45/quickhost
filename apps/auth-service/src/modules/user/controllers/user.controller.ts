@@ -9,9 +9,9 @@ export class UserController {
 
   @MessagePattern('update-profile')
   updateProfile(
-    @Payload() data: { userId: string; dto: UpdateUserProfileDto; file?: any },
+    @Payload() data: { userId: string; dto: UpdateUserProfileDto },
   ) {
-    return this.userService.updateProfile(data.userId, data.dto, data.file);
+    return this.userService.updateProfile(data.userId, data.dto);
   }
 
   @MessagePattern('get-profile')

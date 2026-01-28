@@ -10,33 +10,28 @@ jest.mock('fs', () => ({
   },
 }));
 
-jest.mock('sharp', () => {
-  return jest.fn(() => ({
+jest.mock('sharp', () =>
+  jest.fn(() => ({
     resize: jest.fn().mockReturnThis(),
     jpeg: jest.fn().mockReturnThis(),
     toBuffer: jest.fn(),
-  }));
-});
+  })),
+);
 
 import { Test, TestingModule } from '@nestjs/testing';
 import { MediaService } from '../media.service';
+import { BadRequestException } from '@nestjs/common';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
-import {
-  BadRequestException,
-  InternalServerErrorException,
-} from '@nestjs/common';
 import { of, throwError } from 'rxjs';
 import * as fs from 'fs';
 import sharp from 'sharp';
-import * as path from 'path';
 
 describe('MediaService', () => {
   let service: MediaService;
   let authClient: jest.Mocked<ClientProxy>;
   let accommodationClient: jest.Mocked<ClientProxy>;
 
-  const validBuffer = Buffer.from('a'.repeat(100));
-  const imageName = 'photo.jpg';
+  const validBuffer = Buffer.from('image');
 
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -73,101 +68,71 @@ describe('MediaService', () => {
     accommodationClient = module.get('ACCOMMODATIONS_CLIENT');
   });
 
-  describe('uploadUserProfileImage', () => {
-    it('should upload and resize user profile image', async () => {
-      const result = await service.uploadUserProfileImage(
-        'user-id',
-        validBuffer,
-        imageName,
-      );
+  describe('processUserProfileImage', () => {
+    it('should process raw user profile image', async () => {
+      (fs.promises.readdir as jest.Mock).mockResolvedValue(['raw.jpg']);
 
-      expect(fs.promises.mkdir).toHaveBeenCalled();
+      const result = await service.processUserProfileImage('user-id');
+
       expect(fs.promises.writeFile).toHaveBeenCalled();
+      expect(fs.promises.rm).toHaveBeenCalled();
       expect(result).toBe('/uploads/users/user-id/profile.jpeg');
     });
 
-    it('should reject invalid buffer', async () => {
-      await expect(
-        service.uploadUserProfileImage('u1', Buffer.from('a'), imageName),
-      ).rejects.toBeInstanceOf(BadRequestException);
-    });
-
-    it('should reject unsupported extension', async () => {
-      await expect(
-        service.uploadUserProfileImage('u1', validBuffer, 'file.txt'),
-      ).rejects.toBeInstanceOf(BadRequestException);
-    });
-
-    it('should throw error if sharp fails', async () => {
-      (sharp as unknown as jest.Mock).mockReturnValueOnce({
-        resize: jest.fn().mockReturnThis(),
-        jpeg: jest.fn().mockReturnThis(),
-        toBuffer: jest.fn().mockRejectedValue(new Error()),
-      });
+    it('should throw RpcException if no raw images exist', async () => {
+      (fs.promises.readdir as jest.Mock).mockResolvedValue([]);
 
       await expect(
-        service.uploadUserProfileImage('u1', validBuffer, imageName),
-      ).rejects.toBeInstanceOf(InternalServerErrorException);
+        service.processUserProfileImage('user-id'),
+      ).rejects.toBeInstanceOf(RpcException);
     });
   });
 
   describe('removeUserProfileImage', () => {
-    it('should remove image if exists', async () => {
-      const result = await service.removeUserProfileImage(
-        'u1',
-        '/uploads/users/u1/profile.jpeg',
+    it('should remove profile image if exists', async () => {
+      await service.removeUserProfileImage(
+        'user-id',
+        '/uploads/users/user-id/profile.jpeg',
       );
 
       expect(fs.promises.unlink).toHaveBeenCalled();
-      expect(result).toEqual({ success: true });
     });
 
     it('should throw RpcException on failure', async () => {
       (fs.promises.unlink as jest.Mock).mockRejectedValueOnce(new Error());
 
       await expect(
-        service.removeUserProfileImage('u1', '/uploads/users/u1/profile.jpeg'),
+        service.removeUserProfileImage(
+          'user-id',
+          '/uploads/users/user-id/profile.jpeg',
+        ),
       ).rejects.toBeInstanceOf(RpcException);
     });
   });
 
-  describe('uploadAccommodationImages', () => {
-    it('should upload accommodation images with cover', async () => {
-      const images = [
-        { fileBuffer: validBuffer, originalName: 'cover.jpg' },
-        { fileBuffer: validBuffer, originalName: '2.jpg' },
-      ];
+  describe('processAccommodationImages', () => {
+    it('should process accommodation images and return cover', async () => {
+      (fs.promises.readdir as jest.Mock).mockResolvedValue(['1.jpg', '2.jpg']);
 
-      const result = await service.uploadAccommodationImages(
-        'acc-id',
-        images,
-        'cover.jpg',
-      );
+      const result = await service.processAccommodationImages('acc-id');
 
       expect(result.cover).toContain('image0.jpeg');
       expect(result.images).toHaveLength(2);
       expect(fs.promises.writeFile).toHaveBeenCalledTimes(2);
-    });
-
-    it('should reject when cover not found', async () => {
-      await expect(
-        service.uploadAccommodationImages(
-          'acc-id',
-          [{ fileBuffer: validBuffer, originalName: '1.jpg' }],
-          'cover.jpg',
-        ),
-      ).rejects.toBeInstanceOf(BadRequestException);
+      expect(fs.promises.rm).toHaveBeenCalled();
     });
 
     it('should reject invalid image count', async () => {
+      (fs.promises.readdir as jest.Mock).mockResolvedValue([]);
+
       await expect(
-        service.uploadAccommodationImages('acc-id', [], 'x.jpg'),
+        service.processAccommodationImages('acc-id'),
       ).rejects.toBeInstanceOf(BadRequestException);
     });
   });
 
   describe('removeAccommodationImages', () => {
-    it('should remove directory if exists', async () => {
+    it('should remove accommodation directory', async () => {
       await service.removeAccommodationImages('acc-id');
 
       expect(fs.promises.rm).toHaveBeenCalled();
@@ -186,7 +151,7 @@ describe('MediaService', () => {
     it('should return true if user exists', async () => {
       authClient.send.mockReturnValue(of({}));
 
-      const result = await service.userExists('u1');
+      const result = await service.userExists('user-id');
 
       expect(result).toBe(true);
     });
@@ -194,7 +159,7 @@ describe('MediaService', () => {
     it('should return false if user does not exist', async () => {
       authClient.send.mockReturnValue(throwError(() => new Error()));
 
-      const result = await service.userExists('u1');
+      const result = await service.userExists('user-id');
 
       expect(result).toBe(false);
     });
@@ -204,7 +169,7 @@ describe('MediaService', () => {
     it('should return true if accommodation exists', async () => {
       accommodationClient.send.mockReturnValue(of({}));
 
-      const result = await service.accommodationExists('a1');
+      const result = await service.accommodationExists('acc-id');
 
       expect(result).toBe(true);
     });
@@ -212,7 +177,7 @@ describe('MediaService', () => {
     it('should return false if accommodation does not exist', async () => {
       accommodationClient.send.mockReturnValue(throwError(() => new Error()));
 
-      const result = await service.accommodationExists('a1');
+      const result = await service.accommodationExists('acc-id');
 
       expect(result).toBe(false);
     });

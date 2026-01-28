@@ -3,6 +3,7 @@ import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
+import { LocalImageStorageService } from '../storage/local-image-storage.service';
 
 @Module({
   imports: [
@@ -24,6 +25,6 @@ import { ConfigService } from '@nestjs/config';
     ]),
   ],
   controllers: [UserController],
-  providers: [UserService],
+  providers: [UserService, LocalImageStorageService],
 })
 export class UserModule {}

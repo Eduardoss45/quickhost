@@ -29,6 +29,7 @@ export class AccommodationService {
     data: Partial<Accommodation>,
     userId: string,
   ) {
+    console.log(data);
     return firstValueFrom(
       this.client.send('accommodation.update', {
         id,
@@ -64,6 +65,15 @@ export class AccommodationService {
         { cmd: 'accommodation.get_comments' },
         { id, page, size },
       ),
+    );
+  }
+
+  removeAccommodationImages(accommodationId: string, userId: string) {
+    return firstValueFrom(
+      this.client.send('accommodation.remove_images', {
+        accommodationId,
+        requesterId: userId,
+      }),
     );
   }
 }

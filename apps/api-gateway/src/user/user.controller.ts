@@ -16,12 +16,16 @@ import { JwtAuthGuard } from 'src/guards/jwt.guard';
 import { CurrentUser } from 'src/decorators/current-user.decorator';
 import type { JwtUser } from 'src/types';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { LocalImageStorageService } from '../storage/local-image-storage.service';
 import multer from 'multer';
 
 @UseGuards(JwtAuthGuard)
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly imageStorage: LocalImageStorageService,
+  ) {}
 
   @Patch('update')
   @UseInterceptors(
@@ -34,7 +38,11 @@ export class UserController {
     @Body() dto: UpdateUserDto,
     @UploadedFile() file?: Express.Multer.File,
   ) {
-    await this.userService.updateProfile(user.userId, dto, file);
+    if (file) {
+      await this.imageStorage.saveRawUserProfileImage(user.userId, file);
+    }
+
+    await this.userService.updateProfile(user.userId, dto);
 
     return {
       status: 200,

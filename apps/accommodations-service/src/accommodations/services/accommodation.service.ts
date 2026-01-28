@@ -1,9 +1,10 @@
-import { RpcException } from '@nestjs/microservices';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { ClientProxy, RpcException } from '@nestjs/microservices';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { AccommodationRepository } from '../repositories/accommodation.repository';
 import { Accommodation } from '../entities/accommodation.entity';
 import { validate as isUUID } from 'uuid';
 import { CommentRepository } from '../repositories/comments.repository';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class AccommodationService {
@@ -13,9 +14,49 @@ export class AccommodationService {
     }
   }
 
+  private hasRawImages(data: Partial<Accommodation>): boolean {
+    const hasCover = Boolean(
+      data.main_cover_image && data.main_cover_image.includes('/raw/'),
+    );
+
+    const hasInternal = Boolean(
+      data.internal_images &&
+      data.internal_images.some((img) => img.includes('/raw/')),
+    );
+
+    return hasCover || hasInternal;
+  }
+
+  private async processImagesIfNeeded(
+    accommodationId: string,
+    data: Partial<Accommodation>,
+  ) {
+    if (!this.hasRawImages(data)) return data;
+
+    try {
+      const result = await firstValueFrom(
+        this.mediaClient.send('process_accommodation_images', {
+          accommodationId,
+        }),
+      );
+
+      return {
+        ...data,
+        main_cover_image: result.cover,
+        internal_images: result.images,
+      };
+    } catch {
+      throw new RpcException({
+        statusCode: 500,
+        message: 'Erro ao processar imagens da acomodação',
+      });
+    }
+  }
+
   constructor(
     private readonly accommodationRepository: AccommodationRepository,
     private readonly commentRepository: CommentRepository,
+    @Inject('MEDIA_CLIENT') private readonly mediaClient: ClientProxy,
   ) {}
 
   async create(data: Partial<Accommodation>) {
@@ -56,7 +97,9 @@ export class AccommodationService {
       });
     }
 
-    Object.assign(accommodation, data);
+    const processedData = await this.processImagesIfNeeded(id, data);
+
+    Object.assign(accommodation, processedData);
 
     return this.accommodationRepository.save(accommodation);
   }
@@ -131,5 +174,35 @@ export class AccommodationService {
     accommodation.is_active = date === null;
 
     return this.accommodationRepository.save(accommodation);
+  }
+
+  async removeImages(id: string, userId: string) {
+    const accommodation = await this.findOne(id);
+
+    if (accommodation.creator_id !== userId) {
+      throw new RpcException({
+        statusCode: 403,
+        message:
+          'Você não tem permissão para remover as imagens desta acomodação',
+      });
+    }
+
+    try {
+      await firstValueFrom(
+        this.mediaClient.send('remove-accommodation-images', {
+          accommodationId: id,
+        }),
+      );
+
+      accommodation.main_cover_image = '';
+      accommodation.internal_images = [];
+
+      return this.accommodationRepository.save(accommodation);
+    } catch {
+      throw new RpcException({
+        statusCode: 500,
+        message: 'Erro ao remover imagens da acomodação',
+      });
+    }
   }
 }

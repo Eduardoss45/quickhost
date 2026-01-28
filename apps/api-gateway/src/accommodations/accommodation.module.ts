@@ -3,6 +3,7 @@ import { AccommodationController } from './accommodation.controller';
 import { AccommodationService } from './accommodation.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
+import { LocalImageStorageService } from '../storage/local-image-storage.service';
 
 @Module({
   imports: [
@@ -24,6 +25,6 @@ import { ConfigService } from '@nestjs/config';
     ]),
   ],
   controllers: [AccommodationController],
-  providers: [AccommodationService],
+  providers: [AccommodationService, LocalImageStorageService],
 })
 export class AccommodationModule {}

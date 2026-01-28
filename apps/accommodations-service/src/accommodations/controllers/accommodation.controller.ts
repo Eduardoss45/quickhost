@@ -69,4 +69,18 @@ export class AccommodationController {
       data.date,
     );
   }
+
+  @MessagePattern('accommodation.remove_images')
+  async removeImages(
+    @Payload()
+    payload: {
+      accommodationId: string;
+      requesterId: string;
+    },
+  ) {
+    return this.accommodationService.removeImages(
+      payload.accommodationId,
+      payload.requesterId,
+    );
+  }
 }

@@ -26,18 +26,19 @@
     "migration:create": "npm run typeorm -- migration:create migrations/InitAccommodationSchema"
   },
   "dependencies": {
-    "typeorm": "^0.3.28",
-    "@nestjs/typeorm": "^11.0.0",
-    "reflect-metadata": "^0.2.2",
-    "sharp": "^0.34.5",
     "@nestjs/common": "^11.1.12",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.1.12",
     "@nestjs/mapped-types": "^2.1.0",
+    "@nestjs/microservices": "^11.1.12",
     "@nestjs/platform-express": "^11.1.12",
+    "@nestjs/typeorm": "^11.0.0",
+    "@types/uuid": "^11.0.0",
+    "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
-    "uuid": "^11.0.0",
-    "@types/uuid": "^11.0.0"
+    "sharp": "^0.34.5",
+    "typeorm": "^0.3.28",
+    "uuid": "^11.0.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.3",

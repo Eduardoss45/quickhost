@@ -10,24 +10,11 @@ export class UserService {
     private readonly client: ClientProxy,
   ) {}
 
-  async updateProfile(
-    userId: string,
-    dto: UpdateUserDto,
-    file?: Express.Multer.File,
-  ) {
-    const safeFile = file
-      ? {
-          buffer: file.buffer.toString('base64'),
-          originalName: file.originalname,
-          mimetype: file.mimetype,
-        }
-      : undefined;
-
+  async updateProfile(userId: string, dto: UpdateUserDto) {
     return await firstValueFrom(
       this.client.send('update-profile', {
         userId,
         dto,
-        file: safeFile,
       }),
     );
   }

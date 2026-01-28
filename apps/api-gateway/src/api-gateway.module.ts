@@ -10,6 +10,7 @@ import { SecurityModule } from './strategies/security.module';
 import { RmqExceptionInterceptor } from './exception/rmq-exception.interceptor';
 import { BookingModule } from './booking/booking.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { LocalImageStorageModule } from './storage/local-image-storage.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { NotificationsModule } from './notifications/notifications.module';
     ChatModule,
     BookingModule,
     NotificationsModule,
+    LocalImageStorageModule,
   ],
   providers: [
     {

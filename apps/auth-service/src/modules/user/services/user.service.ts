@@ -7,53 +7,63 @@ import { UpdateUserProfileDto } from '../../dtos';
 import { RpcException, ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 import { FavoritesRepository } from '../../repositories/favorites.repository';
+import path from 'path';
+import fs from 'fs';
 
 @Injectable()
 export class UserService {
+  private hasRawProfileImage(userId: string): boolean {
+    const rawDir = path.resolve(
+      process.cwd(),
+      '..',
+      '..',
+      'uploads',
+      'users',
+      userId,
+      'raw',
+    );
+
+    return fs.existsSync(rawDir);
+  }
+
   constructor(
     private readonly users: UserRepository,
     private readonly favoritesRepo: FavoritesRepository,
     @Inject('MEDIA_CLIENT') private readonly mediaClient: ClientProxy,
   ) {}
 
-  async updateProfile(
-    userId: string,
-    dto: UpdateUserProfileDto,
-    file?: {
-      buffer: string;
-      originalName: string;
-      mimetype: string;
-    },
-  ) {
+  async updateProfile(userId: string, dto: UpdateUserProfileDto) {
     const user = await this.users.findById(userId);
-    if (!user)
+    if (!user) {
       throw new RpcException({
         statusCode: 404,
         message: 'Usuário não encontrado',
       });
+    }
 
     const updateData: Partial<User> = {};
 
     if (dto.username) {
       const exists = await this.users.findByUsername(dto.username);
-      if (exists && exists.id !== userId)
+      if (exists && exists.id !== userId) {
         throw new RpcException({
           statusCode: 400,
           message: 'Username já está em uso',
         });
+      }
       updateData.username = dto.username;
     }
 
     if (dto.birth_date) {
       const parsedDate = parse(dto.birth_date, 'yyyy-MM-dd', new Date());
-
       const age = differenceInYears(new Date(), parsedDate);
 
-      if (age < 18)
+      if (age < 18) {
         throw new RpcException({
           statusCode: 400,
           message: 'Usuário deve ter no mínimo 18 anos',
         });
+      }
 
       updateData.birth_date = parsedDate;
     }
@@ -74,36 +84,19 @@ export class UserService {
       updateData.profile_picture_url = null;
     }
 
-    if (file) {
+    if (this.hasRawProfileImage(userId)) {
       try {
         const imageUrl = await firstValueFrom(
-          this.mediaClient.send<string>('upload-profile-image', {
+          this.mediaClient.send<string>('process-user-profile-image', {
             userId,
-            fileBuffer: file.buffer,
-            originalName: file.originalName,
           }),
         );
 
         updateData.profile_picture_url = imageUrl;
-      } catch (err) {
-        if (
-          typeof err === 'object' &&
-          err !== null &&
-          'response' in err &&
-          typeof (err as any).response === 'object'
-        ) {
-          const response = (err as any).response;
-          if ('statusCode' in response && 'message' in response) {
-            throw new RpcException({
-              statusCode: response.statusCode,
-              message: response.message,
-            });
-          }
-        }
-
+      } catch {
         throw new RpcException({
           statusCode: 500,
-          message: 'Erro ao processar imagem',
+          message: 'Erro ao processar imagem de perfil',
         });
       }
     }
