@@ -2,15 +2,14 @@ import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { AccommodationService } from '../services/accommodation.service';
 import { Accommodation } from '../entities/accommodation.entity';
-import { CreateCommentCommand } from 'src/dtos';
 
 @Controller()
 export class AccommodationController {
   constructor(private readonly accommodationService: AccommodationService) {}
 
   @MessagePattern('accommodation.create')
-  create(@Payload() data: Partial<Accommodation>): Promise<Accommodation> {
-    return this.accommodationService.create(data);
+  create(@Payload() payload: Partial<Accommodation>): Promise<Accommodation> {
+    return this.accommodationService.create(payload);
   }
 
   @MessagePattern('accommodation.find_all')
@@ -32,41 +31,47 @@ export class AccommodationController {
       creatorId: string;
     },
   ) {
-    return this.accommodationService.update(
-      payload.id,
-      payload.data,
-      payload.creatorId,
-    );
+    return this.accommodationService.update(payload);
   }
 
   @MessagePattern('accommodation.remove')
-  async remove(@Payload() data: { id: string; userId: string }) {
-    await this.accommodationService.remove(data.id, data.userId);
+  async remove(@Payload() payload: { id: string; userId: string }) {
+    await this.accommodationService.remove(payload.id, payload.userId);
     return { success: true };
   }
 
   @MessagePattern('accommodation.find_by_creator')
-  findByCreator(@Payload() data: { creatorId: string }) {
-    return this.accommodationService.findByCreator(data.creatorId);
+  findByCreator(@Payload() payload: { creatorId: string }) {
+    return this.accommodationService.findByCreator(payload.creatorId);
   }
 
   @MessagePattern({ cmd: 'accommodation.create_comment' })
-  createComment(command: CreateCommentCommand) {
-    return this.accommodationService.createComment(command);
+  createComment(payload: {
+    content: string;
+    rating: number;
+    accommodationId: string;
+    authorId: string;
+    authorName: string;
+  }) {
+    return this.accommodationService.createComment(payload);
   }
 
   @MessagePattern({ cmd: 'accommodation.get_comments' })
-  getComments(data: { id: string; page: number; size: number }) {
-    return this.accommodationService.getComments(data.id, data.page, data.size);
+  getComments(payload: { id: string; page: number; size: number }) {
+    return this.accommodationService.getComments(
+      payload.id,
+      payload.page,
+      payload.size,
+    );
   }
 
   @MessagePattern('accommodation.update_next_available_date')
   updateNextAvailableDate(
-    @Payload() data: { id: string; date: string | null },
+    @Payload() payload: { id: string; date: string | null },
   ) {
     return this.accommodationService.updateNextAvailableDate(
-      data.id,
-      data.date,
+      payload.id,
+      payload.date,
     );
   }
 

@@ -87,17 +87,24 @@ export class AccommodationService {
     return this.accommodationRepository.findByCreatorId(creatorId);
   }
 
-  async update(id: string, data: Partial<Accommodation>, userId: string) {
-    const accommodation = await this.findOne(id);
+  async update(payload: {
+    id: string;
+    data: Partial<Accommodation>;
+    creatorId: string;
+  }) {
+    const accommodation = await this.findOne(payload.id);
 
-    if (accommodation.creator_id !== userId) {
+    if (accommodation.creator_id !== payload.creatorId) {
       throw new RpcException({
         statusCode: 403,
         message: 'Você não tem permissão para editar esta acomodação',
       });
     }
 
-    const processedData = await this.processImagesIfNeeded(id, data);
+    const processedData = await this.processImagesIfNeeded(
+      payload.id,
+      payload.data,
+    );
 
     Object.assign(accommodation, processedData);
 

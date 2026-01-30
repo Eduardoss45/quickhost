@@ -1,9 +1,8 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { firstValueFrom } from 'rxjs';
-import { CreateCommentCommand } from '../dtos';
-import { CreateAccommodationCommand } from 'src/commands';
+import { CreateAccommodationCommand, CreateCommentCommand } from '../commands';
 import { Accommodation } from 'src/types';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class AccommodationService {

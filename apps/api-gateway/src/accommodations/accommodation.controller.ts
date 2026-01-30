@@ -26,11 +26,11 @@ import {
   CreateCommentDto,
 } from '../dtos';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import path from 'path';
-import fs from 'fs';
-import sharp from 'sharp';
-import { CreateAccommodationCommand } from 'src/commands';
-import { UpdateAccommodationCommand } from 'src/commands/update-accommodation';
+import {
+  CreateAccommodationCommand,
+  UpdateAccommodationCommand,
+  CreateCommentCommand,
+} from 'src/commands';
 import { LocalImageStorageService } from 'src/storage/local-image-storage.service';
 
 @UseGuards(JwtAuthGuard)
@@ -154,13 +154,14 @@ export class AccommodationController {
     @Body() dto: CreateCommentDto,
     @CurrentUser() user: JwtUser,
   ) {
-    return this.accommodationService.createCommentInAccommodation({
+    const command: CreateCommentCommand = {
       accommodationId: accommodationId,
       content: dto.content,
       rating: dto.rating,
       authorId: user.userId,
       authorName: user.username,
-    });
+    };
+    return this.accommodationService.createCommentInAccommodation(command);
   }
 
   @Get(':id/comments')

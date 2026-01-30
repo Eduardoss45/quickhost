@@ -1,4 +1,4 @@
-export type CreateCommentDto = {
+export type Comment = {
   content: string;
   rating: number;
 };

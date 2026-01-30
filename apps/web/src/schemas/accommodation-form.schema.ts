@@ -26,7 +26,12 @@ export const accommodationFormSchema = z.object({
   city: z.string(),
   neighborhood: z.string(),
   postal_code: z.string().regex(/^\d{5}-?\d{3}$/, 'CEP inválido'),
-  uf: z.string(),
+  uf: z
+    .string()
+    .trim()
+    .length(2, 'UF deve conter exatamente 2 letras')
+    .regex(/^[A-Za-z]{2}$/, 'UF deve conter apenas letras')
+    .transform(val => val.toUpperCase()),
 
   wifi: z.boolean(),
   tv: z.boolean(),

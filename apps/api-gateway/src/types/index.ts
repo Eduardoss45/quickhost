@@ -2,3 +2,4 @@ export * from './register.command';
 export * from './jwt-user.interface';
 export * from './socket';
 export * from './accommodation';
+export * from './comment.d';
