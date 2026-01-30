@@ -12,20 +12,6 @@ import fs from 'fs';
 
 @Injectable()
 export class UserService {
-  private hasRawProfileImage(userId: string): boolean {
-    const rawDir = path.resolve(
-      process.cwd(),
-      '..',
-      '..',
-      'uploads',
-      'users',
-      userId,
-      'raw',
-    );
-
-    return fs.existsSync(rawDir);
-  }
-
   constructor(
     private readonly users: UserRepository,
     private readonly favoritesRepo: FavoritesRepository,
@@ -84,21 +70,19 @@ export class UserService {
       updateData.profile_picture_url = null;
     }
 
-    if (this.hasRawProfileImage(userId)) {
-      try {
-        const imageUrl = await firstValueFrom(
-          this.mediaClient.send<string>('process-user-profile-image', {
-            userId,
-          }),
-        );
+    try {
+      const imageUrl = await firstValueFrom(
+        this.mediaClient.send<string>('process-user-profile-image', {
+          userId,
+        }),
+      );
 
-        updateData.profile_picture_url = imageUrl;
-      } catch {
-        throw new RpcException({
-          statusCode: 500,
-          message: 'Erro ao processar imagem de perfil',
-        });
-      }
+      updateData.profile_picture_url = imageUrl;
+    } catch {
+      throw new RpcException({
+        statusCode: 500,
+        message: 'Erro ao processar imagem de perfil',
+      });
     }
 
     try {

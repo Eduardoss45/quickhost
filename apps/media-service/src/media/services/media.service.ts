@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  BadRequestException,
-  InternalServerErrorException,
-  Inject,
-} from '@nestjs/common';
+import { Injectable, BadRequestException, Inject } from '@nestjs/common';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -19,13 +14,21 @@ export class MediaService {
     return isUUID(value);
   }
 
+  private getUploadsPath(): string {
+    const root = process.env.PROJECT_ROOT;
+    if (!root) {
+      throw new Error('PROJECT_ROOT environment variable is not defined');
+    }
+    return path.resolve(root, 'uploads');
+  }
+
   constructor(
     @Inject('ACCOMMODATIONS_CLIENT')
     private readonly accommodationClient: ClientProxy,
     @Inject('AUTH_CLIENT')
     private readonly authClient: ClientProxy,
   ) {
-    this.uploadDir = path.resolve(process.cwd(), '..', '..', 'uploads');
+    this.uploadDir = this.getUploadsPath();
 
     if (!fs.existsSync(this.uploadDir)) {
       fs.mkdirSync(this.uploadDir, { recursive: true });

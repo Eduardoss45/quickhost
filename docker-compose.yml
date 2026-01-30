@@ -262,6 +262,14 @@ services:
       dockerfile: apps/media-service/Dockerfile
     environment:
       RMQ_URL: amqp://guest:guest@rabbitmq:5672
+      PROJECT_ROOT: /app
+    volumes:
+      - uploads_data:/app/uploads
+    entrypoint: >
+      sh -c "
+      chown -R 100:101 /app/uploads &&
+      exec su app -c 'node dist/src/main.js'
+      "
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -281,6 +289,13 @@ services:
       RMQ_URL: amqp://guest:guest@rabbitmq:5672
       FRONTEND_URL: http://localhost:5173
       PROJECT_ROOT: /app
+    volumes:
+      - uploads_data:/app/uploads
+    entrypoint: >
+      sh -c "
+      chown -R 100:101 /app/uploads &&
+      exec su app -c 'node dist/main.js'
+      "
     ports:
       - "3000:3000"
     depends_on:
@@ -320,6 +335,7 @@ volumes:
   pgdata:
   rabbitmq_data:
   rabbitmq_log:
+  uploads_data:
 
 networks:
   appnet:

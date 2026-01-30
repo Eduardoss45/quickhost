@@ -40,11 +40,12 @@ RUN npm run build --workspace=@quickhost/media-service
 FROM node:20-alpine AS runner
 WORKDIR /app
 
-RUN addgroup -S app && adduser -S app -G app
-USER app
+# usuário com UID/GID FIXOS
+RUN addgroup -g 101 app \
+    && adduser -D -u 100 -G app app
 
-COPY --from=media-service-deps /app/node_modules ./node_modules
 COPY --from=builder /app/apps/media-service/dist ./dist
+COPY --from=media-service-deps /app/node_modules ./node_modules
 COPY apps/media-service/package.json ./package.json
 
 EXPOSE 3000
