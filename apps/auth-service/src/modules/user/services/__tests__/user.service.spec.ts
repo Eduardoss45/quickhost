@@ -21,6 +21,7 @@ import { UserRepository } from '../../../repositories/user.repository';
 import { FavoritesRepository } from '../../../repositories/favorites.repository';
 import { RpcException } from '@nestjs/microservices';
 import * as fs from 'fs';
+import { of } from 'rxjs';
 
 jest.mock('fs', () => ({
   existsSync: jest.fn(),
@@ -71,14 +72,12 @@ describe('UserService', () => {
     service = module.get(UserService);
   });
 
-  // ===========================
-  // updateProfile
-  // ===========================
-
   it('atualiza perfil com sucesso (username)', async () => {
     usersRepoMock.findById.mockResolvedValue({ id: 'user-id' });
     usersRepoMock.findByUsername.mockResolvedValue(null);
     usersRepoMock.updateProfile.mockResolvedValue(undefined);
+
+    mediaClientMock.send.mockReturnValue(of(null));
 
     const result = await service.updateProfile('user-id', {
       username: 'novo_nome',
@@ -113,10 +112,6 @@ describe('UserService', () => {
     ).rejects.toBeInstanceOf(RpcException);
   });
 
-  // ===========================
-  // getProfile
-  // ===========================
-
   it('remove dados sensíveis do perfil', async () => {
     usersRepoMock.findById.mockResolvedValue({
       id: 'user-id',
@@ -138,10 +133,6 @@ describe('UserService', () => {
       RpcException,
     );
   });
-
-  // ===========================
-  // Favoritos
-  // ===========================
 
   it('adiciona favorito com sucesso', async () => {
     favoritesRepoMock.add.mockResolvedValue(undefined);

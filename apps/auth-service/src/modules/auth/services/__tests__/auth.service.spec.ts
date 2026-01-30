@@ -77,7 +77,7 @@ describe('AuthService', () => {
       password: '123456',
       confirm_password: '123456',
       cpf: '00000000000',
-      birdth_date: new Date(),
+      birth_date: new Date(),
     });
 
     expect(result.status).toBe('created');
@@ -95,7 +95,7 @@ describe('AuthService', () => {
         password: '123',
         confirm_password: '123',
         cpf: '000',
-        birdth_date: new Date(),
+        birth_date: new Date(),
       }),
     ).rejects.toBeInstanceOf(RpcException);
   });
@@ -110,7 +110,7 @@ describe('AuthService', () => {
         password: '123',
         confirm_password: '456',
         cpf: '000',
-        birdth_date: new Date(),
+        birth_date: new Date(),
       }),
     ).rejects.toBeInstanceOf(RpcException);
   });

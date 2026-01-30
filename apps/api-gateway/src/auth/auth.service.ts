@@ -6,12 +6,32 @@ import { RegisterCommand } from 'src/types';
 
 @Injectable()
 export class AuthService {
+  private normalizeBirthDate(input: string | Date): Date {
+    if (input instanceof Date && !isNaN(input.getTime())) {
+      return input;
+    }
+
+    if (typeof input === 'string') {
+      const dateOnly = input.includes('T') ? input.split('T')[0] : input;
+
+      const date = new Date(`${dateOnly}T00:00:00.000Z`);
+
+      if (!isNaN(date.getTime())) {
+        return date;
+      }
+    }
+
+    throw new Error('Invalid birth_date format');
+  }
+
   constructor(
     @Inject('AUTH_CLIENT')
     private readonly client: ClientProxy,
   ) {}
 
   registerAuthService(command: RegisterCommand) {
+    command.birth_date = this.normalizeBirthDate(command.birth_date);
+
     return firstValueFrom(this.client.send('register', command));
   }
 

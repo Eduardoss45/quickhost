@@ -35,30 +35,45 @@ export class MediaService {
     }
   }
 
-  async processUserProfileImage(userId: string): Promise<string> {
+  async processUserProfileImage(userId: string): Promise<string | null> {
     const rawDir = path.join(this.uploadDir, 'users', userId, 'raw');
     const finalDir = path.join(this.uploadDir, 'users', userId);
+    const finalPath = path.join(finalDir, 'profile.jpeg');
+    const publicPath = `/uploads/users/${userId}/profile.jpeg`;
 
-    const files = await fs.promises.readdir(rawDir);
-    if (files.length === 0) {
-      throw new RpcException('Nenhuma imagem raw encontrada');
+    try {
+      const files = await fs.promises.readdir(rawDir);
+
+      if (files.length > 0) {
+        const rawFile = path.join(rawDir, files[0]);
+
+        await fs.promises.mkdir(finalDir, { recursive: true });
+
+        const buffer = await sharp(rawFile)
+          .resize({ width: 800, withoutEnlargement: true })
+          .jpeg({ quality: 90 })
+          .toBuffer();
+
+        await fs.promises.writeFile(finalPath, buffer);
+        await fs.promises.rm(rawDir, { recursive: true, force: true });
+
+        return publicPath;
+      }
+    } catch (err) {
+      const error = err as NodeJS.ErrnoException;
+      if (error.code !== 'ENOENT') {
+        throw new RpcException({
+          statusCode: 500,
+          message: 'Erro ao processar imagem de perfil',
+        });
+      }
     }
 
-    const rawFile = path.join(rawDir, files[0]);
+    if (fs.existsSync(finalPath)) {
+      return publicPath;
+    }
 
-    await fs.promises.mkdir(finalDir, { recursive: true });
-
-    const buffer = await sharp(rawFile)
-      .resize({ width: 800, withoutEnlargement: true })
-      .jpeg({ quality: 90 })
-      .toBuffer();
-
-    const finalPath = path.join(finalDir, 'profile.jpeg');
-    await fs.promises.writeFile(finalPath, buffer);
-
-    await fs.promises.rm(rawDir, { recursive: true, force: true });
-
-    return `/uploads/users/${userId}/profile.jpeg`;
+    return null;
   }
 
   async removeUserProfileImage(userId: string, imagePath: string) {

@@ -33,6 +33,10 @@ describe('MediaService', () => {
 
   const validBuffer = Buffer.from('image');
 
+  beforeAll(() => {
+    process.env.PROJECT_ROOT = 'C:/dev/quickhost';
+  });
+
   beforeEach(async () => {
     jest.clearAllMocks();
 
@@ -79,12 +83,16 @@ describe('MediaService', () => {
       expect(result).toBe('/uploads/users/user-id/profile.jpeg');
     });
 
-    it('should throw RpcException if no raw images exist', async () => {
+    it('should return null if no raw images exist and no final image exists', async () => {
       (fs.promises.readdir as jest.Mock).mockResolvedValue([]);
 
-      await expect(
-        service.processUserProfileImage('user-id'),
-      ).rejects.toBeInstanceOf(RpcException);
+      (fs.existsSync as jest.Mock).mockImplementation((p: string) => {
+        return false;
+      });
+
+      const result = await service.processUserProfileImage('user-id');
+
+      expect(result).toBeNull();
     });
   });
 

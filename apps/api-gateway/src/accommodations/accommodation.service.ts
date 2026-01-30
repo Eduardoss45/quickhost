@@ -29,7 +29,6 @@ export class AccommodationService {
     data: Partial<Accommodation>,
     userId: string,
   ) {
-    console.log(data);
     return firstValueFrom(
       this.client.send('accommodation.update', {
         id,

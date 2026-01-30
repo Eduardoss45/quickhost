@@ -43,7 +43,7 @@ export class AuthService {
     password: string;
     confirm_password: string;
     cpf: string;
-    birdth_date: Date;
+    birth_date: Date;
   }) {
     const exists = await this.users.findByEmail(data.email);
 
@@ -70,7 +70,7 @@ export class AuthService {
         username: data.username,
         password: passwordHash,
         cpf: data.cpf,
-        birth_date: data.birdth_date,
+        birth_date: data.birth_date,
       });
     } catch (err) {
       mapDatabaseError(err);
