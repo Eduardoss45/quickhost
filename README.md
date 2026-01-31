@@ -233,6 +233,64 @@ Esse comando:
 
 ---
 
+## 📑 Documentação da API (Swagger)
+
+Toda a API do sistema está documentada utilizando **Swagger (OpenAPI)**, centralizada no **API Gateway**, que atua como ponto único de entrada para o frontend e clientes externos.
+
+### Acesso à Documentação
+
+Após subir o projeto localmente, a documentação pode ser acessada em:
+
+```text
+http://localhost:3000/api/docs
+```
+
+### O que está documentado
+
+A documentação Swagger inclui:
+
+- ✅ **Todas as rotas expostas pelo API Gateway**
+- ✅ **Todos os DTOs de entrada (request bodies)**
+- ✅ **Parâmetros de rota e query**
+- ✅ **Autenticação via JWT (Bearer Token)**
+- ✅ **Rotas protegidas e públicas claramente separadas**
+
+Cada endpoint possui:
+
+- Descrição funcional
+- Tipagem completa dos payloads
+- Exemplos de uso
+- Validações aplicadas (UUID, datas, enums, etc.)
+
+### Autenticação no Swagger
+
+As rotas protegidas utilizam **JWT**. Para testá-las diretamente no Swagger:
+
+1. Realize login pela rota `/auth/login`
+2. Copie o `accessToken` retornado
+3. Clique em **Authorize**
+4. Informe o token no formato:
+
+```text
+Bearer <accessToken>
+```
+
+Após isso, todas as rotas protegidas poderão ser chamadas normalmente pelo Swagger UI.
+
+### Observações Importantes
+
+- O Swagger documenta **apenas o contrato HTTP** exposto pelo API Gateway.
+- Serviços internos (Auth, Booking, Chat, Notifications, etc.) **não expõem Swagger individual**, reforçando:
+  - Encapsulamento
+  - Separação de responsabilidades
+  - Comunicação exclusivamente via mensageria ou gateway
+
+- A documentação reflete fielmente o estado atual da API — **DTOs e rotas estão sempre sincronizados com o código**.
+
+> O Swagger é tratado como **fonte de verdade do contrato da API**, facilitando integração com frontend, testes manuais e validação dos fluxos do sistema.
+
+---
+
 ## 🐳 Infraestrutura & Docker
 
 - Dockerfile individual por serviço

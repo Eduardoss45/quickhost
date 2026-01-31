@@ -71,6 +71,7 @@ async function bootstrap() {
     .setDescription('API para sistemas de hospedagem')
     .setVersion('1.0')
     .addBearerAuth()
+    .addCookieAuth('refreshToken')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);

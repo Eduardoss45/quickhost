@@ -45,7 +45,7 @@ export class AccommodationController {
     return this.accommodationService.findByCreator(payload.creatorId);
   }
 
-  @MessagePattern({ cmd: 'accommodation.create_comment' })
+  @MessagePattern('accommodation.create_comment')
   createComment(payload: {
     content: string;
     rating: number;
@@ -56,7 +56,7 @@ export class AccommodationController {
     return this.accommodationService.createComment(payload);
   }
 
-  @MessagePattern({ cmd: 'accommodation.get_comments' })
+  @MessagePattern('accommodation.get_comments')
   getComments(payload: { id: string; page: number; size: number }) {
     return this.accommodationService.getComments(
       payload.id,

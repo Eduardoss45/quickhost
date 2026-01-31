@@ -53,16 +53,13 @@ export class AccommodationService {
 
   createCommentInAccommodation(command: CreateCommentCommand) {
     return firstValueFrom(
-      this.client.send({ cmd: 'accommodation.create_comment' }, command),
+      this.client.send('accommodation.create_comment', command),
     );
   }
 
   async getCommentsInAccommodation(id: string, page: number, size: number) {
     return firstValueFrom(
-      this.client.send(
-        { cmd: 'accommodation.get_comments' },
-        { id, page, size },
-      ),
+      this.client.send('accommodation.get_comments', { id, page, size }),
     );
   }
 

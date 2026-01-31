@@ -6,3 +6,7 @@ export * from './update-accommodation.dto';
 export * from './create-comment.dto';
 export * from './create-booking.dto';
 export * from './confirm-booking.dto';
+export * from './forgot-password.dto';
+export * from './reset-password.dto';
+export * from './send-message.dto';
+export * from './get-or-create-room.dto';
