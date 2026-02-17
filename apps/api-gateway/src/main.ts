@@ -21,7 +21,16 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api');
 
-  app.enableCors({ origin: [process.env.FRONTEND_URL], credentials: true });
+  const frontendOrigins = process.env
+    .FRONTEND_URL!.split(',')
+    .map((o) => o.trim());
+
+  app.enableCors({
+    origin: frontendOrigins,
+    credentials: true,
+  });
+
+  app.useWebSocketAdapter(new SocketIoAdapter(app, frontendOrigins));
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -32,8 +41,6 @@ async function bootstrap() {
   );
 
   app.use(cookieParser());
-
-  app.useWebSocketAdapter(new SocketIoAdapter(app, process.env.FRONTEND_URL!));
 
   app.connectMicroservice({
     transport: Transport.RMQ,

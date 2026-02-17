@@ -4,7 +4,7 @@ import { INestApplication } from '@nestjs/common';
 export class SocketIoAdapter extends IoAdapter {
   constructor(
     app: INestApplication,
-    private readonly corsOrigin: string,
+    private readonly corsOrigin: string | string[],
   ) {
     super(app);
   }

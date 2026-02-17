@@ -14,7 +14,6 @@ export function useAccommodation() {
       const res = await api.get('/api/accommodations');
       return res.data;
     } catch {
-      toast.error('Erro ao buscar acomodações');
       return [];
     }
   };

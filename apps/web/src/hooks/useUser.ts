@@ -180,7 +180,6 @@ export function useUser() {
 
     if (!user && !hasWarnedRef.current) {
       hasWarnedRef.current = true;
-      toast.warning('Algumas funcionalidades exigem login.');
     }
   }, [hydrated, user]);
 
