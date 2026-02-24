@@ -24,6 +24,7 @@ export function useBooking() {
       toast.error(e.response?.data?.message ?? 'Erro ao criar reserva');
       return null;
     } finally {
+      submitLockRef.current = false;
       setLoading(false);
     }
   };
@@ -42,6 +43,7 @@ export function useBooking() {
       toast.error(e.response?.data?.message ?? 'Erro ao cancelar reserva');
       return null;
     } finally {
+      submitLockRef.current = false;
       setLoading(false);
     }
   };
@@ -60,6 +62,7 @@ export function useBooking() {
       toast.error(e.response?.data?.message ?? 'Erro ao confirmar reserva');
       return null;
     } finally {
+      submitLockRef.current = false;
       setLoading(false);
     }
   };

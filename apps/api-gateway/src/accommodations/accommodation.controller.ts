@@ -13,6 +13,7 @@ import {
   Query,
   HttpCode,
   HttpStatus,
+  BadRequestException,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/guards/jwt.guard';
 import { CurrentUser } from 'src/decorators/current-user.decorator';
@@ -33,6 +34,7 @@ import {
   UpdateAccommodationDto,
   CreateCommentDto,
 } from '../dtos';
+import { CreateAccommodationCommand } from '../commands';
 
 @ApiTags('Accommodations')
 @ApiBearerAuth()
@@ -72,7 +74,38 @@ export class AccommodationController {
     @Body() dto: CreateAccommodationDto,
     @UploadedFiles() files?: Express.Multer.File[],
   ) {
-    // implementação mantida
+    const command: CreateAccommodationCommand = {
+      ...dto,
+      creator_id: user.userId,
+    };
+
+    const accommodation =
+      await this.accommodationService.createAccommodation(command);
+
+    if (!files?.length) {
+      return accommodation;
+    }
+
+    if (!dto.coverOriginalName) {
+      throw new BadRequestException(
+        'coverOriginalName é obrigatório quando imagens são enviadas',
+      );
+    }
+
+    const rawImages = await this.imageStorage.saveRawAccommodationImages(
+      accommodation.id,
+      files,
+      dto.coverOriginalName,
+    );
+
+    return this.accommodationService.updateAccommodation(
+      accommodation.id,
+      {
+        main_cover_image: rawImages.cover,
+        internal_images: rawImages.images,
+      },
+      user.userId,
+    );
   }
 
   @Patch(':id')
@@ -86,12 +119,45 @@ export class AccommodationController {
     @CurrentUser() user: JwtUser,
     @UploadedFiles() files?: Express.Multer.File[],
   ) {
-    // implementação mantida
+    const { coverOriginalName, ...data } = dto;
+
+    if (!files?.length) {
+      return this.accommodationService.updateAccommodation(
+        id,
+        data,
+        user.userId,
+      );
+    }
+
+    if (!coverOriginalName) {
+      throw new BadRequestException(
+        'coverOriginalName é obrigatório quando imagens são enviadas',
+      );
+    }
+
+    const rawImages = await this.imageStorage.saveRawAccommodationImages(
+      id,
+      files,
+      coverOriginalName,
+    );
+
+    return this.accommodationService.updateAccommodation(
+      id,
+      {
+        ...data,
+        main_cover_image: rawImages.cover,
+        internal_images: rawImages.images,
+      },
+      user.userId,
+    );
   }
 
   @Delete(':id')
   @ApiOperation({ summary: 'Remover acomodação' })
-  @ApiResponse({ status: 200, description: 'Acomodação removida com sucesso' })
+  @ApiResponse({
+    status: 200,
+    description: 'Acomodação removida com sucesso',
+  })
   async removeAccommodation(
     @Param('id') id: string,
     @CurrentUser() user: JwtUser,
@@ -108,7 +174,13 @@ export class AccommodationController {
     @Body() dto: CreateCommentDto,
     @CurrentUser() user: JwtUser,
   ) {
-    // implementação mantida
+    return this.accommodationService.createCommentInAccommodation({
+      accommodationId,
+      content: dto.content,
+      rating: dto.rating,
+      authorId: user.userId,
+      authorName: user.username,
+    });
   }
 
   @Get(':id/comments')

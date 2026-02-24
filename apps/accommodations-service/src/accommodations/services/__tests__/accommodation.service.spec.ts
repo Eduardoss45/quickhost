@@ -10,6 +10,7 @@ describe('AccommodationService', () => {
   let accommodations: jest.Mocked<AccommodationRepository>;
   let comments: jest.Mocked<CommentRepository>;
   let mediaClient: jest.Mocked<ClientProxy>;
+  let bookingClient: jest.Mocked<ClientProxy>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -39,6 +40,12 @@ describe('AccommodationService', () => {
             send: jest.fn(),
           },
         },
+        {
+          provide: 'BOOKING_CLIENT',
+          useValue: {
+            send: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
@@ -46,11 +53,15 @@ describe('AccommodationService', () => {
     accommodations = module.get(AccommodationRepository);
     comments = module.get(CommentRepository);
     mediaClient = module.get('MEDIA_CLIENT');
+    bookingClient = module.get('BOOKING_CLIENT');
+
+    bookingClient.send.mockReturnValue(of([]));
   });
 
   afterEach(() => {
     jest.clearAllMocks();
   });
+
   describe('create', () => {
     it('cria uma acomodação com sucesso', async () => {
       accommodations.create.mockReturnValue({ id: 'acc-id' } as any);
@@ -68,7 +79,7 @@ describe('AccommodationService', () => {
   });
 
   describe('update', () => {
-    it('atualiza acomodação sem imagens raw', async () => {
+    it('atualiza a acomodação sem processamento de imagens raw', async () => {
       const accommodation = {
         id: 'acc-id',
         creator_id: 'user-id',
@@ -81,17 +92,17 @@ describe('AccommodationService', () => {
         title: 'New',
       });
 
-      const result = await service.update(
-        'acc-id',
-        { title: 'New' } as any,
-        'user-id',
-      );
+      const result = await service.update({
+        id: 'acc-id',
+        data: { title: 'New' } as any,
+        creatorId: 'user-id',
+      });
 
       expect(mediaClient.send).not.toHaveBeenCalled();
       expect(result.title).toBe('New');
     });
 
-    it('processa imagens se houver imagens raw', async () => {
+    it('processa imagens quando houver imagens raw', async () => {
       const accommodation = {
         id: 'acc-id',
         creator_id: 'user-id',
@@ -114,14 +125,14 @@ describe('AccommodationService', () => {
         internal_images: ['/uploads/accommodations/acc-id/image0.jpeg'],
       });
 
-      const result = await service.update(
-        'acc-id',
-        {
+      const result = await service.update({
+        id: 'acc-id',
+        data: {
           main_cover_image: accommodation.main_cover_image,
           internal_images: accommodation.internal_images,
         } as any,
-        'user-id',
-      );
+        creatorId: 'user-id',
+      });
 
       expect(mediaClient.send).toHaveBeenCalledWith(
         'process_accommodation_images',
@@ -131,14 +142,18 @@ describe('AccommodationService', () => {
       expect(result.main_cover_image).toContain('image0.jpeg');
     });
 
-    it('falha se o usuário não for o criador', async () => {
+    it('lança exceção se o usuário não for o criador', async () => {
       accommodations.findOne.mockResolvedValue({
         id: 'acc-id',
         creator_id: 'other-user',
       } as any);
 
       await expect(
-        service.update('acc-id', {} as any, 'user-id'),
+        service.update({
+          id: 'acc-id',
+          data: {} as any,
+          creatorId: 'user-id',
+        }),
       ).rejects.toBeInstanceOf(RpcException);
     });
 
@@ -154,17 +169,17 @@ describe('AccommodationService', () => {
       );
 
       await expect(
-        service.update(
-          'acc-id',
-          { main_cover_image: '/raw/image.jpg' } as any,
-          'user-id',
-        ),
+        service.update({
+          id: 'acc-id',
+          data: { main_cover_image: '/raw/image.jpg' } as any,
+          creatorId: 'user-id',
+        }),
       ).rejects.toBeInstanceOf(RpcException);
     });
   });
 
   describe('removeImages', () => {
-    it('remove imagens da acomodação', async () => {
+    it('remove as imagens da acomodação', async () => {
       const accommodation = {
         id: 'acc-id',
         creator_id: 'user-id',
@@ -191,7 +206,7 @@ describe('AccommodationService', () => {
       expect(result.internal_images).toHaveLength(0);
     });
 
-    it('falha ao remover imagens se não for o criador', async () => {
+    it('lança exceção ao tentar remover imagens sem ser o criador', async () => {
       accommodations.findOne.mockResolvedValue({
         id: 'acc-id',
         creator_id: 'other-user',
@@ -200,6 +215,38 @@ describe('AccommodationService', () => {
       await expect(
         service.removeImages('acc-id', 'user-id'),
       ).rejects.toBeInstanceOf(RpcException);
+    });
+  });
+
+  describe('remove', () => {
+    it('bloqueia a remoção quando houver reservas ativas', async () => {
+      accommodations.findOne.mockResolvedValue({
+        id: 'acc-id',
+        creator_id: 'user-id',
+      } as any);
+
+      bookingClient.send.mockReturnValue(
+        of([{ status: 'PENDING', checkOutDate: '2099-01-01' }]),
+      );
+
+      await expect(service.remove('acc-id', 'user-id')).rejects.toBeInstanceOf(
+        RpcException,
+      );
+
+      expect(accommodations.remove).not.toHaveBeenCalled();
+    });
+
+    it('permite a remoção quando não houver reservas ativas', async () => {
+      accommodations.findOne.mockResolvedValue({
+        id: 'acc-id',
+        creator_id: 'user-id',
+      } as any);
+
+      bookingClient.send.mockReturnValue(of([]));
+
+      await service.remove('acc-id', 'user-id');
+
+      expect(accommodations.remove).toHaveBeenCalled();
     });
   });
 });

@@ -100,8 +100,8 @@ export function useAccommodation() {
       await api.delete(`/api/accommodations/${id}`);
       toast.success('Acomodação removida com sucesso');
       return true;
-    } catch {
-      toast.error('Erro ao remover acomodação');
+    } catch (e: any) {
+      toast.error(e.response?.data?.message ?? 'Erro ao remover acomodação');
     } finally {
       setLoading(false);
     }
@@ -130,3 +130,4 @@ export function useAccommodation() {
     removeImages,
   };
 }
+

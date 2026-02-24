@@ -5,6 +5,7 @@ import { Accommodation } from '../entities/accommodation.entity';
 import { validate as isUUID } from 'uuid';
 import { CommentRepository } from '../repositories/comments.repository';
 import { firstValueFrom } from 'rxjs';
+import { format, startOfDay } from 'date-fns';
 
 @Injectable()
 export class AccommodationService {
@@ -57,6 +58,7 @@ export class AccommodationService {
     private readonly accommodationRepository: AccommodationRepository,
     private readonly commentRepository: CommentRepository,
     @Inject('MEDIA_CLIENT') private readonly mediaClient: ClientProxy,
+    @Inject('BOOKING_CLIENT') private readonly bookingClient: ClientProxy,
   ) {}
 
   async create(data: Partial<Accommodation>) {
@@ -118,6 +120,32 @@ export class AccommodationService {
       throw new RpcException({
         statusCode: 403,
         message: 'Você não tem permissão para deletar esta acomodação',
+      });
+    }
+
+    const bookings = await firstValueFrom(
+      this.bookingClient.send('booking.find_by_accommodation', {
+        accommodationId: id,
+      }),
+    );
+
+    const today = format(startOfDay(new Date()), 'yyyy-MM-dd');
+    const hasActiveBookings = (
+      bookings as Array<{
+        status: 'PENDING' | 'CONFIRMED' | 'CANCELED';
+        checkOutDate: string;
+      }>
+    ).some(
+      (booking) =>
+        booking.status === 'PENDING' ||
+        (booking.status === 'CONFIRMED' && booking.checkOutDate > today),
+    );
+
+    if (hasActiveBookings) {
+      throw new RpcException({
+        statusCode: 409,
+        message:
+          'Não é possível remover a acomodação enquanto houver reservas ativas. Cancele todas as reservas ativas para prosseguir.',
       });
     }
 

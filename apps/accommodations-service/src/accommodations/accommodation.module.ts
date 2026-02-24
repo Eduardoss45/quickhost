@@ -37,6 +37,18 @@ import { CommentRepository } from './repositories/comments.repository';
           },
         }),
       },
+      {
+        name: 'BOOKING_CLIENT',
+        inject: [ConfigService],
+        useFactory: (config: ConfigService) => ({
+          transport: Transport.RMQ,
+          options: {
+            urls: [config.get('RMQ_URL')],
+            queue: 'qk_booking_queue',
+            queueOptions: { durable: true },
+          },
+        }),
+      },
     ]),
   ],
   controllers: [AccommodationController],

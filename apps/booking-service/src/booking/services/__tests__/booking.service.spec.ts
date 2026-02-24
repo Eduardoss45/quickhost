@@ -77,7 +77,7 @@ describe('BookingService', () => {
   });
 
   describe('createBooking', () => {
-    it('cria reserva com sucesso', async () => {
+    it('cria uma reserva com sucesso', async () => {
       accommodationClient.send.mockReturnValue(
         of({
           id: 'acc',
@@ -108,7 +108,7 @@ describe('BookingService', () => {
   });
 
   describe('cancelBooking', () => {
-    it('cancela reserva com sucesso', async () => {
+    it('cancela a reserva com sucesso', async () => {
       jest
         .spyOn(service as any, 'syncAvailability')
         .mockResolvedValue(undefined);
@@ -131,7 +131,7 @@ describe('BookingService', () => {
       expect(notificationsClient.emit).toHaveBeenCalled();
     });
 
-    it('não faz nada se reserva já estiver cancelada', async () => {
+    it('não executa nenhuma ação se a reserva já estiver cancelada', async () => {
       bookings.findOneBy.mockResolvedValue({
         status: BookingStatus.CANCELED,
         hostId: 'host',
@@ -145,7 +145,7 @@ describe('BookingService', () => {
   });
 
   describe('confirmBooking', () => {
-    it('confirma reserva com sucesso', async () => {
+    it('confirma a reserva com sucesso', async () => {
       const repoMock = {
         findOne: jest.fn().mockResolvedValue({
           id: 'b1',
@@ -178,6 +178,55 @@ describe('BookingService', () => {
 
       expect(result.id).toBe('b1');
       expect(notificationsClient.emit).toHaveBeenCalled();
+    });
+  });
+
+  describe('deleteExpiredConfirmedBookings', () => {
+    it('remove reservas confirmadas expiradas (incluindo checkout na data atual) e sincroniza a disponibilidade', async () => {
+      const expiredRows = [
+        { id: 'b1', accommodationId: 'acc-1' },
+        { id: 'b2', accommodationId: 'acc-1' },
+        { id: 'b3', accommodationId: 'acc-2' },
+      ];
+
+      const selectQb = {
+        select: jest.fn().mockReturnThis(),
+        addSelect: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        andWhere: jest.fn().mockReturnThis(),
+        getRawMany: jest.fn().mockResolvedValue(expiredRows),
+      };
+
+      const deleteQb = {
+        delete: jest.fn().mockReturnThis(),
+        from: jest.fn().mockReturnThis(),
+        where: jest.fn().mockReturnThis(),
+        execute: jest.fn().mockResolvedValue({ affected: 3 }),
+      };
+
+      bookings.createQueryBuilder
+        .mockReturnValueOnce(selectQb as any)
+        .mockReturnValueOnce(deleteQb as any);
+
+      const syncSpy = jest
+        .spyOn(service as any, 'syncAvailability')
+        .mockResolvedValue(undefined);
+
+      const result = await service.deleteExpiredConfirmedBookings();
+
+      expect(selectQb.andWhere).toHaveBeenCalledWith(
+        'booking.checkOutDate <= :today',
+        expect.any(Object),
+      );
+
+      expect(deleteQb.where).toHaveBeenCalledWith('id IN (:...ids)', {
+        ids: ['b1', 'b2', 'b3'],
+      });
+
+      expect(syncSpy).toHaveBeenCalledTimes(2);
+      expect(syncSpy).toHaveBeenCalledWith('acc-1');
+      expect(syncSpy).toHaveBeenCalledWith('acc-2');
+      expect(result).toEqual({ affected: 3 });
     });
   });
 });

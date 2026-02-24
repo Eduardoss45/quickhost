@@ -1,5 +1,5 @@
 import { Controller } from '@nestjs/common';
-import { MessagePattern, Payload } from '@nestjs/microservices';
+import { MessagePattern, Payload, RpcException } from '@nestjs/microservices';
 import { AccommodationService } from '../services/accommodation.service';
 import { Accommodation } from '../entities/accommodation.entity';
 
@@ -67,10 +67,19 @@ export class AccommodationController {
 
   @MessagePattern('accommodation.update_next_available_date')
   updateNextAvailableDate(
-    @Payload() payload: { id: string; date: string | null },
+    @Payload()
+    payload: { id?: string; accommodationId?: string; date: string | null },
   ) {
+    const id = payload.id ?? payload.accommodationId;
+    if (!id) {
+      throw new RpcException({
+        statusCode: 400,
+        message: 'Accommodation ID is required',
+      });
+    }
+
     return this.accommodationService.updateNextAvailableDate(
-      payload.id,
+      id,
       payload.date,
     );
   }

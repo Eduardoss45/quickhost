@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
+import { BadRequestException, ValidationPipe } from '@nestjs/common';
 import { ApiGatewayModule } from './api-gateway.module';
 import { SocketIoAdapter } from './socket-io/socket-io.adapter';
 import cookieParser from 'cookie-parser';
@@ -37,6 +37,21 @@ async function bootstrap() {
       whitelist: true,
       forbidNonWhitelisted: true,
       transform: true,
+      exceptionFactory: (errors) => {
+        const collect = (items: any[]): string[] =>
+          items.flatMap((error) => {
+            const own = error?.constraints
+              ? Object.values(error.constraints)
+              : [];
+            const children = error?.children?.length
+              ? collect(error.children)
+              : [];
+            return [...own, ...children] as string[];
+          });
+
+        const message = collect(errors).join('; ');
+        return new BadRequestException(message || 'Validation failed');
+      },
     }),
   );
 

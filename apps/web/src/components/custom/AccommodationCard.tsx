@@ -1,11 +1,12 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, Eye, Pencil } from 'lucide-react';
-import type { Accommodation } from '@/types/accommodation';
+import type { Accommodation, Booking } from '@/types';
 import { useUser } from '@/hooks/useUser';
 import { useFavoritesStore } from '@/store/favorites.store';
 import { FaRegTrashAlt } from 'react-icons/fa';
 import { useAccommodation } from '@/hooks/useAccommodation';
+import { useBooking } from '@/hooks/useBooking';
 import { toast } from 'sonner';
 
 interface Props {
@@ -26,9 +27,12 @@ const AccommodationCard: React.FC<Props> = ({
   onRemoved,
 }) => {
   const { remove, loading } = useAccommodation();
+  const { getBookingsByAccommodation } = useBooking();
   const { getPublicUser, isAuthenticated } = useUser();
   const { removeFavorite, isFavorited } = useFavoritesStore();
   const [creatorName, setCreatorName] = useState<string>('Criador desconhecido');
+  const [loadingBookings, setLoadingBookings] = useState(false);
+  const [hasActiveBookings, setHasActiveBookings] = useState(false);
 
   const cacheBuster = useMemo(() => Date.now(), [accommodation.id]);
 
@@ -54,7 +58,40 @@ const AccommodationCard: React.FC<Props> = ({
     return () => {
       isMounted = false;
     };
-  }, [accommodation.creator_id, getPublicUser]);
+  }, [accommodation.creator_id]);
+
+  useEffect(() => {
+    let isMounted = true;
+    if (!showActions || !accommodation.id) return;
+
+    const loadBookings = async () => {
+      setLoadingBookings(true);
+      const bookings = await getBookingsByAccommodation(accommodation.id);
+      if (!isMounted) return;
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const active = (bookings as Booking[]).some(booking => {
+        if (booking.status === 'PENDING') return true;
+        if (booking.status === 'CONFIRMED') {
+          const checkOut = new Date(`${booking.checkOutDate}T00:00:00`);
+          return checkOut > today;
+        }
+
+        return false;
+      });
+
+      setHasActiveBookings(active);
+      setLoadingBookings(false);
+    };
+
+    loadBookings();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [accommodation.id, showActions]);
 
   return (
     <div
@@ -96,9 +133,20 @@ const AccommodationCard: React.FC<Props> = ({
 
         {showActions && (
           <div className="pt-2">
+            {hasActiveBookings && (
+              <p className="mb-2 text-xs text-amber-700">
+                Cancele todas as reservas ativas para remover esta acomodação.
+              </p>
+            )}
+
             <button
-              disabled={loading}
+              disabled={loading || loadingBookings || hasActiveBookings}
               onClick={() => {
+                if (hasActiveBookings) {
+                  toast.error('Cancele todas as reservas ativas para remover esta acomodação.');
+                  return;
+                }
+
                 toast.warning('Remover acomodação?', {
                   description: 'Esta ação não pode ser desfeita.',
                   action: {
@@ -117,11 +165,11 @@ const AccommodationCard: React.FC<Props> = ({
                 });
               }}
               className="
-        flex w-full justify-center items-center gap-2 p-2
-        bg-red-400 hover:bg-red-500 text-white
-        rounded-sm text-sm transition
-        disabled:opacity-50 disabled:cursor-not-allowed
-      "
+                flex w-full justify-center items-center gap-2 p-2
+                bg-red-400 hover:bg-red-500 text-white
+                rounded-sm text-sm transition
+                disabled:opacity-50 disabled:cursor-not-allowed
+              "
             >
               <FaRegTrashAlt size={16} /> Remover acomodação
             </button>
@@ -135,13 +183,13 @@ const AccommodationCard: React.FC<Props> = ({
             disabled={!isFavorited(accommodation.id)}
             onClick={() => removeFavorite(accommodation.id)}
             className={`
-        px-6 py-2 text-sm rounded-sm transition flex items-center gap-2
-        ${
-          isFavorited(accommodation.id)
-            ? 'bg-red-500 text-white hover:bg-red-600'
-            : 'bg-muted text-muted-foreground cursor-not-allowed'
-        }
-      `}
+              px-6 py-2 text-sm rounded-sm transition flex items-center gap-2
+              ${
+                isFavorited(accommodation.id)
+                  ? 'bg-red-500 text-white hover:bg-red-600'
+                  : 'bg-muted text-muted-foreground cursor-not-allowed'
+              }
+            `}
           >
             <FaRegTrashAlt className="text-2xl" /> Remover dos favoritos
           </button>

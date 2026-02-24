@@ -10,6 +10,7 @@ import {
   parseISO,
   isBefore,
   startOfDay,
+  format,
 } from 'date-fns';
 
 @Injectable()
@@ -119,6 +120,7 @@ export class BookingService {
       this.accommodationClient.send(
         'accommodation.update_next_available_date',
         {
+          id: accommodationId,
           accommodationId,
           date: nextDate,
         },
@@ -444,15 +446,38 @@ export class BookingService {
   }
 
   async deleteExpiredConfirmedBookings(): Promise<{ affected: number }> {
-    const today = startOfDay(new Date());
+    const today = format(startOfDay(new Date()), 'yyyy-MM-dd');
+
+    const expiredBookings = await this.bookingRepository
+      .createQueryBuilder('booking')
+      .select('booking.id', 'id')
+      .addSelect('booking.accommodationId', 'accommodationId')
+      .where('booking.status = :status', { status: BookingStatus.CONFIRMED })
+      .andWhere('booking.checkOutDate <= :today', { today })
+      .getRawMany<{ id: string; accommodationId: string }>();
+
+    if (expiredBookings.length === 0) {
+      return { affected: 0 };
+    }
+
+    const ids = expiredBookings.map((booking) => booking.id);
 
     const result = await this.bookingRepository
       .createQueryBuilder()
       .delete()
       .from(Booking)
-      .where('status = :status', { status: BookingStatus.CONFIRMED })
-      .andWhere('checkOutDate < :today', { today })
+      .where('id IN (:...ids)', { ids })
       .execute();
+
+    const accommodationIds = [
+      ...new Set(expiredBookings.map((booking) => booking.accommodationId)),
+    ];
+
+    await Promise.allSettled(
+      accommodationIds.map((accommodationId) =>
+        this.syncAvailability(accommodationId),
+      ),
+    );
 
     return { affected: result.affected ?? 0 };
   }

@@ -13,6 +13,13 @@ import { Transform } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Category, SpaceType } from '../enums';
 
+const toBoolean = ({ value }: { value: unknown }) => {
+  if (value === true || value === false) return value;
+  if (value === 'true') return true;
+  if (value === 'false') return false;
+  return value;
+};
+
 export class CreateAccommodationDto {
   @ApiProperty({ example: 'Apartamento moderno no centro' })
   @IsString()
@@ -48,7 +55,7 @@ export class CreateAccommodationDto {
 
   @ApiPropertyOptional({ example: true })
   @IsOptional()
-  @Transform(({ value }) => value === 'true' || value === true)
+  @Transform(toBoolean)
   @IsBoolean()
   is_active?: boolean;
 
@@ -70,7 +77,7 @@ export class CreateAccommodationDto {
 
   @ApiPropertyOptional({ example: false })
   @IsOptional()
-  @Transform(({ value }) => value === 'true' || value === true)
+  @Transform(toBoolean)
   @IsBoolean()
   discount?: boolean;
 
@@ -139,62 +146,77 @@ export class CreateAccommodationDto {
   // Amenities
   @ApiPropertyOptional({ example: true })
   @IsOptional()
+  @Transform(toBoolean)
   @IsBoolean()
   wifi?: boolean;
   @ApiPropertyOptional({ example: true })
   @IsOptional()
+  @Transform(toBoolean)
   @IsBoolean()
   tv?: boolean;
   @ApiPropertyOptional({ example: true })
   @IsOptional()
+  @Transform(toBoolean)
   @IsBoolean()
   kitchen?: boolean;
   @ApiPropertyOptional({ example: false })
   @IsOptional()
+  @Transform(toBoolean)
   @IsBoolean()
   washing_machine?: boolean;
   @ApiPropertyOptional({ example: true })
   @IsOptional()
+  @Transform(toBoolean)
   @IsBoolean()
   parking_included?: boolean;
   @ApiPropertyOptional({ example: true })
   @IsOptional()
+  @Transform(toBoolean)
   @IsBoolean()
   air_conditioning?: boolean;
   @ApiPropertyOptional({ example: false })
   @IsOptional()
+  @Transform(toBoolean)
   @IsBoolean()
   pool?: boolean;
   @ApiPropertyOptional({ example: false })
   @IsOptional()
+  @Transform(toBoolean)
   @IsBoolean()
   jacuzzi?: boolean;
   @ApiPropertyOptional({ example: false })
   @IsOptional()
+  @Transform(toBoolean)
   @IsBoolean()
   grill?: boolean;
   @ApiPropertyOptional({ example: false })
   @IsOptional()
+  @Transform(toBoolean)
   @IsBoolean()
   private_gym?: boolean;
   @ApiPropertyOptional({ example: true })
   @IsOptional()
+  @Transform(toBoolean)
   @IsBoolean()
   beach_access?: boolean;
   @ApiPropertyOptional({ example: true })
   @IsOptional()
+  @Transform(toBoolean)
   @IsBoolean()
   smoke_detector?: boolean;
   @ApiPropertyOptional({ example: true })
   @IsOptional()
+  @Transform(toBoolean)
   @IsBoolean()
   fire_extinguisher?: boolean;
   @ApiPropertyOptional({ example: true })
   @IsOptional()
+  @Transform(toBoolean)
   @IsBoolean()
   first_aid_kit?: boolean;
   @ApiPropertyOptional({ example: false })
   @IsOptional()
+  @Transform(toBoolean)
   @IsBoolean()
   outdoor_camera?: boolean;
 
